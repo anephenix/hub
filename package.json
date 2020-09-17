@@ -1,0 +1,21 @@
+{
+  "name": "@anephenix/hub",
+  "version": "0.0.1",
+  "description": "A WebSocket server for Sarus",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "websocket",
+    "rpc",
+    "pubsub"
+  ],
+  "author": "Paul Jensen <paul@anephenix.com>",
+  "license": "MIT",
+  "dependencies": {
+    "bluebird": "^3.7.2",
+    "redis": "^3.0.2",
+    "ws": "^7.3.1"
+  }
+}
