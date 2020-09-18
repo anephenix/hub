@@ -2,10 +2,13 @@
 
 A Node.js WebSocket server with added features
 
+[![npm version](https://badge.fury.io/js/%40anephenix%2Fhub.svg)](https://badge.fury.io/js/%40anephenix%2Fhub) [![CircleCI](https://circleci.com/gh/anephenix/hub.svg?style=shield)](https://circleci.com/gh/anephenix/hub)
+[![Coverage Status](https://coveralls.io/repos/github/anephenix/hub/badge.svg?branch=master)](https://coveralls.io/github/anephenix/hub?branch=master) [![Maintainability](https://api.codeclimate.com/v1/badges/d8b19a24baca1d1b42f2/maintainability)](https://codeclimate.com/github/anephenix/hub/maintainability)
+
 ### Dependencies
 
-- Node.js
-- Redis
+-   Node.js
+-   Redis
 
 ### Install
 
@@ -15,14 +18,14 @@ npm i @anephenix/hub
 
 ### Features
 
-- Remote Procedure Calls (RPC)
-- Publish/Subscribe (PubSub)
-- Enhanced Security options
-    - Websocket Secure protocol support
-    - Client input scanning
-    - Client origin filtering
-    - Client IP Address filtering
-    - Kick clients and ban them if required
+-   Remote Procedure Calls (RPC)
+-   Publish/Subscribe (PubSub)
+-   Enhanced Security options
+    -   Websocket Secure protocol support
+    -   Client input scanning
+    -   Client origin filtering
+    -   Client IP Address filtering
+    -   Kick clients and ban them if required
 
 ### Usage
 
@@ -34,7 +37,7 @@ const Hub = require('@anephenix/hub');
 const hub = new Hub({
     protocol: 'wss', // can be either ws or wss
     port: 8443, // The port to listen on
-    // If the protocol is WSS, you'll need to pass the key and certificate files for the certificate 
+    // If the protocol is WSS, you'll need to pass the key and certificate files for the certificate
     certs: {
         key: '/path/to/ssl-key', // SSL key
         cert: '/path/to/ssl-cert' // SSL cert
@@ -73,7 +76,7 @@ hub.on('connection', (ws) => {
         // We would want to do the following:
         // - check that the message input is valid and not a malicious payload
         // - check if the client has an allowed origin and ip address
-        // 
+        //
         // Once that is done, we can then do client id checking
     });
 
