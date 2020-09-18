@@ -1,3 +1,3 @@
-const Hub = require('/lib/index');
+const Hub = require('./lib/index');
 
 module.exports = Hub;
