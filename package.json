@@ -1,25 +1,37 @@
 {
-  "name": "@anephenix/hub",
-  "version": "0.0.1",
-  "description": "A WebSocket server for Sarus",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [
-    "websocket",
-    "rpc",
-    "pubsub"
-  ],
-  "author": "Paul Jensen <paul@anephenix.com>",
-  "license": "MIT",
-  "dependencies": {
-    "bluebird": "^3.7.2",
-    "redis": "^3.0.2",
-    "uuid": "^8.3.0",
-    "ws": "^7.3.1"
-  },
-  "devDependencies": {
-    "jest": "^26.4.2"
-  }
+	"name": "@anephenix/hub",
+	"version": "0.0.1",
+	"description": "A WebSocket server for Sarus",
+	"main": "index.js",
+	"scripts": {
+		"lint": "npx eslint .",
+		"cover": "jest --coverage --coverageReporters=text-lcov | coveralls",
+		"test": "jest --coverage"
+	},
+	"keywords": [
+		"websocket",
+		"rpc",
+		"pubsub"
+	],
+	"pre-commit": [
+		"lint",
+		"test"
+	],
+	"author": "Paul Jensen <paul@anephenix.com>",
+	"license": "MIT",
+	"dependencies": {
+		"bluebird": "^3.7.2",
+		"redis": "^3.0.2",
+		"uuid": "^8.3.0",
+		"ws": "^7.3.1"
+	},
+	"devDependencies": {
+		"coveralls": "^3.1.0",
+		"eslint": "^7.9.0",
+		"eslint-plugin-jest": "^24.0.1",
+		"jest": "^26.4.2",
+		"npm-upgrade": "^2.0.4",
+		"pre-commit": "^1.2.2",
+		"prettier": "^2.1.2"
+	}
 }
