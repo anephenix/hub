@@ -14,7 +14,7 @@ describe('Hub', () => {
 	});
 
 	describe('an instance of Hub', () => {
-		const hub = new Hub(4000);
+		const hub = new Hub({ port: 4000 });
 		it('should initialize a http server by default', () => {
 			assert(hub.server);
 		});
@@ -24,8 +24,6 @@ describe('Hub', () => {
 		it.todo(
 			'should attach event listener bindings to the websocket server'
 		);
-		// I should have a way to pass custom event listener functions to the WebSocket server
-		// And one of them should be called
 		describe('#listen', () => {
 			it.todo('should listen on the given port');
 		});
