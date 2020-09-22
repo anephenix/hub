@@ -25,7 +25,7 @@ describe('clientIdentification', () => {
 			it('should assign the client id to the websocket', () => {
 				const ws = {};
 				const data = { clientId: 'xx' };
-				processClientId(data, ws);
+				processClientId({ data, ws });
 				assert(ws.clientId === data.clientId);
 			});
 		});
@@ -44,7 +44,7 @@ describe('clientIdentification', () => {
 					},
 				};
 				const data = {};
-				processClientId(data, ws);
+				processClientId({ data, ws });
 				assert(ws.clientId);
 				assert.strictEqual(ws.clientId, clientId);
 			});
