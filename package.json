@@ -16,7 +16,8 @@
 	],
 	"pre-commit": [
 		"lint",
-		"test"
+		"test",
+		"cucumber"
 	],
 	"author": "Paul Jensen <paul@anephenix.com>",
 	"license": "MIT",
