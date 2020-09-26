@@ -29,6 +29,10 @@ const visitPage = async (pageUrl) => {
 	return visit;
 };
 
+const closePage = async () => {
+	await scope.context.currentPage.close();
+};
+
 const clientIdRequested = async () => {
 	const { currentPage } = scope.context;
 	const messages = await currentPage.evaluate(() => {
@@ -45,6 +49,14 @@ const clientRepliesWithNoClientId = async () => {
 	const parsedMessage = JSON.parse(message);
 	assert.strictEqual(parsedMessage.action, 'reply-client-id');
 	assert.strictEqual(parsedMessage.data.clientId, null);
+};
+
+const clientRepliesWithAClientId = async () => {
+	const message = scope.messages[scope.messages.length - 1];
+	const parsedMessage = JSON.parse(message);
+	assert.strictEqual(parsedMessage.action, 'reply-client-id');
+	assert(parsedMessage.data.clientId !== null);
+	assert.strictEqual(parsedMessage.data.clientId.length, 36);
 };
 
 const serverSetsClientIdOnConnection = async () => {
@@ -69,8 +81,10 @@ const serverSendsClientIdToClient = async () => {
 
 module.exports = {
 	visitPage,
+	closePage,
 	clientIdRequested,
 	clientRepliesWithNoClientId,
 	serverSetsClientIdOnConnection,
 	serverSendsClientIdToClient,
+	clientRepliesWithAClientId,
 };
