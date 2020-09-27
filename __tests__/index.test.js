@@ -1,5 +1,10 @@
 const assert = require('assert');
 const Hub = require('../index');
+const httpShutdown = require('http-shutdown');
+const WebSocket = require('ws');
+
+const delay = (duration) =>
+	new Promise((resolve) => setTimeout(resolve, duration));
 
 describe('Hub', () => {
 	Hub;
@@ -21,11 +26,40 @@ describe('Hub', () => {
 		it('should initialize a websocket server by default', () => {
 			assert(hub.wss);
 		});
-		it.todo(
-			'should attach event listener bindings to the websocket server'
-		);
-		describe('#listen', () => {
-			it.todo('should listen on the given port');
+		it('should attach event listener bindings to the websocket server', () => {
+			assert(hub.serverEventListeners.connection.length > 0);
+			assert(hub.serverEventListeners.listening.length === 0);
+			assert(hub.serverEventListeners.headers.length === 0);
+			assert(hub.serverEventListeners.error.length === 0);
+			assert(hub.serverEventListeners.close.length === 0);
+			assert(hub.connectionEventListeners.message.length > 0);
+			assert(hub.connectionEventListeners.error.length === 0);
+			assert(hub.connectionEventListeners.close.length === 0);
+			assert.strictEqual(hub.wss._eventsCount, 5);
 		});
+		describe('#listen', () => {
+			let runningServer = httpShutdown(hub.listen());
+
+			afterEach(() => {
+				runningServer.shutdown();
+			});
+
+			it('should listen on the given port, and return the server', async () => {
+				let connected = false;
+				await delay(1000);
+				const client = new WebSocket('ws://localhost:4000');
+				client.onopen = () => {
+					connected = true;
+				};
+				await delay(1000);
+				assert(client.readyState === 1);
+				assert(connected);
+				client.close();
+			});
+		});
+	});
+
+	describe('when a connection is established', () => {
+		it.todo('should attach the connection event listeners');
 	});
 });
