@@ -79,6 +79,7 @@ describe('Hub', () => {
 						data: { clientId: null },
 					})
 				);
+				await delay(25);
 				client.close();
 			});
 		});
