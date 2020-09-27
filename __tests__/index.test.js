@@ -40,7 +40,7 @@ describe('Hub', () => {
 		describe('#listen', () => {
 			let runningServer = httpShutdown(hub.listen());
 
-			afterEach(() => {
+			afterAll(() => {
 				runningServer.shutdown();
 			});
 
@@ -56,10 +56,31 @@ describe('Hub', () => {
 				assert(connected);
 				client.close();
 			});
-		});
-	});
 
-	describe('when a connection is established', () => {
-		it.todo('should attach the connection event listeners');
+			it('should attach the connection event listeners', async () => {
+				let connected = false;
+				const messages = [];
+				await delay(25);
+				const client = new WebSocket('ws://localhost:4000');
+				client.onopen = () => {
+					connected = true;
+				};
+				client.onmessage = (event) => {
+					messages.push(JSON.parse(event.data));
+				};
+				await delay(25);
+				assert(client.readyState === 1);
+				assert(connected);
+				const latestMessage = messages[messages.length - 1];
+				assert(latestMessage.action === 'request-client-id');
+				client.send(
+					JSON.stringify({
+						action: 'reply-client-id',
+						data: { clientId: null },
+					})
+				);
+				client.close();
+			});
+		});
 	});
 });
