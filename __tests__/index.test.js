@@ -46,12 +46,12 @@ describe('Hub', () => {
 
 			it('should listen on the given port, and return the server', async () => {
 				let connected = false;
-				await delay(1000);
+				await delay(25);
 				const client = new WebSocket('ws://localhost:4000');
 				client.onopen = () => {
 					connected = true;
 				};
-				await delay(1000);
+				await delay(25);
 				assert(client.readyState === 1);
 				assert(connected);
 				client.close();
