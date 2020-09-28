@@ -7,6 +7,11 @@ const {
 	clientRepliesWithAClientId,
 	serverSetsClientIdOnConnection,
 	serverSendsClientIdToClient,
+	clientSubscribesToChannel,
+	serverReceivesSubscriptionRequest,
+	getClientId,
+	serverSubscribesClientToChannel,
+	clientReceivesSubscribeSuccessReponse,
 } = require('../support/actions');
 
 Given('pending', () => 'pending');
@@ -44,3 +49,34 @@ When('the client replies with their client id', async () => {
 Then('the server should set that client id on the connection', async () => {
 	await serverSetsClientIdOnConnection();
 });
+
+Given('the client subscribes to the channel {string}', async (channel) => {
+	await clientSubscribesToChannel(channel);
+});
+
+Then(
+	'the server should receive a request to subscribe the client to the channel {string}',
+	async (channel) => {
+		await serverReceivesSubscriptionRequest(channel);
+	}
+);
+
+Then(
+	'the server should subscribe the client to the channel {string}',
+	async function (channel) {
+		const clientId = await getClientId();
+		return await serverSubscribesClientToChannel({ clientId, channel });
+	}
+);
+
+Then(
+	'the client should receive a reply indicating that they are now subscribed to the channel {string}',
+
+	async function (channel) {
+		const clientId = await getClientId();
+		return await clientReceivesSubscribeSuccessReponse({
+			clientId,
+			channel,
+		});
+	}
+);

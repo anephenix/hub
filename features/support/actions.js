@@ -1,6 +1,7 @@
 // Dependencies
 const assert = require('assert');
 const scope = require('./scope');
+const pubsub = require('../../lib/pubsub');
 
 let headless = false;
 let slowMo = 5;
@@ -79,6 +80,59 @@ const serverSendsClientIdToClient = async () => {
 	return assert(data.clientId.length === 36);
 };
 
+const clientSubscribesToChannel = async (channel) => {
+	const { currentPage } = scope.context;
+	// We need to make a request from the client to the server to subscribe to a channel
+	await currentPage.evaluate((channel) => {
+		const payload = {
+			action: 'subscribe',
+			data: {
+				channel,
+			},
+		};
+		// eslint-disable-next-line no-undef
+		sarus.send(JSON.stringify(payload));
+	}, channel);
+};
+
+const serverReceivesSubscriptionRequest = async (channel) => {
+	const message = scope.messages[scope.messages.length - 1];
+	const parsedMessage = JSON.parse(message);
+	assert.strictEqual(parsedMessage.action, 'subscribe');
+	assert.strictEqual(parsedMessage.data.channel, channel);
+};
+
+const getClientId = async () => {
+	const { currentPage } = scope.context;
+	// We need to make a request from the client to the server to subscribe to a channel
+	const clientId = await currentPage.evaluate(() => {
+		// eslint-disable-next-line no-undef
+		return localStorage.getItem('sarus-client-id');
+	});
+	return clientId;
+};
+
+// Checks that a client is subscribed to a channel
+const serverSubscribesClientToChannel = ({ clientId, channel }) => {
+	assert(pubsub.clients[clientId].indexOf(channel) !== -1);
+	assert(pubsub.channels[channel].indexOf(clientId) !== -1);
+};
+
+const clientReceivesSubscribeSuccessReponse = async ({ clientId, channel }) => {
+	const { currentPage } = scope.context;
+	const messages = await currentPage.evaluate(() => {
+		// eslint-disable-next-line no-undef
+		if (sarusMessages.length === 0) return false;
+		// eslint-disable-next-line no-undef
+		return sarusMessages;
+	});
+	const { success, message } = JSON.parse(messages[messages.length - 1]);
+	assert(success === true);
+	assert(
+		message === `Client "${clientId}" subscribed to channel "${channel}"`
+	);
+};
+
 module.exports = {
 	visitPage,
 	closePage,
@@ -87,4 +141,9 @@ module.exports = {
 	serverSetsClientIdOnConnection,
 	serverSendsClientIdToClient,
 	clientRepliesWithAClientId,
+	clientSubscribesToChannel,
+	serverReceivesSubscriptionRequest,
+	getClientId,
+	serverSubscribesClientToChannel,
+	clientReceivesSubscribeSuccessReponse,
 };

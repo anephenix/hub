@@ -5,9 +5,10 @@
 	"main": "index.js",
 	"scripts": {
 		"lint": "npx eslint .",
-		"cover": "jest --coverage --coverageReporters=text-lcov | coveralls",
-		"cucumber": "npx cucumber-js --no-strict",
-		"test": "jest --coverage"
+		"cover": "npx jest --coverage --coverageReporters=text-lcov | coveralls",
+		"cucumber": "NODE_ENV=test npx cucumber-js --no-strict",
+		"cucumber-wip": "NODE_ENV=test npx cucumber-js --no-strict -t @wip",
+		"test": "NODE_ENV=test npx jest --coverage"
 	},
 	"keywords": [
 		"websocket",
