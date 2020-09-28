@@ -11,6 +11,11 @@ describe('pubsub', () => {
 					clientId: 'xxxx',
 					send: (payload) => (sentPayload = JSON.parse(payload)),
 				};
+				const secondWs = {
+					clientId: 'wwww',
+					send: () => {},
+				};
+				const secondData = { channel: 'business' };
 				pubsub.subscribe({ data, ws });
 				assert(sentPayload.success);
 				assert.strictEqual(
@@ -19,6 +24,15 @@ describe('pubsub', () => {
 				);
 				assert.deepStrictEqual(pubsub.channels.sport, ['xxxx']);
 				assert.deepStrictEqual(pubsub.clients.xxxx, ['sport']);
+				pubsub.subscribe({ data, ws: secondWs });
+				pubsub.subscribe({ data: secondData, ws });
+				assert.deepStrictEqual(pubsub.channels.sport, ['xxxx', 'wwww']);
+				assert.deepStrictEqual(pubsub.clients.wwww, ['sport']);
+				assert.deepStrictEqual(pubsub.channels.business, ['xxxx']);
+				assert.deepStrictEqual(pubsub.clients.xxxx, [
+					'sport',
+					'business',
+				]);
 			});
 		});
 
