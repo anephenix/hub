@@ -1,6 +1,7 @@
 // Dependencies
 const assert = require('assert');
 const { parseMessage } = require('../../lib/messageParsing');
+const pubsub = require('../../lib/pubsub');
 
 describe('messageParsing', () => {
 	describe('#parseMessage', () => {
@@ -27,6 +28,27 @@ describe('messageParsing', () => {
 				assert(ws.clientId === 'abc');
 			});
 		});
+
+		describe('when it receives a subscribe request from the client', () => {
+			it('should parse the payload, and create a subscription to the channel for that client', () => {
+				let sentPayload = null;
+				const ws = {
+					clientId: 'vvvv',
+					send: (payload) => {
+						sentPayload = JSON.parse(payload);
+					},
+				};
+				const message = JSON.stringify({
+					action: 'subscribe',
+					data: { channel: 'comedy' },
+				});
+				parseMessage({ ws, message });
+				assert(sentPayload.success);
+				assert.deepStrictEqual(pubsub.channels.comedy, ['vvvv']);
+				assert.deepStrictEqual(pubsub.clients.vvvv, ['comedy']);
+			});
+		});
+
 		describe('when it receives a valid JSON payload, but an unsupported action', () => {
 			it('should parse the payload, but log that no action was taken', () => {
 				const ws = {};
