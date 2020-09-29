@@ -1,7 +1,6 @@
 // Dependencies
 const assert = require('assert');
 const scope = require('./scope');
-const pubsub = require('../../lib/pubsub');
 
 let headless = false;
 let slowMo = 5;
@@ -114,8 +113,8 @@ const getClientId = async () => {
 
 // Checks that a client is subscribed to a channel
 const serverSubscribesClientToChannel = ({ clientId, channel }) => {
-	assert(pubsub.clients[clientId].indexOf(channel) !== -1);
-	assert(pubsub.channels[channel].indexOf(clientId) !== -1);
+	assert(scope.hub.pubsub.clients[clientId].indexOf(channel) !== -1);
+	assert(scope.hub.pubsub.channels[channel].indexOf(clientId) !== -1);
 };
 
 const clientReceivesSubscribeSuccessReponse = async ({ clientId, channel }) => {
@@ -133,6 +132,39 @@ const clientReceivesSubscribeSuccessReponse = async ({ clientId, channel }) => {
 	);
 };
 
+const publishMessageToChannel = async ({ message, channel }) => {
+	const { currentPage } = scope.context;
+	await currentPage.evaluate(
+		(channel, message) => {
+			const payload = {
+				action: 'publish',
+				data: {
+					channel,
+					message,
+				},
+			};
+			// eslint-disable-next-line no-undef
+			sarus.send(JSON.stringify(payload));
+		},
+		channel,
+		message
+	);
+};
+
+const clientReceivesMessageForChannel = async ({ message, channel }) => {
+	const { currentPage } = scope.context;
+	const messages = await currentPage.evaluate(() => {
+		// eslint-disable-next-line no-undef
+		if (sarusMessages.length === 0) return false;
+		// eslint-disable-next-line no-undef
+		return sarusMessages;
+	});
+	const { action, data } = JSON.parse(messages[messages.length - 1]);
+	assert.strictEqual(action, 'message');
+	assert.strictEqual(data.channel, channel);
+	assert.strictEqual(data.message, message);
+};
+
 module.exports = {
 	visitPage,
 	closePage,
@@ -146,4 +178,6 @@ module.exports = {
 	getClientId,
 	serverSubscribesClientToChannel,
 	clientReceivesSubscribeSuccessReponse,
+	publishMessageToChannel,
+	clientReceivesMessageForChannel,
 };

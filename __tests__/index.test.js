@@ -7,8 +7,6 @@ const delay = (duration) =>
 	new Promise((resolve) => setTimeout(resolve, duration));
 
 describe('Hub', () => {
-	Hub;
-
 	it('should return a class function', () => {
 		assert.strictEqual(typeof Hub, 'function');
 		assert(Hub instanceof Object);

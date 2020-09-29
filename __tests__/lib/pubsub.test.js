@@ -1,9 +1,16 @@
 const assert = require('assert');
-const pubsub = require('../../lib/pubsub');
+const Hub = require('../../index');
 
 describe('pubsub', () => {
+	let hub;
+
+	beforeAll(() => {
+		hub = new Hub({ port: 5000 });
+	});
+
 	describe('#subscribe', () => {
 		describe('when passed a clientId and a channel', () => {
+			// NOTE - might have to do real WebSocket connections now
 			it('should add a client to a channel', () => {
 				let sentPayload = null;
 				const data = { channel: 'sport' };
@@ -16,20 +23,23 @@ describe('pubsub', () => {
 					send: () => {},
 				};
 				const secondData = { channel: 'business' };
-				pubsub.subscribe({ data, ws });
+				hub.pubsub.subscribe({ data, ws });
 				assert(sentPayload.success);
 				assert.strictEqual(
 					sentPayload.message,
 					'Client "xxxx" subscribed to channel "sport"'
 				);
-				assert.deepStrictEqual(pubsub.channels.sport, ['xxxx']);
-				assert.deepStrictEqual(pubsub.clients.xxxx, ['sport']);
-				pubsub.subscribe({ data, ws: secondWs });
-				pubsub.subscribe({ data: secondData, ws });
-				assert.deepStrictEqual(pubsub.channels.sport, ['xxxx', 'wwww']);
-				assert.deepStrictEqual(pubsub.clients.wwww, ['sport']);
-				assert.deepStrictEqual(pubsub.channels.business, ['xxxx']);
-				assert.deepStrictEqual(pubsub.clients.xxxx, [
+				assert.deepStrictEqual(hub.pubsub.channels.sport, ['xxxx']);
+				assert.deepStrictEqual(hub.pubsub.clients.xxxx, ['sport']);
+				hub.pubsub.subscribe({ data, ws: secondWs });
+				hub.pubsub.subscribe({ data: secondData, ws });
+				assert.deepStrictEqual(hub.pubsub.channels.sport, [
+					'xxxx',
+					'wwww',
+				]);
+				assert.deepStrictEqual(hub.pubsub.clients.wwww, ['sport']);
+				assert.deepStrictEqual(hub.pubsub.channels.business, ['xxxx']);
+				assert.deepStrictEqual(hub.pubsub.clients.xxxx, [
 					'sport',
 					'business',
 				]);
@@ -43,7 +53,7 @@ describe('pubsub', () => {
 				const ws = {
 					send: (payload) => (sentPayload = JSON.parse(payload)),
 				};
-				pubsub.subscribe({ data, ws });
+				hub.pubsub.subscribe({ data, ws });
 				assert.strictEqual(sentPayload.success, false);
 				assert.strictEqual(
 					sentPayload.message,
@@ -60,7 +70,7 @@ describe('pubsub', () => {
 					clientId: 'yyyy',
 					send: (payload) => (sentPayload = JSON.parse(payload)),
 				};
-				pubsub.subscribe({ data, ws });
+				hub.pubsub.subscribe({ data, ws });
 				assert.strictEqual(sentPayload.success, false);
 				assert.strictEqual(
 					sentPayload.message,
@@ -77,15 +87,19 @@ describe('pubsub', () => {
 					clientId: 'zzzz',
 					send: (payload) => (sentPayload = JSON.parse(payload)),
 				};
-				pubsub.subscribe({ data, ws });
-				pubsub.subscribe({ data, ws });
+				hub.pubsub.subscribe({ data, ws });
+				hub.pubsub.subscribe({ data, ws });
 				assert(sentPayload.success);
 				assert.strictEqual(
 					sentPayload.message,
 					'Client "zzzz" subscribed to channel "entertainment"'
 				);
-				assert.deepStrictEqual(pubsub.channels.entertainment, ['zzzz']);
-				assert.deepStrictEqual(pubsub.clients.zzzz, ['entertainment']);
+				assert.deepStrictEqual(hub.pubsub.channels.entertainment, [
+					'zzzz',
+				]);
+				assert.deepStrictEqual(hub.pubsub.clients.zzzz, [
+					'entertainment',
+				]);
 			});
 		});
 	});

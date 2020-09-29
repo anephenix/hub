@@ -12,6 +12,8 @@ const {
 	getClientId,
 	serverSubscribesClientToChannel,
 	clientReceivesSubscribeSuccessReponse,
+	publishMessageToChannel,
+	clientReceivesMessageForChannel,
 } = require('../support/actions');
 
 Given('pending', () => 'pending');
@@ -78,5 +80,19 @@ Then(
 			clientId,
 			channel,
 		});
+	}
+);
+
+When(
+	'the client publishes the message {string} to the channel {string}',
+	async function (message, channel) {
+		return await publishMessageToChannel({ message, channel });
+	}
+);
+
+Then(
+	'the client should receive the message {string} for the channel {string}',
+	async function (message, channel) {
+		return await clientReceivesMessageForChannel({ message, channel });
 	}
 );

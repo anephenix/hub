@@ -1,15 +1,21 @@
 // Dependencies
 const assert = require('assert');
 const { parseMessage } = require('../../lib/messageParsing');
-const pubsub = require('../../lib/pubsub');
+const Hub = require('../../index');
 
 describe('messageParsing', () => {
+	let hub;
+
+	beforeAll(() => {
+		hub = new Hub({ port: 6000 });
+	});
+
 	describe('#parseMessage', () => {
 		describe('when it does not receive a valid JSON payload', () => {
 			it('should return an error', () => {
 				const ws = {};
 				const message = '20fh02nd0n10i0i1ns0n10n010d-1d-1-d-1nd-1-dn'; // Not JSON
-				const response = parseMessage({ ws, message });
+				const response = parseMessage(hub.pubsub)({ ws, message });
 				assert.strictEqual(response.success, false);
 				assert.strictEqual(
 					response.message,
@@ -24,7 +30,7 @@ describe('messageParsing', () => {
 					action: 'reply-client-id',
 					data: { clientId: 'abc' },
 				});
-				parseMessage({ ws, message });
+				parseMessage(hub.pubsub)({ ws, message });
 				assert(ws.clientId === 'abc');
 			});
 		});
@@ -42,10 +48,10 @@ describe('messageParsing', () => {
 					action: 'subscribe',
 					data: { channel: 'comedy' },
 				});
-				parseMessage({ ws, message });
+				parseMessage(hub.pubsub)({ ws, message });
 				assert(sentPayload.success);
-				assert.deepStrictEqual(pubsub.channels.comedy, ['vvvv']);
-				assert.deepStrictEqual(pubsub.clients.vvvv, ['comedy']);
+				assert.deepStrictEqual(hub.pubsub.channels.comedy, ['vvvv']);
+				assert.deepStrictEqual(hub.pubsub.clients.vvvv, ['comedy']);
 			});
 		});
 
@@ -56,7 +62,7 @@ describe('messageParsing', () => {
 					action: 'some-unhandled-actions',
 					data: { clientId: 'abc' },
 				});
-				const response = parseMessage({ ws, message });
+				const response = parseMessage(hub.pubsub)({ ws, message });
 				assert.strictEqual(response.success, false);
 				assert.strictEqual(
 					response.message,
