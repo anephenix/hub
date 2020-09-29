@@ -103,4 +103,17 @@ describe('pubsub', () => {
 			});
 		});
 	});
+
+	describe('#publish', () => {
+		// For this, the ws client needs to be real, as they need to receive 2 messages (one for acknowledgement of publish, and another for the actual message)
+		it.todo(
+			'should allow the client to publish a message to all of the channel subscribers, including themselves'
+		);
+		it.todo(
+			'should allow the client to publish a message to all of the channel subscribers, excluding themselves'
+		);
+		it.todo(
+			'should allow the server to publish a message to all of the channel subscribers'
+		);
+	});
 });

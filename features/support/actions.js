@@ -132,22 +132,24 @@ const clientReceivesSubscribeSuccessReponse = async ({ clientId, channel }) => {
 	);
 };
 
-const publishMessageToChannel = async ({ message, channel }) => {
+const publishMessageToChannel = async ({ message, channel, excludeSender }) => {
 	const { currentPage } = scope.context;
 	await currentPage.evaluate(
-		(channel, message) => {
+		(channel, message, excludeSender) => {
 			const payload = {
 				action: 'publish',
 				data: {
 					channel,
 					message,
+					excludeSender,
 				},
 			};
 			// eslint-disable-next-line no-undef
 			sarus.send(JSON.stringify(payload));
 		},
 		channel,
-		message
+		message,
+		excludeSender
 	);
 };
 
@@ -165,6 +167,21 @@ const clientReceivesMessageForChannel = async ({ message, channel }) => {
 	assert.strictEqual(data.message, message);
 };
 
+const clientDoesNotReceiveMessageForChannel = async ({ message, channel }) => {
+	const { currentPage } = scope.context;
+	const messages = await currentPage.evaluate(() => {
+		// eslint-disable-next-line no-undef
+		if (sarusMessages.length === 0) return false;
+		// eslint-disable-next-line no-undef
+		return sarusMessages;
+	});
+	const { action, data } = JSON.parse(messages[messages.length - 1]);
+	if (!action && !data) return;
+	assert.notStrictEqual(action, 'message');
+	assert.notStrictEqual(data.channel, channel);
+	assert.notStrictEqual(data.message, message);
+};
+
 module.exports = {
 	visitPage,
 	closePage,
@@ -180,4 +197,5 @@ module.exports = {
 	clientReceivesSubscribeSuccessReponse,
 	publishMessageToChannel,
 	clientReceivesMessageForChannel,
+	clientDoesNotReceiveMessageForChannel,
 };

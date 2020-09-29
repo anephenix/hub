@@ -14,6 +14,7 @@ const {
 	clientReceivesSubscribeSuccessReponse,
 	publishMessageToChannel,
 	clientReceivesMessageForChannel,
+	clientDoesNotReceiveMessageForChannel,
 } = require('../support/actions');
 
 Given('pending', () => 'pending');
@@ -94,5 +95,26 @@ Then(
 	'the client should receive the message {string} for the channel {string}',
 	async function (message, channel) {
 		return await clientReceivesMessageForChannel({ message, channel });
+	}
+);
+
+When(
+	'the client publishes the message {string} to the channel {string} to all other subscribers',
+	async function (message, channel) {
+		return await publishMessageToChannel({
+			message,
+			channel,
+			excludeSender: true,
+		});
+	}
+);
+
+Then(
+	'the client should not receive the message {string} for the channel {string}',
+	async function (message, channel) {
+		return await clientDoesNotReceiveMessageForChannel({
+			message,
+			channel,
+		});
 	}
 );

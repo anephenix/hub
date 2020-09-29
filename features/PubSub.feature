@@ -13,15 +13,18 @@ Feature: PubSub
     Scenario: Receive messages for a subscribed channel
 	  Given pending
 
-    @wip
 	Scenario: Publish to a channel, including sender as recipient
       Given a new client opens a connection to the server
 	  And the client subscribes to the channel "news"
 	  When the client publishes the message "hello world" to the channel "news"
 	  Then the client should receive the message "hello world" for the channel "news"
 
+    @wip
 	Scenario: Publish to a channel, excluding sender as recipient
-	  Given pending
+      Given a new client opens a connection to the server
+	  And the client subscribes to the channel "news"
+	  When the client publishes the message "hello world" to the channel "news" to all other subscribers
+	  Then the client should not receive the message "hello world" for the channel "news"
 
 	Scenario: Unsubscribe from a channel
 	  Given pending
