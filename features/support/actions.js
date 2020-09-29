@@ -132,25 +132,36 @@ const clientReceivesSubscribeSuccessReponse = async ({ clientId, channel }) => {
 	);
 };
 
-const publishMessageToChannel = async ({ message, channel, excludeSender }) => {
-	const { currentPage } = scope.context;
-	await currentPage.evaluate(
-		(channel, message, excludeSender) => {
-			const payload = {
-				action: 'publish',
-				data: {
-					channel,
-					message,
-					excludeSender,
-				},
-			};
-			// eslint-disable-next-line no-undef
-			sarus.send(JSON.stringify(payload));
-		},
-		channel,
-		message,
-		excludeSender
-	);
+const publishMessageToChannel = async ({
+	message,
+	channel,
+	excludeSender,
+	server,
+}) => {
+	if (server) {
+		scope.hub.pubsub.publish({
+			data: { channel, message },
+		});
+	} else {
+		const { currentPage } = scope.context;
+		await currentPage.evaluate(
+			(channel, message, excludeSender) => {
+				const payload = {
+					action: 'publish',
+					data: {
+						channel,
+						message,
+						excludeSender,
+					},
+				};
+				// eslint-disable-next-line no-undef
+				sarus.send(JSON.stringify(payload));
+			},
+			channel,
+			message,
+			excludeSender
+		);
+	}
 };
 
 const clientReceivesMessageForChannel = async ({ message, channel }) => {

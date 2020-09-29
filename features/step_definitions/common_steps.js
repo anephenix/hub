@@ -118,3 +118,14 @@ Then(
 		});
 	}
 );
+
+When(
+	'the server publishes the message {string} to the channel {string}',
+	async function (message, channel) {
+		return await publishMessageToChannel({
+			message,
+			channel,
+			server: true,
+		});
+	}
+);
