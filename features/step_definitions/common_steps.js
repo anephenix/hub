@@ -9,12 +9,16 @@ const {
 	serverSendsClientIdToClient,
 	clientSubscribesToChannel,
 	serverReceivesSubscriptionRequest,
+	serverReceivesUnsubscriptionRequest,
 	getClientId,
 	serverSubscribesClientToChannel,
 	clientReceivesSubscribeSuccessReponse,
 	publishMessageToChannel,
 	clientReceivesMessageForChannel,
 	clientDoesNotReceiveMessageForChannel,
+	clientUnsubscribesFromChannel,
+	serverUnsubscribesClientFromChannel,
+	clientReceivesUnsubscribeSuccessReponse,
 } = require('../support/actions');
 
 Given('pending', () => 'pending');
@@ -126,6 +130,38 @@ When(
 			message,
 			channel,
 			server: true,
+		});
+	}
+);
+
+When('the client unsubscribes from the channel {string}', async function (
+	channel
+) {
+	await clientUnsubscribesFromChannel(channel);
+});
+
+Then(
+	'the server should receive a request to unsubscribe the client from the channel {string}',
+	async (channel) => {
+		await serverReceivesUnsubscriptionRequest(channel);
+	}
+);
+
+Then(
+	'the server should unsubscribe the client from the channel {string}',
+	async function (channel) {
+		const clientId = await getClientId();
+		return await serverUnsubscribesClientFromChannel({ clientId, channel });
+	}
+);
+
+Then(
+	'the client should receive a reply indicating that they are have unsubscribed from the channel {string}',
+	async function (channel) {
+		const clientId = await getClientId();
+		return await clientReceivesUnsubscribeSuccessReponse({
+			clientId,
+			channel,
 		});
 	}
 );

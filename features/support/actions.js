@@ -101,6 +101,13 @@ const serverReceivesSubscriptionRequest = async (channel) => {
 	assert.strictEqual(parsedMessage.data.channel, channel);
 };
 
+const serverReceivesUnsubscriptionRequest = async (channel) => {
+	const message = scope.messages[scope.messages.length - 1];
+	const parsedMessage = JSON.parse(message);
+	assert.strictEqual(parsedMessage.action, 'unsubscribe');
+	assert.strictEqual(parsedMessage.data.channel, channel);
+};
+
 const getClientId = async () => {
 	const { currentPage } = scope.context;
 	// We need to make a request from the client to the server to subscribe to a channel
@@ -115,6 +122,11 @@ const getClientId = async () => {
 const serverSubscribesClientToChannel = ({ clientId, channel }) => {
 	assert(scope.hub.pubsub.clients[clientId].indexOf(channel) !== -1);
 	assert(scope.hub.pubsub.channels[channel].indexOf(clientId) !== -1);
+};
+
+const serverUnsubscribesClientFromChannel = ({ clientId, channel }) => {
+	assert(scope.hub.pubsub.clients[clientId].indexOf(channel) === -1);
+	assert(scope.hub.pubsub.channels[channel].indexOf(clientId) === -1);
 };
 
 const clientReceivesSubscribeSuccessReponse = async ({ clientId, channel }) => {
@@ -193,6 +205,40 @@ const clientDoesNotReceiveMessageForChannel = async ({ message, channel }) => {
 	assert.notStrictEqual(data.message, message);
 };
 
+const clientUnsubscribesFromChannel = async (channel) => {
+	const { currentPage } = scope.context;
+	// We need to make a request from the client to the server to subscribe to a channel
+	await currentPage.evaluate((channel) => {
+		const payload = {
+			action: 'unsubscribe',
+			data: {
+				channel,
+			},
+		};
+		// eslint-disable-next-line no-undef
+		sarus.send(JSON.stringify(payload));
+	}, channel);
+};
+
+const clientReceivesUnsubscribeSuccessReponse = async ({
+	clientId,
+	channel,
+}) => {
+	const { currentPage } = scope.context;
+	const messages = await currentPage.evaluate(() => {
+		// eslint-disable-next-line no-undef
+		if (sarusMessages.length === 0) return false;
+		// eslint-disable-next-line no-undef
+		return sarusMessages;
+	});
+	const { success, message } = JSON.parse(messages[messages.length - 1]);
+	assert(success === true);
+	assert(
+		message ===
+			`Client "${clientId}" unsubscribed from channel "${channel}"`
+	);
+};
+
 module.exports = {
 	visitPage,
 	closePage,
@@ -203,10 +249,14 @@ module.exports = {
 	clientRepliesWithAClientId,
 	clientSubscribesToChannel,
 	serverReceivesSubscriptionRequest,
+	serverReceivesUnsubscriptionRequest,
 	getClientId,
 	serverSubscribesClientToChannel,
+	serverUnsubscribesClientFromChannel,
 	clientReceivesSubscribeSuccessReponse,
 	publishMessageToChannel,
 	clientReceivesMessageForChannel,
 	clientDoesNotReceiveMessageForChannel,
+	clientUnsubscribesFromChannel,
+	clientReceivesUnsubscribeSuccessReponse,
 };

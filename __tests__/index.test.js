@@ -2,9 +2,7 @@ const assert = require('assert');
 const Hub = require('../index');
 const httpShutdown = require('http-shutdown');
 const WebSocket = require('ws');
-
-const delay = (duration) =>
-	new Promise((resolve) => setTimeout(resolve, duration));
+const delay = require('../helpers/delay');
 
 describe('Hub', () => {
 	it('should return a class function', () => {
