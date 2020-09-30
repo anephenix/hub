@@ -213,9 +213,54 @@ describe('pubsub', () => {
 			assert.strictEqual(theNextLatestMessage.data, undefined);
 		});
 
-		it.todo(
-			'should allow the server to publish a message to all of the channel subscribers'
-		);
+		it('should allow the server to publish a message to all of the channel subscribers', async () => {
+			const messages = [];
+			const sarus = new Sarus.default({ url: 'ws://localhost:5000' });
+			enableHubSupport(sarus);
+			sarus.on('message', (event) => {
+				const message = JSON.parse(event.data);
+				messages.push(message);
+			});
+			await delay(100);
+			assert(sarus.ws.readyState === 1);
+
+			const subscribeRequest = {
+				action: 'subscribe',
+				data: {
+					channel: 'markets',
+				},
+			};
+			// Subscribe the client to the channel
+			sarus.send(JSON.stringify(subscribeRequest));
+			await delay(25);
+			// Acknowledge the channel subscription
+			// eslint-disable-next-line no-undef
+			const clientId = window.localStorage.getItem('sarus-client-id');
+			const latestMessage = messages[messages.length - 1];
+			if (!latestMessage) throw new Error('No messages intercepted');
+			assert.strictEqual(latestMessage.success, true);
+			assert.strictEqual(
+				latestMessage.message,
+				`Client "${clientId}" subscribed to channel "markets"`
+			);
+
+			// Get the server to publish a message to the channel
+			hub.pubsub.publish({
+				data: {
+					channel: 'markets',
+					message: 'FTSE: 5845 (-5)',
+				},
+			});
+			await delay(25);
+			// Check that the client receives the message
+			const theNextLatestMessage = messages[messages.length - 1];
+			assert.strictEqual(theNextLatestMessage.action, 'message');
+			assert.strictEqual(theNextLatestMessage.data.channel, 'markets');
+			assert.strictEqual(
+				theNextLatestMessage.data.message,
+				'FTSE: 5845 (-5)'
+			);
+		});
 	});
 
 	describe('#unsubscribe', () => {
