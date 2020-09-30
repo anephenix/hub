@@ -264,9 +264,66 @@ describe('pubsub', () => {
 	});
 
 	describe('#unsubscribe', () => {
-		it.todo('should remove a client from a channel');
-		it.todo(
-			'should ensure that the client no longer receives messages for that channel'
-		);
+		it('should remove a client from a channel, and ensure that the client no longer receives messages for that channel', async () => {
+			const messages = [];
+			const sarus = new Sarus.default({ url: 'ws://localhost:5000' });
+			enableHubSupport(sarus);
+			sarus.on('message', (event) => {
+				const message = JSON.parse(event.data);
+				messages.push(message);
+			});
+			await delay(100);
+			assert(sarus.ws.readyState === 1);
+
+			const subscribeRequest = {
+				action: 'subscribe',
+				data: {
+					channel: 'markets',
+				},
+			};
+			// Subscribe the client to the channel
+			sarus.send(JSON.stringify(subscribeRequest));
+			await delay(25);
+			// Acknowledge the channel subscription
+			// eslint-disable-next-line no-undef
+			const clientId = window.localStorage.getItem('sarus-client-id');
+			const latestMessage = messages[messages.length - 1];
+			if (!latestMessage) throw new Error('No messages intercepted');
+			assert.strictEqual(latestMessage.success, true);
+			assert.strictEqual(
+				latestMessage.message,
+				`Client "${clientId}" subscribed to channel "markets"`
+			);
+
+			await delay(25);
+			const unsubscribeRequest = {
+				action: 'unsubscribe',
+				data: {
+					channel: 'markets',
+				},
+			};
+			// Subscribe the client to the channel
+			sarus.send(JSON.stringify(unsubscribeRequest));
+			await delay(25);
+			const theNextLatestMessage = messages[messages.length - 1];
+			assert.strictEqual(theNextLatestMessage.success, true);
+			assert.strictEqual(
+				theNextLatestMessage.message,
+				`Client "${clientId}" unsubscribed from channel "markets"`
+			);
+			// Get the server to publish a message to the channel
+			hub.pubsub.publish({
+				data: {
+					channel: 'markets',
+					message: 'FTSE: 5845 (-5)',
+				},
+			});
+			await delay(25);
+
+			// Check that the client does not receive the message
+			const theFinalLatestMessage = messages[messages.length - 1];
+			assert.notStrictEqual(theFinalLatestMessage.action, 'message');
+			assert.strictEqual(theFinalLatestMessage.data, undefined);
+		});
 	});
 });
