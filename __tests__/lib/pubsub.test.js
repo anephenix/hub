@@ -1,16 +1,25 @@
 const assert = require('assert');
+const httpShutdown = require('http-shutdown');
 const Hub = require('../../index');
+const Sarus = require('@anephenix/sarus');
+const enableHubSupport = require('../../features/support/client/hub-client');
+const delay = require('../../helpers/delay');
 
 describe('pubsub', () => {
 	let hub;
+	let server;
 
-	beforeAll(() => {
+	beforeAll(async () => {
 		hub = new Hub({ port: 5000 });
+		server = await httpShutdown(hub.server.listen(5000));
+	});
+
+	afterAll(async () => {
+		await server.shutdown();
 	});
 
 	describe('#subscribe', () => {
 		describe('when passed a clientId and a channel', () => {
-			// NOTE - might have to do real WebSocket connections now
 			it('should add a client to a channel', () => {
 				let sentPayload = null;
 				const data = { channel: 'sport' };
@@ -105,15 +114,69 @@ describe('pubsub', () => {
 	});
 
 	describe('#publish', () => {
-		// For this, the ws client needs to be real, as they need to receive 2 messages (one for acknowledgement of publish, and another for the actual message)
-		it.todo(
-			'should allow the client to publish a message to all of the channel subscribers, including themselves'
-		);
+		it('should allow the client to publish a message to all of the channel subscribers, including themselves', async () => {
+			const messages = [];
+			const sarus = new Sarus.default({ url: 'ws://localhost:5000' });
+			enableHubSupport(sarus);
+			sarus.on('message', (event) => {
+				const message = JSON.parse(event.data);
+				messages.push(message);
+			});
+			await delay(100);
+			assert(sarus.ws.readyState === 1);
+
+			const subscribeRequest = {
+				action: 'subscribe',
+				data: {
+					channel: 'politics',
+				},
+			};
+			// Subscribe the client to the channel
+			sarus.send(JSON.stringify(subscribeRequest));
+			await delay(25);
+			// Acknowledge the channel subscription
+			// eslint-disable-next-line no-undef
+			const clientId = window.localStorage.getItem('sarus-client-id');
+			const latestMessage = messages[messages.length - 1];
+			if (!latestMessage) throw new Error('No messages intercepted');
+			assert.strictEqual(latestMessage.success, true);
+			assert.strictEqual(
+				latestMessage.message,
+				`Client "${clientId}" subscribed to channel "politics"`
+			);
+
+			// Get the client to publish a message to the channel
+			const publishMessage = {
+				action: 'publish',
+				data: {
+					channel: 'politics',
+					message: 'Elections held',
+				},
+			};
+			sarus.send(JSON.stringify(publishMessage));
+			await delay(25);
+			// Check that the client receives the message
+			const theNextLatestMessage = messages[messages.length - 1];
+			assert.strictEqual(theNextLatestMessage.action, 'message');
+			assert.strictEqual(theNextLatestMessage.data.channel, 'politics');
+			assert.strictEqual(
+				theNextLatestMessage.data.message,
+				'Elections held'
+			);
+		});
+
 		it.todo(
 			'should allow the client to publish a message to all of the channel subscribers, excluding themselves'
 		);
 		it.todo(
 			'should allow the server to publish a message to all of the channel subscribers'
+		);
+	});
+
+	describe('#unsubscribe', () => {
+		it.todo('should remove a client from a channel');
+		it.todo(
+			'should ensure that the client no longer receives messages for that channel'
 		);
 	});
 });
