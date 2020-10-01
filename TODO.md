@@ -2,6 +2,7 @@
 
 Get these features in place:
 
+-   Remote Procedure Calls (RPC)
 -   Enhanced Security options
 
     -   Websocket Secure protocol support

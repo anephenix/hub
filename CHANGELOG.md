@@ -1,5 +1,5 @@
 # CHANGELOG
 
-### 0.0.1 - DAY DATE MONTH, YEAR
+### 0.0.1 - Thursday 1st October, 2020
 
--   Item to note in changelog
+-   Support for PubSub (in-memory)

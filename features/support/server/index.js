@@ -4,9 +4,7 @@ const Hub = require('../../../index');
 
 // Initialise an instance of Hub
 const hub = new Hub({
-	protocol: 'ws', // can be either ws or wss
 	port: 3001, // The port to listen on
-	allowedOrigins: ['http://localhost:3000'],
 });
 
 const messages = [];

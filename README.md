@@ -18,7 +18,8 @@ npm i @anephenix/hub
 ### Features
 
 -   Publish/Subscribe (PubSub)
--   Remote Procedure Calls (RPC)
+
+More upcoming features are listed in the TODO.md file.
 
 ### Running tests
 

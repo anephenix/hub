@@ -123,7 +123,7 @@ describe('pubsub', () => {
 				const message = JSON.parse(event.data);
 				messages.push(message);
 			});
-			await delay(100);
+			await delay(150);
 			assert(sarus.ws.readyState === 1);
 
 			const subscribeRequest = {
