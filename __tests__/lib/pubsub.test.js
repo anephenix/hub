@@ -386,6 +386,41 @@ describe('pubsub', () => {
 					'No message was passed in the data'
 				);
 			});
+
+			it('should note that the publish request was received, but that there are no subscribers for that channel', async () => {
+				const messages = [];
+				const sarus = new Sarus.default({ url: 'ws://localhost:5000' });
+				enableHubSupport(sarus);
+				sarus.on('message', (event) => {
+					const message = JSON.parse(event.data);
+					messages.push(message);
+				});
+				await delay(100);
+				assert(sarus.ws.readyState === 1);
+				await delay(25);
+				// Acknowledge the channel subscription
+				// eslint-disable-next-line no-undef
+				const latestMessage = messages[messages.length - 1];
+				if (!latestMessage) throw new Error('No messages intercepted');
+
+				// Get the client to publish a message to the channel
+				const publishMessage = {
+					action: 'publish',
+					data: {
+						channel: 'dashboard_y',
+						message: 'Some data',
+					},
+				};
+				sarus.send(JSON.stringify(publishMessage));
+				await delay(25);
+				// Check that the client receives the message
+				const theNextLatestMessage = messages[messages.length - 1];
+				assert.strictEqual(theNextLatestMessage.success, false);
+				assert.strictEqual(
+					theNextLatestMessage.message,
+					'There are currently no subscribers to that channel'
+				);
+			});
 		});
 
 		describe('when publishing from a server', () => {
@@ -412,6 +447,22 @@ describe('pubsub', () => {
 					response.message,
 					'No message was passed in the data'
 				);
+			});
+
+			describe('publishing to a channel that has no subscribers', () => {
+				it('should note that the publish request was received, but that there are no subscribers for that channel', async () => {
+					const response = hub.pubsub.publish({
+						data: {
+							channel: 'dashboard_x',
+							message: 'FTSE: 5845 (-5)',
+						},
+					});
+					assert.strictEqual(response.success, false);
+					assert.strictEqual(
+						response.message,
+						'There are currently no subscribers to that channel'
+					);
+				});
 			});
 		});
 	});
