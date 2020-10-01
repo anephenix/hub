@@ -37,7 +37,8 @@ const handleMessage = (sarus) => {
 				}
 			}
 		} catch (err) {
-			// TODO - perform some form of error handling
+			console.error(err);
+			return err;
 		}
 	};
 };
