@@ -5,8 +5,8 @@ global.WebSocket = WebSocket;
 const gradient = require('gradient-string');
 const messages = [];
 
-const clientIdKey = 'sarus-client-id';
-const storageType = 'localStorage';
+// const clientIdKey = 'sarus-client-id';
+// const storageType = 'localStorage';
 
 const Sarus = require('@anephenix/sarus');
 const { enableHubSupport, RPC } = require('./hub-cli-client');
@@ -22,38 +22,39 @@ const logMessage = (event) => {
 	console.log(gradient.pastel(JSON.stringify(message)));
 };
 
-// How would we queue this response to the
-// id, type, data, action, sarus
-// id is only useful for stitching together a request with its response
-rpc.add('get-prices', ({ type, data }) => {
-	if (type === 'response') {
-		console.log({ stock: data.stock });
-	} else if (type === 'error') {
-		console.error(data);
-	}
-});
-
 // We would need to tweak the clientIdentification to handle this
 // plus get it to generate an rpc id
-rpc.add('get-client-id', ({ id, type, action, sarus }) => {
-	if (type === 'request') {
-		const clientId = global[storageType].getItem(clientIdKey);
-		const payload = {
-			id,
-			action,
-			type: 'response',
-			data: { clientId },
-		};
-		sarus.send(JSON.stringify(payload));
-	}
-});
+// rpc.add('get-client-id', ({ id, type, action, sarus }) => {
+// 	if (type === 'request') {
+// 		const clientId = global[storageType].getItem(clientIdKey);
+// 		const payload = {
+// 			id,
+// 			action,
+// 			type: 'response',
+// 			data: { clientId },
+// 		};
+// 		sarus.send(JSON.stringify(payload));
+// 	}
+// });
 
 sarus.on('message', logMessage);
-sarus.on('message', rpc.call);
+sarus.on('message', rpc.receive);
 
+const makeRequest = async () => {
+	try {
+		const request = {
+			action: 'get-prices',
+			data: { stock: 'amzn' },
+		};
+		const { stock } = await rpc.send(request);
+		console.log({ stock });
+	} catch (err) {
+		console.error(err);
+	}
+};
+
+replInstance.context.makeRequest = makeRequest;
 replInstance.context.sarus = sarus;
 replInstance.context.messages = messages;
 replInstance.context.rpc = rpc;
 replInstance.context.exit = process.exit;
-
-rpc.send({ action: 'get-prices', data: { stock: 'amzn' } });

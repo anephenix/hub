@@ -54,9 +54,11 @@ const enableHubSupport = (sarus) => {
 
 class RPC {
 	constructor({ sarus }) {
+		this.requests = [];
+		this.responses = [];
 		this.actions = {};
 		this.sarus = sarus;
-		this.call = this.call.bind(this);
+		this.receive = this.receive.bind(this);
 	}
 
 	add(action, func) {
@@ -93,10 +95,16 @@ class RPC {
 	}
 
 	// This needs to be different in terms of params
-	call(message) {
-		const { sarus } = this;
+	receive(message) {
+		const { sarus, requests, responses } = this;
+		const acceptedResponseActions = requests.map((r) => r.action);
 		try {
 			const payload = JSON.parse(message.data);
+			// NOTE - it would be good to have a way to omit the message
+			// from the responses queue if it does not have a registered action
+			if (acceptedResponseActions.indexOf(payload.action) !== -1) {
+				responses.push(payload);
+			}
 			const { id, action, type, data } = payload;
 			const existingFunctions = this.actions[action];
 			if (action && type) {
@@ -122,7 +130,22 @@ class RPC {
 		}
 	}
 
+	removeItemFromQueue(item, queue) {
+		const itemIndex = queue.indexOf(item);
+		if (itemIndex !== -1) {
+			queue.splice(itemIndex, 1);
+		}
+	}
+
+	cleanupRPCCall(response) {
+		const { requests, responses } = this;
+		const request = requests.find((r) => r.id === response.id);
+		this.removeItemFromQueue(response, responses);
+		this.removeItemFromQueue(request, requests);
+	}
+
 	send({ action, data }) {
+		const { responses } = this;
 		const id = uuidv4();
 		const type = 'request';
 		const payload = {
@@ -131,7 +154,27 @@ class RPC {
 			type,
 			data,
 		};
+		this.requests.push(payload);
 		this.sarus.send(JSON.stringify(payload));
+		let interval;
+		return new Promise((resolve, reject) => {
+			interval = setInterval(() => {
+				const response = responses.find(
+					(r) => r.id === id && r.action === action
+				);
+				if (response) {
+					clearInterval(interval);
+					if (response.type === 'response') {
+						// NOTE - might need to send the whole message
+						resolve(response.data);
+					} else if (response.type === 'error') {
+						// NOTE - might need to send the whole message
+						reject(response.error);
+					}
+					this.cleanupRPCCall(response);
+				}
+			});
+		});
 	}
 }
 
