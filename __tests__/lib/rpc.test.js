@@ -97,7 +97,7 @@ describe('rpc', () => {
 					},
 				};
 
-				rpc.call({ message: requestPayload, ws });
+				rpc.receive({ message: requestPayload, ws });
 
 				assert.deepStrictEqual(responsePayload, {
 					id,
@@ -130,13 +130,13 @@ describe('rpc', () => {
 					},
 				};
 
-				rpc.call({ message: requestPayload, ws });
+				rpc.receive({ message: requestPayload, ws });
 				assert.deepStrictEqual(JSON.parse(responsePayload), {
 					id,
 					action: 'find',
 					type: 'error',
 					data: {
-						error: 'No action found',
+						error: 'No server action found',
 					},
 				});
 			});

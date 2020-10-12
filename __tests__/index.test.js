@@ -1,8 +1,8 @@
 const assert = require('assert');
-const Hub = require('../index');
+const { Hub } = require('../index');
 const httpShutdown = require('http-shutdown');
 const WebSocket = require('ws');
-const delay = require('../helpers/delay');
+const { delayUntil } = require('../helpers/delay');
 
 describe('Hub', () => {
 	it('should return a class function', () => {
@@ -42,13 +42,11 @@ describe('Hub', () => {
 
 			it('should listen on the given port, and return the server', async () => {
 				let connected = false;
-				await delay(25);
 				const client = new WebSocket('ws://localhost:4000');
 				client.onopen = () => {
 					connected = true;
 				};
-				await delay(25);
-				assert(client.readyState === 1);
+				await delayUntil(() => client.readyState === 1);
 				assert(connected);
 				client.close();
 			});
@@ -56,7 +54,6 @@ describe('Hub', () => {
 			it('should attach the connection event listeners', async () => {
 				let connected = false;
 				const messages = [];
-				await delay(25);
 				const client = new WebSocket('ws://localhost:4000');
 				client.onopen = () => {
 					connected = true;
@@ -64,18 +61,16 @@ describe('Hub', () => {
 				client.onmessage = (event) => {
 					messages.push(JSON.parse(event.data));
 				};
-				await delay(25);
-				assert(client.readyState === 1);
+				await delayUntil(() => client.readyState === 1);
 				assert(connected);
 				const latestMessage = messages[messages.length - 1];
-				assert(latestMessage.action === 'request-client-id');
+				assert(latestMessage.action === 'get-client-id');
 				client.send(
 					JSON.stringify({
-						action: 'reply-client-id',
+						action: 'get-client-id',
 						data: { clientId: null },
 					})
 				);
-				await delay(25);
 				client.close();
 			});
 		});

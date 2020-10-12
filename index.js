@@ -1,3 +1,3 @@
 const Hub = require('./lib/index');
-
-module.exports = Hub;
+const HubClient = require('./lib/client');
+module.exports = { Hub, HubClient };

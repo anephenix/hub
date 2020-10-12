@@ -1,10 +1,10 @@
 // // This is the client-side code that is loaded for the web site
-const Sarus = require('@anephenix/sarus');
-const enableHubSupport = require('./hub-client');
+require('regenerator-runtime/runtime');
 
 if (global.window) {
 	// These bits of code are used to debug
 	// what messages are sent to the server
+	const { HubClient } = require('../../../index');
 	// eslint-disable-next-line no-undef
 	window.sarusMessages = [];
 	const storeMessage = (message) => {
@@ -12,17 +12,15 @@ if (global.window) {
 		window.sarusMessages.push(message.data);
 	};
 
-	const sarus = new Sarus.default({
+	const sarusConfig = {
 		// The url that the site is served at is localhost:3000
 		// The url that the test WebSocket server runs at is localhost:3001
 		url: 'ws://localhost:3001',
 		retryConnectionDelay: true,
-	});
-
-	sarus.on('message', storeMessage);
-
-	enableHubSupport(sarus);
+	};
+	const hubClient = new HubClient({ sarusConfig });
+	hubClient.sarus.on('message', storeMessage);
 
 	// eslint-disable-next-line no-undef
-	window.sarus = sarus;
+	window.hubClient = hubClient;
 }

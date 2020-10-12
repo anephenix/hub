@@ -1,5 +1,7 @@
 // Dependencies
 const assert = require('assert');
+const { delayUntil } = require('../../helpers/delay');
+const { HubClient } = require('../../index');
 const scope = require('./scope');
 
 let headless = false;
@@ -37,24 +39,31 @@ const clientIdRequested = async () => {
 	const { currentPage } = scope.context;
 	const messages = await currentPage.evaluate(() => {
 		// eslint-disable-next-line no-undef
-		if (sarusMessages.length === 0) return false;
+		if (globalThis.sarusMessages.length === 0) return false;
 		// eslint-disable-next-line no-undef
-		return sarusMessages;
+		return globalThis.sarusMessages;
 	});
-	assert(JSON.parse(messages[0]).action === 'request-client-id');
+	assert(JSON.parse(messages[0]).action === 'get-client-id');
+	assert(JSON.parse(messages[0]).type === 'request');
 };
 
 const clientRepliesWithNoClientId = async () => {
-	const message = scope.messages[scope.messages.length - 1];
+	// Has to be 2 message back to pickup the get-client-id response,
+	// as we also respond to setting a id
+	const message = scope.messages[scope.messages.length - 2];
 	const parsedMessage = JSON.parse(message);
-	assert.strictEqual(parsedMessage.action, 'reply-client-id');
+	assert.strictEqual(parsedMessage.action, 'get-client-id');
+	assert.strictEqual(parsedMessage.type, 'response');
 	assert.strictEqual(parsedMessage.data.clientId, null);
 };
 
 const clientRepliesWithAClientId = async () => {
-	const message = scope.messages[scope.messages.length - 1];
+	// Has to be 2 message back to pickup the get-client-id response,
+	// as we also respond to setting a id
+	const message = scope.messages[scope.messages.length - 2];
 	const parsedMessage = JSON.parse(message);
-	assert.strictEqual(parsedMessage.action, 'reply-client-id');
+	assert.strictEqual(parsedMessage.action, 'get-client-id');
+	assert.strictEqual(parsedMessage.type, 'response');
 	assert(parsedMessage.data.clientId !== null);
 	assert.strictEqual(parsedMessage.data.clientId.length, 36);
 };
@@ -73,8 +82,9 @@ const serverSendsClientIdToClient = async () => {
 		// eslint-disable-next-line no-undef
 		return sarusMessages;
 	});
-	const { action, data } = JSON.parse(messages[messages.length - 1]);
+	const { action, type, data } = JSON.parse(messages[messages.length - 1]);
 	assert(action === 'set-client-id');
+	assert(type === 'request');
 	assert(data.clientId !== undefined);
 	return assert(data.clientId.length === 36);
 };
@@ -82,15 +92,9 @@ const serverSendsClientIdToClient = async () => {
 const clientSubscribesToChannel = async (channel) => {
 	const { currentPage } = scope.context;
 	// We need to make a request from the client to the server to subscribe to a channel
-	await currentPage.evaluate((channel) => {
-		const payload = {
-			action: 'subscribe',
-			data: {
-				channel,
-			},
-		};
+	await currentPage.evaluate(async (channel) => {
 		// eslint-disable-next-line no-undef
-		sarus.send(JSON.stringify(payload));
+		await hubClient.subscribe(channel);
 	}, channel);
 };
 
@@ -137,10 +141,10 @@ const clientReceivesSubscribeSuccessReponse = async ({ clientId, channel }) => {
 		// eslint-disable-next-line no-undef
 		return sarusMessages;
 	});
-	const { success, message } = JSON.parse(messages[messages.length - 1]);
-	assert(success === true);
+	const { data } = JSON.parse(messages[messages.length - 1]);
+	assert(data.success === true);
 	assert(
-		message === `Client "${clientId}" subscribed to channel "${channel}"`
+		data.message === `Client "${clientId}" subscribed to channel "${channel}"`
 	);
 };
 
@@ -156,18 +160,11 @@ const publishMessageToChannel = async ({
 		});
 	} else {
 		const { currentPage } = scope.context;
+		scope.clientPublishedMessage = true;
 		await currentPage.evaluate(
-			(channel, message, excludeSender) => {
-				const payload = {
-					action: 'publish',
-					data: {
-						channel,
-						message,
-						excludeSender,
-					},
-				};
+			async (channel, message, excludeSender) => {
 				// eslint-disable-next-line no-undef
-				sarus.send(JSON.stringify(payload));
+				await hubClient.publish(channel, message, excludeSender);
 			},
 			channel,
 			message,
@@ -184,7 +181,9 @@ const clientReceivesMessageForChannel = async ({ message, channel }) => {
 		// eslint-disable-next-line no-undef
 		return sarusMessages;
 	});
-	const { action, data } = JSON.parse(messages[messages.length - 1]);
+	// Has to be 2 back if the client publishes the message themselves, or 1 if someone else (i.e. the server)
+	const amount = scope.clientPublishedMessage ? 2 : 1;
+	const { action, data } = JSON.parse(messages[messages.length - amount]);
 	assert.strictEqual(action, 'message');
 	assert.strictEqual(data.channel, channel);
 	assert.strictEqual(data.message, message);
@@ -208,15 +207,9 @@ const clientDoesNotReceiveMessageForChannel = async ({ message, channel }) => {
 const clientUnsubscribesFromChannel = async (channel) => {
 	const { currentPage } = scope.context;
 	// We need to make a request from the client to the server to subscribe to a channel
-	await currentPage.evaluate((channel) => {
-		const payload = {
-			action: 'unsubscribe',
-			data: {
-				channel,
-			},
-		};
+	await currentPage.evaluate(async (channel) => {
 		// eslint-disable-next-line no-undef
-		sarus.send(JSON.stringify(payload));
+		await hubClient.unsubscribe(channel);
 	}, channel);
 };
 
@@ -231,12 +224,31 @@ const clientReceivesUnsubscribeSuccessReponse = async ({
 		// eslint-disable-next-line no-undef
 		return sarusMessages;
 	});
-	const { success, message } = JSON.parse(messages[messages.length - 1]);
-	assert(success === true);
+	const { data } = JSON.parse(messages[messages.length - 1]);
+	assert(data.success === true);
 	assert(
-		message ===
+		data.message ===
 			`Client "${clientId}" unsubscribed from channel "${channel}"`
 	);
+};
+
+const otherClientSubscribesToChannel = async (channel) => {
+	const sarusConfig = { url: 'ws://localhost:3001', retryConnectionDelay: true };
+	scope.otherClient = new HubClient({ sarusConfig });
+	scope.otherClientMessages = [];
+	scope.otherClient.sarus.on('message', message => scope.otherClientMessages.push(message.data));
+	await delayUntil(() => {
+		return scope.otherClient.sarus.ws.readyState === 1;
+	}, 5000);
+	await delayUntil(() => { return global.localStorage.getItem('sarus-client-id') !== undefined; }, 5000);
+	await scope.otherClient.subscribe(channel);
+};
+
+const otherClientReceivesMessageForChannel = async (message, channel) => {
+	const lastMessage = scope.otherClientMessages[scope.otherClientMessages.length - 1];
+	const parsedLastMessage = JSON.parse(lastMessage);
+	assert.strictEqual(parsedLastMessage.data.message, message);
+	assert.strictEqual(parsedLastMessage.data.channel, channel);
 };
 
 module.exports = {
@@ -259,4 +271,6 @@ module.exports = {
 	clientDoesNotReceiveMessageForChannel,
 	clientUnsubscribesFromChannel,
 	clientReceivesUnsubscribeSuccessReponse,
+	otherClientSubscribesToChannel,
+	otherClientReceivesMessageForChannel,
 };

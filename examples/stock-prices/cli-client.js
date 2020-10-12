@@ -1,60 +1,39 @@
 // Dependencies
 const repl = require('repl');
-const WebSocket = require('ws');
-global.WebSocket = WebSocket;
-const gradient = require('gradient-string');
-const messages = [];
 
-// const clientIdKey = 'sarus-client-id';
-// const storageType = 'localStorage';
+// Shims to make this work on Node.js rather than the web browser
+// It would be great to have this automatically loaded into HubClient and auto-deect
 
-const Sarus = require('@anephenix/sarus');
-const { enableHubSupport, RPC } = require('./hub-cli-client');
+// Other dependencies
+const HubClient = require('../../lib/client');
+const { enableMessageLogger } = require('./messageLogger');
+
+// Starts the repl
 const replInstance = repl.start('> ');
+const sarusConfig = { url: 'ws://localhost:5000' };
+const hubClient = new HubClient({ sarusConfig });
 
-const sarus = new Sarus.default({ url: 'ws://localhost:5000' });
-enableHubSupport(sarus);
-const rpc = new RPC({ sarus });
+// // This enables message logging
+enableMessageLogger(hubClient.sarus);
 
-const logMessage = (event) => {
-	const message = JSON.parse(event.data);
-	messages.push(message);
-	console.log(gradient.pastel(JSON.stringify(message)));
-};
-
-// We would need to tweak the clientIdentification to handle this
-// plus get it to generate an rpc id
-// rpc.add('get-client-id', ({ id, type, action, sarus }) => {
-// 	if (type === 'request') {
-// 		const clientId = global[storageType].getItem(clientIdKey);
-// 		const payload = {
-// 			id,
-// 			action,
-// 			type: 'response',
-// 			data: { clientId },
-// 		};
-// 		sarus.send(JSON.stringify(payload));
-// 	}
-// });
-
-sarus.on('message', logMessage);
-sarus.on('message', rpc.receive);
-
+// Tests an RPC call
 const makeRequest = async () => {
 	try {
 		const request = {
 			action: 'get-prices',
 			data: { stock: 'amzn' },
 		};
-		const { stock } = await rpc.send(request);
+		const { stock } = await hubClient.rpc.send(request);
 		console.log({ stock });
 	} catch (err) {
 		console.error(err);
 	}
 };
 
+// Allows us to inspect some variables and call functions via the REPL
 replInstance.context.makeRequest = makeRequest;
-replInstance.context.sarus = sarus;
-replInstance.context.messages = messages;
-replInstance.context.rpc = rpc;
+replInstance.context.sarus = hubClient.sarus;
+replInstance.context.subscribe = hubClient.subscribe;
+replInstance.context.unsubscribe = hubClient.unsubscribe;
+replInstance.context.publish = hubClient.publish;
 replInstance.context.exit = process.exit;

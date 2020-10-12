@@ -1,6 +1,6 @@
 // Dependencies
 const httpShutdown = require('http-shutdown');
-const Hub = require('../../../index');
+const { Hub } = require('../../../index');
 
 // Initialise an instance of Hub
 const hub = new Hub({
@@ -18,9 +18,7 @@ hub.connectionEventListeners.message.push(({ message }) => {
 
 // Start the server with http-shutdown
 const server = httpShutdown(
-	hub.server.listen(hub.port, () => {
-		console.log('WS Server is listening on port', hub.port);
-	})
+	hub.listen()
 );
 
 module.exports = { hub, server, messages };

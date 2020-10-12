@@ -1,10 +1,10 @@
+// Dependencies
 const assert = require('assert');
 const httpShutdown = require('http-shutdown');
-const Hub = require('../../index');
+const {Hub, HubClient} = require('../../index');
 const WebSocket = require('ws');
-const Sarus = require('@anephenix/sarus');
-const enableHubSupport = require('../../features/support/client/hub-client');
-const delay = require('../../helpers/delay');
+const { v4: uuidv4 } = require('uuid');
+const { delay, delayUntil } = require('../../helpers/delay');
 
 describe('pubsub', () => {
 	let hub;
@@ -22,21 +22,18 @@ describe('pubsub', () => {
 	describe('#subscribe', () => {
 		describe('when passed a clientId and a channel', () => {
 			it('should add a client to a channel', () => {
-				let sentPayload = null;
 				const data = { channel: 'sport' };
 				const ws = {
 					clientId: 'xxxx',
-					send: (payload) => (sentPayload = JSON.parse(payload)),
 				};
 				const secondWs = {
 					clientId: 'wwww',
-					send: () => {},
 				};
 				const secondData = { channel: 'business' };
-				hub.pubsub.subscribe({ data, ws });
-				assert(sentPayload.success);
+				const response = hub.pubsub.subscribe({ data, ws });
+				assert(response.success);
 				assert.strictEqual(
-					sentPayload.message,
+					response.message,
 					'Client "xxxx" subscribed to channel "sport"'
 				);
 				assert.deepStrictEqual(hub.pubsub.channels.sport, ['xxxx']);
@@ -57,53 +54,40 @@ describe('pubsub', () => {
 		});
 
 		describe('when the websocket does not have a client id', () => {
-			it('should return an error response indicating that the websocket does not have an id', () => {
-				let sentPayload = null;
+			it('should throw an error indicating that the websocket does not have an id', () => {
 				const data = { channel: 'weather' };
-				const ws = {
-					send: (payload) => (sentPayload = JSON.parse(payload)),
-				};
-				hub.pubsub.subscribe({ data, ws });
-				assert.strictEqual(sentPayload.success, false);
-				assert.strictEqual(
-					sentPayload.message,
-					'No client id was found on the WebSocket'
-				);
+				const ws = {};
+				assert.throws(() => {
+					hub.pubsub.subscribe({ data, ws });
+				}, { message: 'No client id was found on the WebSocket' });
 			});
 		});
 
 		describe('when the channel is not passed', () => {
-			it('should return an error response indicating that the channel was not passed', () => {
-				let sentPayload = null;
+			it('should throw an error indicating that the channel was not passed', () => {
 				const data = {};
 				const ws = {
 					clientId: 'yyyy',
-					send: (payload) => (sentPayload = JSON.parse(payload)),
 				};
-				hub.pubsub.subscribe({ data, ws });
-				assert.strictEqual(sentPayload.success, false);
-				assert.strictEqual(
-					sentPayload.message,
-					'No channel was passed in the data'
-				);
+				assert.throws(() => {
+					hub.pubsub.subscribe({ data, ws });				
+				}, {message: 'No channel was passed in the data'});
 			});
 		});
 
 		describe('when a client makes multiple attempts to subscribe to the same channel', () => {
 			it('should only record a single entry of the client id in the channel subscriptions, and vice versa', () => {
-				let sentPayload = null;
 				const data = { channel: 'entertainment' };
 				const ws = {
 					clientId: 'zzzz',
-					send: (payload) => (sentPayload = JSON.parse(payload)),
 				};
-				hub.pubsub.subscribe({ data, ws });
-				hub.pubsub.subscribe({ data, ws });
-				assert(sentPayload.success);
-				assert.strictEqual(
-					sentPayload.message,
-					'Client "zzzz" subscribed to channel "entertainment"'
-				);
+				const firstResponse = hub.pubsub.subscribe({ data, ws });
+				const secondResponse = hub.pubsub.subscribe({ data, ws });
+				assert(firstResponse.success);
+				assert(secondResponse.success);
+				const message = 'Client "zzzz" subscribed to channel "entertainment"';
+				assert.strictEqual(firstResponse.message, message);
+				assert.strictEqual(secondResponse.message, message);
 				assert.deepStrictEqual(hub.pubsub.channels.entertainment, [
 					'zzzz',
 				]);
@@ -117,141 +101,107 @@ describe('pubsub', () => {
 	describe('#publish', () => {
 		it('should allow the client to publish a message to all of the channel subscribers, including themselves', async () => {
 			const messages = [];
-			const sarus = new Sarus.default({ url: 'ws://localhost:5000' });
-			enableHubSupport(sarus);
-			sarus.on('message', (event) => {
+			const sarusConfig = { url: 'ws://localhost:5000' };
+			const hubClient = new HubClient({ sarusConfig });
+			hubClient.sarus.on('message', (event) => {
 				const message = JSON.parse(event.data);
 				messages.push(message);
 			});
-			await delay(150);
-			assert(sarus.ws.readyState === 1);
-
-			const subscribeRequest = {
-				action: 'subscribe',
-				data: {
-					channel: 'politics',
-				},
-			};
+			await delayUntil(() => hubClient.sarus.ws.readyState === 1);
+			// eslint-disable-next-line no-undef
+			await delayUntil(() => window.localStorage.getItem('sarus-client-id') !== undefined);
 			// Subscribe the client to the channel
-			sarus.send(JSON.stringify(subscribeRequest));
-			await delay(25);
+			await hubClient.subscribe('politics');
 			// Acknowledge the channel subscription
 			// eslint-disable-next-line no-undef
 			const clientId = window.localStorage.getItem('sarus-client-id');
 			const latestMessage = messages[messages.length - 1];
 			if (!latestMessage) throw new Error('No messages intercepted');
-			assert.strictEqual(latestMessage.success, true);
+			assert.strictEqual(latestMessage.data.success, true);
 			assert.strictEqual(
-				latestMessage.message,
+				latestMessage.data.message,
 				`Client "${clientId}" subscribed to channel "politics"`
 			);
 
 			// Get the client to publish a message to the channel
-			const publishMessage = {
-				action: 'publish',
-				data: {
-					channel: 'politics',
-					message: 'Elections held',
-				},
-			};
-			sarus.send(JSON.stringify(publishMessage));
-			await delay(25);
-			// Check that the client receives the message
+			await hubClient.publish('politics', 'Elections held');
+			// Check that the client receives the messages
+			const thePreviousLatestMessage = messages[messages.length - 2];
 			const theNextLatestMessage = messages[messages.length - 1];
-			assert.strictEqual(theNextLatestMessage.action, 'message');
-			assert.strictEqual(theNextLatestMessage.data.channel, 'politics');
+			assert.strictEqual(thePreviousLatestMessage.action, 'message');
+			assert.strictEqual(thePreviousLatestMessage.data.channel, 'politics');
 			assert.strictEqual(
-				theNextLatestMessage.data.message,
+				thePreviousLatestMessage.data.message,
 				'Elections held'
 			);
+			assert.strictEqual(theNextLatestMessage.action, 'publish');
+			assert.strictEqual(theNextLatestMessage.data.success, true);
 		});
 
 		it('should allow the client to publish a message to all of the channel subscribers, excluding themselves', async () => {
 			const messages = [];
-			const sarus = new Sarus.default({ url: 'ws://localhost:5000' });
-			enableHubSupport(sarus);
-			sarus.on('message', (event) => {
+			const sarusConfig = { url: 'ws://localhost:5000' };
+			const hubClient = new HubClient({ sarusConfig });
+			hubClient.sarus.on('message', (event) => {
 				const message = JSON.parse(event.data);
 				messages.push(message);
 			});
-			await delay(100);
-			assert(sarus.ws.readyState === 1);
-
-			const subscribeRequest = {
-				action: 'subscribe',
-				data: {
-					channel: 'showbiz',
-				},
-			};
+			await delayUntil(() => hubClient.sarus.ws.readyState === 1);
+			// eslint-disable-next-line no-undef
+			await delayUntil(() => window.localStorage.getItem('sarus-client-id') !== undefined);
 			// Subscribe the client to the channel
-			sarus.send(JSON.stringify(subscribeRequest));
-			await delay(25);
+			await hubClient.subscribe('showbiz');
 			// Acknowledge the channel subscription
 			// eslint-disable-next-line no-undef
 			const clientId = window.localStorage.getItem('sarus-client-id');
 			const latestMessage = messages[messages.length - 1];
 			if (!latestMessage) throw new Error('No messages intercepted');
-			assert.strictEqual(latestMessage.success, true);
+			assert.strictEqual(latestMessage.data.success, true);
 			assert.strictEqual(
-				latestMessage.message,
+				latestMessage.data.message,
 				`Client "${clientId}" subscribed to channel "showbiz"`
 			);
 
 			// Get the client to publish a message to the channel
-			const publishMessage = {
-				action: 'publish',
-				data: {
-					channel: 'showbiz',
-					message: 'Oscars ceremony to be virtual',
-					excludeSender: true,
-				},
-			};
-			sarus.send(JSON.stringify(publishMessage));
-			await delay(25);
-			// Check that the client receives the message
+			await hubClient.publish('showbiz', 'Oscars ceremony to be virtual', true);
+			// Check that the client does not receive the message
+			const thePreviousLatestMessage = messages[messages.length - 2];
 			const theNextLatestMessage = messages[messages.length - 1];
-			assert.notStrictEqual(theNextLatestMessage.action, 'message');
-			assert.strictEqual(theNextLatestMessage.data, undefined);
+			assert.notStrictEqual(thePreviousLatestMessage.action, 'message');
+			assert.strictEqual(thePreviousLatestMessage.action, 'subscribe');
+			assert.strictEqual(theNextLatestMessage.action, 'publish');
+			assert.strictEqual(theNextLatestMessage.data.success, true);
+			assert.strictEqual(
+				theNextLatestMessage.data.message,
+				'Published message'
+			);
 		});
 
 		it('should allow the server to publish a message to all of the channel subscribers', async () => {
 			const messages = [];
-			const sarus = new Sarus.default({ url: 'ws://localhost:5000' });
-			enableHubSupport(sarus);
-			sarus.on('message', (event) => {
+			const sarusConfig = { url: 'ws://localhost:5000' };
+			const hubClient = new HubClient({ sarusConfig });
+			hubClient.sarus.on('message', (event) => {
 				const message = JSON.parse(event.data);
 				messages.push(message);
 			});
-			await delay(100);
-			assert(sarus.ws.readyState === 1);
-
-			const subscribeRequest = {
-				action: 'subscribe',
-				data: {
-					channel: 'markets',
-				},
-			};
+			await delayUntil(() => hubClient.sarus.ws.readyState === 1);
+			// eslint-disable-next-line no-undef
+			await delayUntil(() => window.localStorage.getItem('sarus-client-id') !== undefined);
 			// Subscribe the client to the channel
-			sarus.send(JSON.stringify(subscribeRequest));
-			await delay(25);
+			await hubClient.subscribe('markets');
 			// Acknowledge the channel subscription
 			// eslint-disable-next-line no-undef
 			const clientId = window.localStorage.getItem('sarus-client-id');
 			const latestMessage = messages[messages.length - 1];
 			if (!latestMessage) throw new Error('No messages intercepted');
-			assert.strictEqual(latestMessage.success, true);
+			assert.strictEqual(latestMessage.data.success, true);
 			assert.strictEqual(
-				latestMessage.message,
+				latestMessage.data.message,
 				`Client "${clientId}" subscribed to channel "markets"`
 			);
-
 			// Get the server to publish a message to the channel
-			hub.pubsub.publish({
-				data: {
-					channel: 'markets',
-					message: 'FTSE: 5845 (-5)',
-				},
-			});
+			hub.pubsub.publish({ data: { channel: 'markets', message: 'FTSE: 5845 (-5)' } });
 			await delay(25);
 			// Check that the client receives the message
 			const theNextLatestMessage = messages[messages.length - 1];
@@ -271,196 +221,152 @@ describe('pubsub', () => {
 					const message = JSON.parse(event);
 					messages.push(message);
 				});
-
 				const publishRequest = {
+					id: uuidv4(),
 					action: 'publish',
+					type: 'request',
 					data: {
 						channel: 'sport',
 						message: 'Something is happening',
 					},
 				};
-
-				await delay(25);
+				await delayUntil(() => client.readyState === 1);
 				client.send(JSON.stringify(publishRequest));
 				await delay(50);
 				const latestMessage = messages[messages.length - 1];
-				assert.strictEqual(latestMessage.success, false);
+				assert.strictEqual(latestMessage.type, 'error');
 				assert.strictEqual(
-					latestMessage.message,
+					latestMessage.error,
 					'No client id was found on the WebSocket'
 				);
 			});
 			it('should return an error response if the channel is missing', async () => {
 				const messages = [];
-				const sarus = new Sarus.default({ url: 'ws://localhost:5000' });
-				enableHubSupport(sarus);
-				sarus.on('message', (event) => {
+				const sarusConfig = { url: 'ws://localhost:5000' };
+				const hubClient = new HubClient({ sarusConfig });
+				hubClient.sarus.on('message', (event) => {
 					const message = JSON.parse(event.data);
 					messages.push(message);
 				});
-				await delay(100);
-				assert(sarus.ws.readyState === 1);
-
-				const subscribeRequest = {
-					action: 'subscribe',
-					data: {
-						channel: 'showbiz',
-					},
-				};
+				await delayUntil(() => hubClient.sarus.ws.readyState === 1);
+				// eslint-disable-next-line no-undef
+				await delayUntil(() => window.localStorage.getItem('sarus-client-id') !== undefined);
 				// Subscribe the client to the channel
-				sarus.send(JSON.stringify(subscribeRequest));
-				await delay(25);
+				await hubClient.subscribe('showbiz');
 				// Acknowledge the channel subscription
 				// eslint-disable-next-line no-undef
 				const clientId = window.localStorage.getItem('sarus-client-id');
 				const latestMessage = messages[messages.length - 1];
 				if (!latestMessage) throw new Error('No messages intercepted');
-				assert.strictEqual(latestMessage.success, true);
+				assert.strictEqual(latestMessage.data.success, true);
 				assert.strictEqual(
-					latestMessage.message,
+					latestMessage.data.message,
 					`Client "${clientId}" subscribed to channel "showbiz"`
 				);
 
 				// Get the client to publish a message to the channel
-				const publishMessage = {
-					action: 'publish',
-					data: {
-						message: 'Oscars ceremony to be virtual',
-					},
-				};
-				sarus.send(JSON.stringify(publishMessage));
-				await delay(25);
+				await hubClient.publish(null, 'Oscars ceremony to be virtual');
 				// Check that the client receives the message
 				const theNextLatestMessage = messages[messages.length - 1];
-				assert.strictEqual(theNextLatestMessage.success, false);
+				assert.strictEqual(theNextLatestMessage.type, 'error');
 				assert.strictEqual(
-					theNextLatestMessage.message,
+					theNextLatestMessage.error,
 					'No channel was passed in the data'
 				);
 			});
 			it('should return an error response if the message is missing', async () => {
 				const messages = [];
-				const sarus = new Sarus.default({ url: 'ws://localhost:5000' });
-				enableHubSupport(sarus);
-				sarus.on('message', (event) => {
+				const sarusConfig = { url: 'ws://localhost:5000' };
+				const hubClient = new HubClient({ sarusConfig });
+				hubClient.sarus.on('message', (event) => {
 					const message = JSON.parse(event.data);
 					messages.push(message);
 				});
-				await delay(100);
-				assert(sarus.ws.readyState === 1);
-
-				const subscribeRequest = {
-					action: 'subscribe',
-					data: {
-						channel: 'showbiz',
-					},
-				};
+				await delayUntil(() => hubClient.sarus.ws.readyState === 1);
+				// eslint-disable-next-line no-undef
+				await delayUntil(() => window.localStorage.getItem('sarus-client-id') !== undefined);
 				// Subscribe the client to the channel
-				sarus.send(JSON.stringify(subscribeRequest));
-				await delay(25);
+				await hubClient.subscribe('showbiz');
 				// Acknowledge the channel subscription
 				// eslint-disable-next-line no-undef
 				const clientId = window.localStorage.getItem('sarus-client-id');
 				const latestMessage = messages[messages.length - 1];
 				if (!latestMessage) throw new Error('No messages intercepted');
-				assert.strictEqual(latestMessage.success, true);
+				assert.strictEqual(latestMessage.data.success, true);
 				assert.strictEqual(
-					latestMessage.message,
+					latestMessage.data.message,
 					`Client "${clientId}" subscribed to channel "showbiz"`
 				);
-
 				// Get the client to publish a message to the channel
-				const publishMessage = {
-					action: 'publish',
-					data: {
-						channel: 'showbiz',
-					},
-				};
-				sarus.send(JSON.stringify(publishMessage));
-				await delay(25);
+				await hubClient.publish('showbiz', null);
 				// Check that the client receives the message
 				const theNextLatestMessage = messages[messages.length - 1];
-				assert.strictEqual(theNextLatestMessage.success, false);
+				assert.strictEqual(theNextLatestMessage.type, 'error');
 				assert.strictEqual(
-					theNextLatestMessage.message,
+					theNextLatestMessage.error,
 					'No message was passed in the data'
 				);
 			});
 
 			it('should note that the publish request was received, but that there are no subscribers for that channel', async () => {
 				const messages = [];
-				const sarus = new Sarus.default({ url: 'ws://localhost:5000' });
-				enableHubSupport(sarus);
-				sarus.on('message', (event) => {
+				const sarusConfig = { url: 'ws://localhost:5000' };
+				const hubClient = new HubClient({ sarusConfig });
+				hubClient.sarus.on('message', (event) => {
 					const message = JSON.parse(event.data);
 					messages.push(message);
 				});
-				await delay(100);
-				assert(sarus.ws.readyState === 1);
-				await delay(25);
-				// Acknowledge the channel subscription
+				await delayUntil(() => hubClient.sarus.ws.readyState === 1);
+				// eslint-disable-next-line no-undef
+				await delayUntil(() => window.localStorage.getItem('sarus-client-id') !== undefined);
 				// eslint-disable-next-line no-undef
 				const latestMessage = messages[messages.length - 1];
 				if (!latestMessage) throw new Error('No messages intercepted');
-
 				// Get the client to publish a message to the channel
-				const publishMessage = {
-					action: 'publish',
-					data: {
-						channel: 'dashboard_y',
-						message: 'Some data',
-					},
-				};
-				sarus.send(JSON.stringify(publishMessage));
-				await delay(25);
+				await hubClient.publish('dashboard_y', 'Some data');
 				// Check that the client receives the message
 				const theNextLatestMessage = messages[messages.length - 1];
-				assert.strictEqual(theNextLatestMessage.success, false);
+				assert.strictEqual(theNextLatestMessage.type, 'error');
 				assert.strictEqual(
-					theNextLatestMessage.message,
+					theNextLatestMessage.error,
 					'There are currently no subscribers to that channel'
 				);
 			});
 		});
 
 		describe('when publishing from a server', () => {
-			it('should return an error response if the channel is missing', async () => {
-				const response = hub.pubsub.publish({
-					data: {
-						message: 'FTSE: 5845 (-5)',
-					},
-				});
-				assert.strictEqual(response.success, false);
-				assert.strictEqual(
-					response.message,
-					'No channel was passed in the data'
+			it('should return an error response if the channel is missing', () => {
+				assert.throws(() => {
+					hub.pubsub.publish({
+						data: {
+							message: 'FTSE: 5845 (-5)',
+						},
+					});
+				}, { message: 'No channel was passed in the data' }
 				);
 			});
+				
 			it('should return an error response if the message is missing', async () => {
-				const response = hub.pubsub.publish({
-					data: {
-						channel: 'markets',
-					},
-				});
-				assert.strictEqual(response.success, false);
-				assert.strictEqual(
-					response.message,
-					'No message was passed in the data'
+				assert.throws(() => {
+					hub.pubsub.publish({
+						data: {
+							channel: 'markets',
+						},
+					});
+				}, { message: 'No message was passed in the data' }
 				);
 			});
 
 			describe('publishing to a channel that has no subscribers', () => {
 				it('should note that the publish request was received, but that there are no subscribers for that channel', async () => {
-					const response = hub.pubsub.publish({
-						data: {
-							channel: 'dashboard_x',
-							message: 'FTSE: 5845 (-5)',
-						},
-					});
-					assert.strictEqual(response.success, false);
-					assert.strictEqual(
-						response.message,
-						'There are currently no subscribers to that channel'
+					assert.throws(() => {
+						hub.pubsub.publish({
+							data: {
+								channel: 'dashboard_x',
+								message: 'FTSE: 5845 (-5)',
+							},
+						});
+					}, { message: 'There are currently no subscribers to that channel' }
 					);
 				});
 			});
@@ -470,52 +376,45 @@ describe('pubsub', () => {
 	describe('#unsubscribe', () => {
 		it('should remove a client from a channel, and ensure that the client no longer receives messages for that channel', async () => {
 			const messages = [];
-			const sarus = new Sarus.default({ url: 'ws://localhost:5000' });
-			enableHubSupport(sarus);
-			sarus.on('message', (event) => {
+			const sarusConfig = { url: 'ws://localhost:5000' };
+			const hubClient = new HubClient({ sarusConfig });
+			hubClient.sarus.on('message', (event) => {
 				const message = JSON.parse(event.data);
 				messages.push(message);
 			});
-			await delay(100);
-			assert(sarus.ws.readyState === 1);
-
-			const subscribeRequest = {
-				action: 'subscribe',
-				data: {
-					channel: 'markets',
-				},
-			};
+			await delayUntil(() => hubClient.sarus.ws.readyState === 1);
+			// eslint-disable-next-line no-undef
+			await delayUntil(() => window.localStorage.getItem('sarus-client-id') !== undefined);
 			// Subscribe the client to the channel
-			sarus.send(JSON.stringify(subscribeRequest));
-			await delay(25);
+			await hubClient.subscribe('markets');
 			// Acknowledge the channel subscription
 			// eslint-disable-next-line no-undef
 			const clientId = window.localStorage.getItem('sarus-client-id');
 			const latestMessage = messages[messages.length - 1];
 			if (!latestMessage) throw new Error('No messages intercepted');
-			assert.strictEqual(latestMessage.success, true);
+			assert.strictEqual(latestMessage.data.success, true);
 			assert.strictEqual(
-				latestMessage.message,
+				latestMessage.data.message,
 				`Client "${clientId}" subscribed to channel "markets"`
 			);
-
-			await delay(25);
-			const unsubscribeRequest = {
-				action: 'unsubscribe',
-				data: {
-					channel: 'markets',
-				},
-			};
 			// Subscribe the client to the channel
-			sarus.send(JSON.stringify(unsubscribeRequest));
-			await delay(25);
+			await hubClient.unsubscribe('markets');
 			const theNextLatestMessage = messages[messages.length - 1];
-			assert.strictEqual(theNextLatestMessage.success, true);
+			assert.strictEqual(theNextLatestMessage.data.success, true);
 			assert.strictEqual(
-				theNextLatestMessage.message,
+				theNextLatestMessage.data.message,
 				`Client "${clientId}" unsubscribed from channel "markets"`
 			);
 			// Get the server to publish a message to the channel
+
+			// a second client needs to be subscribed, and localstorage scrubbed to prevent duplicate client id assignment;
+			global.localStorage.removeItem('sarus-client-id');
+			const otherHubClient = new HubClient({ sarusConfig });
+			await delayUntil(() => otherHubClient.sarus.ws.readyState === 1);
+			// eslint-disable-next-line no-undef
+			await delayUntil(() => window.localStorage.getItem('sarus-client-id') !== undefined);
+			await otherHubClient.subscribe('markets');
+
 			hub.pubsub.publish({
 				data: {
 					channel: 'markets',
@@ -527,7 +426,6 @@ describe('pubsub', () => {
 			// Check that the client does not receive the message
 			const theFinalLatestMessage = messages[messages.length - 1];
 			assert.notStrictEqual(theFinalLatestMessage.action, 'message');
-			assert.strictEqual(theFinalLatestMessage.data, undefined);
 		});
 
 		it('should return an error response if the websocket client id is not present', async () => {
@@ -538,66 +436,53 @@ describe('pubsub', () => {
 				messages.push(message);
 			});
 
-			const publishRequest = {
+			const unsubscribeRequest = {
+				id: uuidv4(),
 				action: 'unsubscribe',
+				type: 'request',
 				data: {
 					channel: 'sport',
 				},
 			};
-
-			await delay(25);
-			client.send(JSON.stringify(publishRequest));
+			await delayUntil(() => client.readyState === 1);
+			client.send(JSON.stringify(unsubscribeRequest));
 			await delay(50);
 			const latestMessage = messages[messages.length - 1];
-			assert.strictEqual(latestMessage.success, false);
+			assert.strictEqual(latestMessage.type, 'error');
 			assert.strictEqual(
-				latestMessage.message,
+				latestMessage.error,
 				'No client id was found on the WebSocket'
 			);
 		});
 		it('should return an error response if the channel is missing', async () => {
 			const messages = [];
-			const sarus = new Sarus.default({ url: 'ws://localhost:5000' });
-			enableHubSupport(sarus);
-			sarus.on('message', (event) => {
+			const sarusConfig = { url: 'ws://localhost:5000' };
+			const hubClient = new HubClient({ sarusConfig });
+			hubClient.sarus.on('message', (event) => {
 				const message = JSON.parse(event.data);
 				messages.push(message);
 			});
-			await delay(100);
-			assert(sarus.ws.readyState === 1);
-
-			const subscribeRequest = {
-				action: 'subscribe',
-				data: {
-					channel: 'markets',
-				},
-			};
+			await delayUntil(() => hubClient.sarus.ws.readyState === 1);
+			// eslint-disable-next-line no-undef
+			await delayUntil(() => window.localStorage.getItem('sarus-client-id') !== undefined);
 			// Subscribe the client to the channel
-			sarus.send(JSON.stringify(subscribeRequest));
-			await delay(25);
+			await hubClient.subscribe('markets');
 			// Acknowledge the channel subscription
 			// eslint-disable-next-line no-undef
 			const clientId = window.localStorage.getItem('sarus-client-id');
 			const latestMessage = messages[messages.length - 1];
 			if (!latestMessage) throw new Error('No messages intercepted');
-			assert.strictEqual(latestMessage.success, true);
+			assert.strictEqual(latestMessage.data.success, true);
 			assert.strictEqual(
-				latestMessage.message,
+				latestMessage.data.message,
 				`Client "${clientId}" subscribed to channel "markets"`
 			);
-
-			await delay(25);
-			const unsubscribeRequest = {
-				action: 'unsubscribe',
-				data: {},
-			};
 			// Unsubscribe the client from the channel
-			sarus.send(JSON.stringify(unsubscribeRequest));
-			await delay(25);
+			await hubClient.unsubscribe(null);
 			const theNextLatestMessage = messages[messages.length - 1];
-			assert.strictEqual(theNextLatestMessage.success, false);
+			assert.strictEqual(theNextLatestMessage.type, 'error');
 			assert.strictEqual(
-				theNextLatestMessage.message,
+				theNextLatestMessage.error,
 				'No channel was passed in the data'
 			);
 		});

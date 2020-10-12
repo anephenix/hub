@@ -1,12 +1,12 @@
 {
 	"name": "@anephenix/hub",
-	"version": "0.0.2",
+	"version": "0.0.3",
 	"description": "A WebSocket server for Sarus",
 	"main": "index.js",
 	"scripts": {
 		"lint": "npx eslint .",
 		"cover": "npx jest --coverage --coverageReporters=text-lcov | coveralls",
-		"cucumber": "NODE_ENV=test npx cucumber-js --no-strict",
+		"cucumber": "NODE_ENV=test npx cucumber-js --no-strict --exit",
 		"cucumber-wip": "NODE_ENV=test npx cucumber-js --no-strict -t @wip",
 		"test": "NODE_ENV=test npx jest --coverage"
 	},
@@ -42,6 +42,7 @@
 		"parcel-bundler": "^1.12.4",
 		"pre-commit": "^1.2.2",
 		"prettier": "^2.1.2",
-		"puppeteer": "^5.3.1"
+		"puppeteer": "^5.3.1",
+		"why-is-node-running": "^2.2.0"
 	}
 }

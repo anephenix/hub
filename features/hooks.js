@@ -1,5 +1,7 @@
 // Dependencies
 const { BeforeAll, After, AfterAll } = require('@cucumber/cucumber');
+const log = require('why-is-node-running');
+
 const scope = require('./support/scope');
 /*
 	The web client is loaded here because it relies
@@ -7,9 +9,8 @@ const scope = require('./support/scope');
 */
 const web = require('./support/client');
 
-BeforeAll(async () => {
-	const loaded = await web.server();
-	scope.web = loaded;
+BeforeAll({timeout: 10000}, async () => {
+	scope.web = await web.server();
 });
 
 After(async () => {
@@ -21,15 +22,21 @@ After(async () => {
 		await scope.context.currentPage.close();
 		// eslint-disable-next-line require-atomic-updates
 		scope.context.currentPage = null;
+		scope.clientPublishedMessage = null;
 	}
 });
 
-AfterAll(async () => {
+AfterAll({timeout: 20000},async () => {
 	try {
 		if (scope.browser) await scope.browser.close();
-		scope.api.shutdown(() => console.log('\nAPI is shut down'));
-		scope.web.shutdown(() => console.log('\nWeb is shut down'));
+		if (scope.otherClient) {
+			scope.otherClient.sarus.disconnect();
+		}
 		await web.bundler.stop();
+		await scope.web.close();
+		scope.web.shutdown(() => console.log('\nWeb is shut down'));
+		scope.api.shutdown(() => console.log('\nAPI is shut down'));
+		setTimeout(log, 20000);
 	} catch (err) {
 		console.log({ err });
 	}

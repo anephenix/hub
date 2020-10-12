@@ -1,4 +1,5 @@
 const { Given, Then, When } = require('@cucumber/cucumber');
+const { delay } = require('../../helpers/delay');
 const {
 	visitPage,
 	closePage,
@@ -19,6 +20,8 @@ const {
 	clientUnsubscribesFromChannel,
 	serverUnsubscribesClientFromChannel,
 	clientReceivesUnsubscribeSuccessReponse,
+	otherClientSubscribesToChannel,
+	otherClientReceivesMessageForChannel,
 } = require('../support/actions');
 
 Given('pending', () => 'pending');
@@ -165,3 +168,11 @@ Then(
 		});
 	}
 );
+
+Given('I wait for {int} seconds', {timeout: 60000},  async function (int) {
+	await delay(int * 1000);
+});
+
+Then('another client connects and subscribes to {string}', otherClientSubscribesToChannel);
+
+Then('the other client should receive the message {string} for the channel {string}', otherClientReceivesMessageForChannel);

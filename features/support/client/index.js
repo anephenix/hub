@@ -15,5 +15,3 @@ const server = async () => {
 	return httpShutdown(s);
 };
 module.exports = { main, server, bundler };
-
-// TODO - find a way to expose bundler too, so that you can call await bundler stop

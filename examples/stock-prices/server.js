@@ -1,14 +1,19 @@
 // Dependencies
-const Hub = require('../../index');
-
+const { Hub } = require('../../index');
 const hub = new Hub({ port: 5000 });
 
-const messages = [];
+// The message logger helper function
+const messageLogger = (hub) => {
+	const messages = [];
 
-hub.connectionEventListeners.message.push(({ message }) => {
-	console.log(message);
-	messages.push(message);
-});
+	// This is the console log on all messages received by the server
+	hub.connectionEventListeners.message.push(({ message }) => {
+		console.log(message);
+		messages.push(message);
+	});
+};
+
+messageLogger(hub);
 
 const stocks = {
 	amzn: 52.85,
@@ -30,18 +35,6 @@ const getPricesFunction = ({ id, action, type, data, ws }) => {
 			data: { stock },
 		};
 		ws.send(JSON.stringify(response));
-
-		// This example shows that multiple messages can be sent back - for example a progress upload could emit multiple responses
-		// setInterval(() => {
-		// stock += 1;
-		// 	const response = {
-		// 		id,
-		// 		action,
-		// 		type: 'response',
-		// 		data: { stock },
-		// 	};
-		// 	ws.send(JSON.stringify(response));
-		// }, 1000);
 	}
 };
 
