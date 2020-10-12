@@ -22,6 +22,16 @@ const {
 	clientReceivesUnsubscribeSuccessReponse,
 	otherClientSubscribesToChannel,
 	otherClientReceivesMessageForChannel,
+	rpcActionExistsOnServer,
+	clientMakesHelloRPCRequest,
+	clientReceivesHelloRPCReply,
+	clientMakesIncorrecRPCRequest,
+	clientReceivesIncorrectRPCReply,
+	rpcActionExistsOnClient,
+	serverMakesTimeRPCRequest,
+	serverReceivesTimeRPCReply,
+	serverMakesIncorrecRPCRequest,
+	serverReceivesIncorrectRPCReply,
 } = require('../support/actions');
 
 Given('pending', () => 'pending');
@@ -169,10 +179,60 @@ Then(
 	}
 );
 
-Given('I wait for {int} seconds', {timeout: 60000},  async function (int) {
+Given('I wait for {int} seconds', { timeout: 60000 }, async function (int) {
 	await delay(int * 1000);
 });
 
-Then('another client connects and subscribes to {string}', otherClientSubscribesToChannel);
+Then(
+	'another client connects and subscribes to {string}',
+	otherClientSubscribesToChannel
+);
 
-Then('the other client should receive the message {string} for the channel {string}', otherClientReceivesMessageForChannel);
+Then(
+	'the other client should receive the message {string} for the channel {string}',
+	otherClientReceivesMessageForChannel
+);
+
+Given('an RPC action exists on the server', rpcActionExistsOnServer);
+
+When(
+	'the client calls that RPC action on the server',
+	clientMakesHelloRPCRequest
+);
+
+Then(
+	'the client should receive a response from the server',
+	clientReceivesHelloRPCReply
+);
+
+When(
+	'the client calls the wrong RPC action on the server',
+	clientMakesIncorrecRPCRequest
+);
+
+Then(
+	'the client should receive an error response from the server saying that the action was not found',
+	clientReceivesIncorrectRPCReply
+);
+
+Given('an RPC action exists on the client', rpcActionExistsOnClient);
+
+When(
+	'the server calls that RPC action on the client',
+	serverMakesTimeRPCRequest
+);
+
+Then(
+	'the server should receive a response from the client',
+	serverReceivesTimeRPCReply
+);
+
+When(
+	'the server calls the wrong RPC action on the client',
+	serverMakesIncorrecRPCRequest
+);
+
+Then(
+	'the server should receive an error response from the client saying that the action was not found',
+	serverReceivesIncorrectRPCReply
+);

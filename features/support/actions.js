@@ -144,7 +144,8 @@ const clientReceivesSubscribeSuccessReponse = async ({ clientId, channel }) => {
 	const { data } = JSON.parse(messages[messages.length - 1]);
 	assert(data.success === true);
 	assert(
-		data.message === `Client "${clientId}" subscribed to channel "${channel}"`
+		data.message ===
+			`Client "${clientId}" subscribed to channel "${channel}"`
 	);
 };
 
@@ -233,22 +234,162 @@ const clientReceivesUnsubscribeSuccessReponse = async ({
 };
 
 const otherClientSubscribesToChannel = async (channel) => {
-	const sarusConfig = { url: 'ws://localhost:3001', retryConnectionDelay: true };
+	const sarusConfig = {
+		url: 'ws://localhost:3001',
+		retryConnectionDelay: true,
+	};
 	scope.otherClient = new HubClient({ sarusConfig });
 	scope.otherClientMessages = [];
-	scope.otherClient.sarus.on('message', message => scope.otherClientMessages.push(message.data));
+	scope.otherClient.sarus.on('message', (message) =>
+		scope.otherClientMessages.push(message.data)
+	);
 	await delayUntil(() => {
 		return scope.otherClient.sarus.ws.readyState === 1;
 	}, 5000);
-	await delayUntil(() => { return global.localStorage.getItem('sarus-client-id') !== undefined; }, 5000);
+	await delayUntil(() => {
+		return global.localStorage.getItem('sarus-client-id') !== undefined;
+	}, 5000);
 	await scope.otherClient.subscribe(channel);
 };
 
 const otherClientReceivesMessageForChannel = async (message, channel) => {
-	const lastMessage = scope.otherClientMessages[scope.otherClientMessages.length - 1];
+	const lastMessage =
+		scope.otherClientMessages[scope.otherClientMessages.length - 1];
 	const parsedLastMessage = JSON.parse(lastMessage);
 	assert.strictEqual(parsedLastMessage.data.message, message);
 	assert.strictEqual(parsedLastMessage.data.channel, channel);
+};
+
+const rpcActionExistsOnServer = function () {
+	if (scope.hub.rpc.list('hello')) return;
+	const helloFunc = ({ id, action, type, ws }) => {
+		if (type === 'request') {
+			const response = {
+				id,
+				action,
+				type: 'response',
+				data: 'Hello to you too',
+			};
+			ws.send(JSON.stringify(response));
+		}
+	};
+	scope.hub.rpc.add('hello', helloFunc);
+};
+
+const clientMakesHelloRPCRequest = async () => {
+	const { currentPage } = scope.context;
+	// We need to make a request from the client to the server to subscribe to a channel
+	await currentPage.evaluate(async () => {
+		const request = {
+			action: 'hello',
+		};
+		// eslint-disable-next-line no-undef
+		await hubClient.rpc.send(request);
+	});
+};
+
+const clientReceivesHelloRPCReply = async () => {
+	const { currentPage } = scope.context;
+	const messages = await currentPage.evaluate(() => {
+		// eslint-disable-next-line no-undef
+		if (sarusMessages.length === 0) return false;
+		// eslint-disable-next-line no-undef
+		return sarusMessages;
+	});
+	const { action, type, data } = JSON.parse(messages[messages.length - 1]);
+	assert.strictEqual(action, 'hello');
+	assert.strictEqual(type, 'response');
+	assert.strictEqual(data, 'Hello to you too');
+};
+
+const clientMakesIncorrecRPCRequest = async () => {
+	const { currentPage } = scope.context;
+	// We need to make a request from the client to the server to subscribe to a channel
+	await currentPage.evaluate(async () => {
+		const request = {
+			action: 'hi',
+		};
+		try {
+			// eslint-disable-next-line no-undef
+			await hubClient.rpc.send(request);
+		} catch (err) {
+			// Do nothing
+		}
+	});
+};
+
+const clientReceivesIncorrectRPCReply = async () => {
+	const { currentPage } = scope.context;
+	const messages = await currentPage.evaluate(() => {
+		// eslint-disable-next-line no-undef
+		if (sarusMessages.length === 0) return false;
+		// eslint-disable-next-line no-undef
+		return sarusMessages;
+	});
+	const { action, type, error } = JSON.parse(messages[messages.length - 1]);
+	assert.strictEqual(action, 'hi');
+	assert.strictEqual(type, 'error');
+	assert.strictEqual(error, 'No server action found');
+};
+
+const rpcActionExistsOnClient = async () => {
+	const { currentPage } = scope.context;
+	await currentPage.evaluate(async () => {
+		// eslint-disable-next-line no-undef
+		if (hubClient.rpc.list('time')) return;
+		// eslint-disable-next-line no-undef
+		hubClient.rpc.add('time', ({ id, type, action, sarus }) => {
+			if (type === 'request') {
+				const payload = {
+					id,
+					action,
+					type: 'response',
+					data: 'The time is now',
+				};
+				sarus.send(JSON.stringify(payload));
+			}
+		});
+	});
+};
+
+const serverMakesTimeRPCRequest = async () => {
+	// Get the last item in the array
+	const ws = Array.from(scope.hub.wss.clients).pop();
+	try {
+		await scope.hub.rpc.send({
+			ws,
+			action: 'time',
+		});
+	} catch (err) {
+		// Do nothing
+	}
+};
+const serverReceivesTimeRPCReply = () => {
+	const message = scope.messages[scope.messages.length - 1];
+	const { action, type, data } = JSON.parse(message);
+	assert.strictEqual(action, 'time');
+	assert.strictEqual(type, 'response');
+	assert.strictEqual(data, 'The time is now');
+};
+
+const serverMakesIncorrecRPCRequest = async () => {
+	// Get the last item in the array
+	const ws = Array.from(scope.hub.wss.clients).pop();
+	try {
+		await scope.hub.rpc.send({
+			ws,
+			action: 'clock',
+		});
+	} catch (err) {
+		// Do nothing
+	}
+};
+const serverReceivesIncorrectRPCReply = () => {
+	const message = scope.messages[scope.messages.length - 1];
+	const { action, type, error } = JSON.parse(message);
+	assert.strictEqual(action, 'clock');
+	assert.strictEqual(type, 'error');
+	assert.strictEqual(error, 'No client action found');
 };
 
 module.exports = {
@@ -273,4 +414,14 @@ module.exports = {
 	clientReceivesUnsubscribeSuccessReponse,
 	otherClientSubscribesToChannel,
 	otherClientReceivesMessageForChannel,
+	rpcActionExistsOnServer,
+	clientMakesHelloRPCRequest,
+	clientReceivesHelloRPCReply,
+	clientMakesIncorrecRPCRequest,
+	clientReceivesIncorrectRPCReply,
+	rpcActionExistsOnClient,
+	serverMakesTimeRPCRequest,
+	serverReceivesTimeRPCReply,
+	serverMakesIncorrecRPCRequest,
+	serverReceivesIncorrectRPCReply,
 };
