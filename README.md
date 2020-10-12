@@ -59,15 +59,119 @@ const sarusConfig = { url: 'ws://localhost:4000' };
 const hubClient = new HubClient({ sarusConfig });
 ```
 
-The client can be loaded via either code on the browser, or 
+The client can be loaded via either code on the browser, or
 as part of a Node.js program (see examples folder for more details).
 
 #### RPC (Remote Procedure Calls)
 
-Hub has support for defining RPC functions that can exist on either
-the server or the client. 
+Hub has support for defining RPC functions, but with an added twist. Traditionally RPC functions are defined on the server and called from the client.
 
-TODO - flesh out more details.
+Hub supports that common use case, but also supports defining RPC functions on the client that the server can call.
+
+We will show examples of both below:
+
+##### Creating an RPC function on the server
+
+```javascript
+const { encode } = require('@anephenix/hub/lib/dataTransformer');
+
+// Here's some example data of say cryptocurrency prices
+const cryptocurrencies = {
+	bitcoin: 11393.9,
+	ethereum: 373.23,
+	litecoin: 50.35,
+};
+
+// This simulates price movements, so that requests to the rpc
+// function will returning changing prices.
+setInterval(() => {
+	Object.keys(cryptocurrencies).forEach((currency) => {
+		const movement = Math.random() > 0.5 ? 1 : -1;
+		const amount = Math.random();
+		cryptocurrencies[currency] += movement * amount;
+	});
+}, 1000);
+
+// Here we define the function to be added as an RPC function
+const getPriceFunction = ({ id, action, type, data, ws }) => {
+	if (type === 'request') {
+		let cryptocurrency = cryptocurrencies[data.cryptocurrency];
+		const response = {
+			id,
+			action,
+			type: 'response',
+			data: { cryptocurrency },
+		};
+		ws.send(encode(response));
+	}
+};
+
+// We then attach that function to the RPC action 'get-price'
+hub.rpc.add('get-price', getPriceFunction);
+```
+
+##### Calling the RPC function from the client
+
+Now let's say you want to get the price for ethereum from the client:
+
+```javascript
+// Setup a request to get the price of ethereum
+const request = {
+	action: 'get-price',
+	data: { cryptocurrency: 'ethereum' },
+};
+// Send that RPC request to the server
+const { cryptocurrency } = await hubClient.rpc.send(request);
+
+// Log the response from the data
+console.log({ cryptocurrency });
+```
+
+##### Creating an RPC function on the client
+
+TODO - document this
+
+##### Calling the RPC function from the server
+
+TODO - document this
+
+#### PubSub (Publish/Subscribe)
+
+Hub has support for PubSub, where the client subscribes to channels and unsubscribes from them, and where both the client and the server can publish messages to those channels.
+
+##### Subscribing to a channel
+
+```javascript
+await hubClient.subscribe('news');
+```
+
+##### Unsubscribing to a channel
+
+```javascript
+await hubClient.unsubscribe('news');
+```
+
+##### Publishing a message from the client
+
+```javascript
+await hubClient.publish('news', 'Some biscuits are in the kitchen');
+```
+
+If you want to send the message to all subscribers but exclude the sender, you can pass a third argument to the call:
+
+```javascript
+await hubClient.publish('news', 'Some biscuits are in the kitchen', true);
+```
+
+##### Publishing a message from the server
+
+```javascript
+const channel = 'news';
+const message = 'And cake too!';
+hub.pubsub.publish({
+	data: { channel, message },
+});
+```
 
 ### License and Credits
 
