@@ -1,5 +1,9 @@
 # CHANGELOG
 
+### 0.0.4 - Monday 12th October, 2020
+
+-   Pushed a fix where an NPM dependency was classed as a devDependency by mistake
+
 ### 0.0.3 - Monday 12th October, 2020
 
 -   Added RPC functionality
