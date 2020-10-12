@@ -129,11 +129,37 @@ console.log({ cryptocurrency });
 
 ##### Creating an RPC function on the client
 
-TODO - document this
+```javascript
+const { encode } = require('@anephenix/hub/lib/dataTransformer');
+// Create an RPC function to call on the client
+const getEnvironment = ({ id, type, action, sarus }) => {
+	// Get some details from a Node CLI running on a server
+	const { arch, platform, version } = process;
+	if (type === 'request') {
+		const payload = {
+			id,
+			action,
+			type: 'response',
+			data: { arch, platform, version },
+		};
+		sarus.send(encode(payload));
+	}
+};
+// Add that function for the 'get-environment RPC call'
+hubClient.rpc.add('get-environment', getEnvironment);
+```
 
 ##### Calling the RPC function from the server
 
-TODO - document this
+```javascript
+// Fetch a WebSocket client, the first in the list
+const ws = hubServer.wss.clients.values().next().value;
+// Make an RPC request to that WebSocket client
+const response = await hubServer.rpc.send({
+	ws,
+	action: 'get-environment',
+});
+```
 
 #### PubSub (Publish/Subscribe)
 

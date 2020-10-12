@@ -4,6 +4,10 @@ const http = require('http');
 const RPC = require('../../lib/rpc');
 const WebSocket = require('ws');
 const { v4: uuidv4 } = require('uuid');
+const { Hub, HubClient } = require('../../index');
+const { encode } = require('../../lib/dataTransformer');
+const { delayUntil } = require('../../helpers/delay');
+const httpShutdown = require('http-shutdown');
 
 describe('rpc', () => {
 	let server;
@@ -135,9 +139,7 @@ describe('rpc', () => {
 					id,
 					action: 'find',
 					type: 'error',
-					data: {
-						error: 'No server action found',
-					},
+					error: 'No server action found',
 				});
 			});
 		});
@@ -145,15 +147,65 @@ describe('rpc', () => {
 
 	describe('making a request from server to client', () => {
 		describe('when an action is found', () => {
-			it.todo(
-				'should execute the action and return a response to the server'
-			);
+			it('should execute the action and return a response to the server', async () => {
+				const hubServer = new Hub({ port: 4001 });
+				const shutSignal = httpShutdown(hubServer.listen());
+				const sarusConfig = { url: 'ws://localhost:4001' };
+				const hubClient = new HubClient({ sarusConfig });
+				hubClient.rpc.add(
+					'get-environment',
+					({ id, type, action, sarus }) => {
+						const { arch, platform, version } = process;
+						if (type === 'request') {
+							const payload = {
+								id,
+								action,
+								type: 'response',
+								data: { arch, platform, version },
+							};
+							sarus.send(encode(payload));
+						}
+					}
+				);
+
+				await delayUntil(() => {
+					return hubClient.sarus.ws.readyState === 1;
+				}, 5000);
+
+				const ws = hubServer.wss.clients.values().next().value;
+				const response = await hubServer.rpc.send({
+					ws,
+					action: 'get-environment',
+				});
+				assert.strictEqual(response.arch, process.arch);
+				assert.strictEqual(response.platform, process.platform);
+				assert.strictEqual(response.version, process.version);
+				shutSignal.shutdown();
+			});
 		});
 
 		describe('when an action is not found', () => {
-			it.todo(
-				'should return an error response if no corresponding action was found'
-			);
+			it('should return an error response if no corresponding action was found', async () => {
+				const hubServer = new Hub({ port: 4002 });
+				const shutSignal = httpShutdown(hubServer.listen());
+				const sarusConfig = { url: 'ws://localhost:4002' };
+				const hubClient = new HubClient({ sarusConfig });
+				await delayUntil(() => {
+					return hubClient.sarus.ws.readyState === 1;
+				}, 5000);
+
+				const ws = hubServer.wss.clients.values().next().value;
+				try {
+					await hubServer.rpc.send({
+						ws,
+						action: 'get-environment',
+					});
+					assert(false, 'Should not execute this line');
+				} catch (err) {
+					assert.strictEqual(err, 'No client action found');
+				}
+				shutSignal.shutdown();
+			});
 		});
 	});
 });
