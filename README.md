@@ -22,13 +22,6 @@ npm i @anephenix/hub
 
 More upcoming features are listed in the TODO.md file.
 
-### Running tests
-
-```shell
-npm t
-npm run cucumber
-```
-
 ### Usage
 
 You can run the WebSocket server with this code snippet:
@@ -197,6 +190,13 @@ const message = 'And cake too!';
 hub.pubsub.publish({
 	data: { channel, message },
 });
+```
+
+### Running tests
+
+```shell
+npm t
+npm run cucumber
 ```
 
 ### License and Credits
