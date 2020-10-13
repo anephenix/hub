@@ -192,6 +192,30 @@ hub.pubsub.publish({
 });
 ```
 
+##### Handling messages published for a channel
+
+```javascript
+const channel = 'weather';
+const weatherUpdates = (message) => {
+	const { temperature, conditions, humidity, wind } = message;
+	console.log({ temperature, conditions, humidity, wind });
+};
+hubClient.addChannelMessageHandler(channel, weatherUpdates);
+```
+
+##### Removing message handlers for a channel
+
+```javascript
+hubClient.removeChannelMessageHandler(channel, weatherUpdates);
+
+// You can also remove the function by referring to its name
+function logger(message) {
+	console.log({ message });
+}
+
+hubClient.removeChannelMessageHandler(channel, 'logger');
+```
+
 ### Running tests
 
 ```shell

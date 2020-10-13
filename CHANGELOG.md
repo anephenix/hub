@@ -1,5 +1,10 @@
 # CHANGELOG
 
+### 0.0.5 - Tuesday 13th October, 2020
+
+-   Clients can now handle messages for channels with a single function call
+-   Clients can remove and list those message handlers
+
 ### 0.0.4 - Monday 12th October, 2020
 
 -   Pushed a fix where an NPM dependency was classed as a devDependency by mistake
