@@ -28,7 +28,6 @@ Feature: PubSub
 	  When the client publishes the message "hello world" to the channel "news" to all other subscribers
 	  Then the client should not receive the message "hello world" for the channel "news"
 
-    @wip
 	Scenario: Unsubscribe from a channel
       Given a new client opens a connection to the server
 	  And the client subscribes to the channel "sport"

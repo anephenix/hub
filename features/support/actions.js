@@ -262,7 +262,7 @@ const otherClientReceivesMessageForChannel = async (message, channel) => {
 
 const rpcActionExistsOnServer = function () {
 	if (scope.hub.rpc.list('hello')) return;
-	const helloFunc = ({ id, action, type, ws }) => {
+	const helloFunc = ({ id, action, type, reply }) => {
 		if (type === 'request') {
 			const response = {
 				id,
@@ -270,7 +270,7 @@ const rpcActionExistsOnServer = function () {
 				type: 'response',
 				data: 'Hello to you too',
 			};
-			ws.send(JSON.stringify(response));
+			reply(response);
 		}
 	};
 	scope.hub.rpc.add('hello', helloFunc);
@@ -338,7 +338,7 @@ const rpcActionExistsOnClient = async () => {
 		// eslint-disable-next-line no-undef
 		if (hubClient.rpc.list('time')) return;
 		// eslint-disable-next-line no-undef
-		hubClient.rpc.add('time', ({ id, type, action, sarus }) => {
+		hubClient.rpc.add('time', ({ id, type, action, reply }) => {
 			if (type === 'request') {
 				const payload = {
 					id,
@@ -346,7 +346,7 @@ const rpcActionExistsOnClient = async () => {
 					type: 'response',
 					data: 'The time is now',
 				};
-				sarus.send(JSON.stringify(payload));
+				reply(payload);
 			}
 		});
 	});

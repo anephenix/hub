@@ -66,7 +66,6 @@ We will show examples of both below:
 ##### Creating an RPC function on the server
 
 ```javascript
-const { encode } = require('@anephenix/hub/lib/dataTransformer');
 
 // Here's some example data of say cryptocurrency prices
 const cryptocurrencies = {
@@ -86,7 +85,7 @@ setInterval(() => {
 }, 1000);
 
 // Here we define the function to be added as an RPC function
-const getPriceFunction = ({ id, action, type, data, ws }) => {
+const getPriceFunction = ({ id, action, type, data, reply }) => {
 	if (type === 'request') {
 		let cryptocurrency = cryptocurrencies[data.cryptocurrency];
 		const response = {
@@ -95,7 +94,7 @@ const getPriceFunction = ({ id, action, type, data, ws }) => {
 			type: 'response',
 			data: { cryptocurrency },
 		};
-		ws.send(encode(response));
+		reply(response);
 	}
 };
 
@@ -123,9 +122,8 @@ console.log({ cryptocurrency });
 ##### Creating an RPC function on the client
 
 ```javascript
-const { encode } = require('@anephenix/hub/lib/dataTransformer');
 // Create an RPC function to call on the client
-const getEnvironment = ({ id, type, action, sarus }) => {
+const getEnvironment = ({ id, type, action, reply }) => {
 	// Get some details from a Node CLI running on a server
 	const { arch, platform, version } = process;
 	if (type === 'request') {
@@ -135,7 +133,7 @@ const getEnvironment = ({ id, type, action, sarus }) => {
 			type: 'response',
 			data: { arch, platform, version },
 		};
-		sarus.send(encode(payload));
+		reply(payload);
 	}
 };
 // Add that function for the 'get-environment RPC call'

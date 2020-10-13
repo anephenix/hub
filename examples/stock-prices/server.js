@@ -25,17 +25,15 @@ setInterval(() => {
 	stocks.amzn += Number.parseFloat((movement * amount).toFixed(2));
 }, 1000);
 
-const getPricesFunction = ({ id, action, type, data, ws }) => {
-	if (type === 'request') {
-		let stock = stocks[data.stock];
-		const response = {
-			id,
-			action,
-			type: 'response',
-			data: { stock },
-		};
-		ws.send(JSON.stringify(response));
-	}
+const getPricesFunction = ({ id, action, data, reply }) => {
+	let stock = stocks[data.stock];
+	const response = {
+		id,
+		action,
+		type: 'response',
+		data: { stock },
+	};
+	reply(response);
 };
 
 hub.rpc.add('get-prices', getPricesFunction);

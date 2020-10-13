@@ -23,14 +23,14 @@ describe('pubsub', () => {
 		describe('when passed a clientId and a channel', () => {
 			it('should add a client to a channel', () => {
 				const data = { channel: 'sport' };
-				const ws = {
+				const socket = {
 					clientId: 'xxxx',
 				};
 				const secondWs = {
 					clientId: 'wwww',
 				};
 				const secondData = { channel: 'business' };
-				const response = hub.pubsub.subscribe({ data, ws });
+				const response = hub.pubsub.subscribe({ data, socket });
 				assert(response.success);
 				assert.strictEqual(
 					response.message,
@@ -38,8 +38,8 @@ describe('pubsub', () => {
 				);
 				assert.deepStrictEqual(hub.pubsub.channels.sport, ['xxxx']);
 				assert.deepStrictEqual(hub.pubsub.clients.xxxx, ['sport']);
-				hub.pubsub.subscribe({ data, ws: secondWs });
-				hub.pubsub.subscribe({ data: secondData, ws });
+				hub.pubsub.subscribe({ data, socket: secondWs });
+				hub.pubsub.subscribe({ data: secondData, socket });
 				assert.deepStrictEqual(hub.pubsub.channels.sport, [
 					'xxxx',
 					'wwww',
@@ -56,9 +56,9 @@ describe('pubsub', () => {
 		describe('when the websocket does not have a client id', () => {
 			it('should throw an error indicating that the websocket does not have an id', () => {
 				const data = { channel: 'weather' };
-				const ws = {};
+				const socket = {};
 				assert.throws(() => {
-					hub.pubsub.subscribe({ data, ws });
+					hub.pubsub.subscribe({ data, socket });
 				}, { message: 'No client id was found on the WebSocket' });
 			});
 		});
@@ -66,11 +66,11 @@ describe('pubsub', () => {
 		describe('when the channel is not passed', () => {
 			it('should throw an error indicating that the channel was not passed', () => {
 				const data = {};
-				const ws = {
+				const socket = {
 					clientId: 'yyyy',
 				};
 				assert.throws(() => {
-					hub.pubsub.subscribe({ data, ws });				
+					hub.pubsub.subscribe({ data, socket });				
 				}, {message: 'No channel was passed in the data'});
 			});
 		});
@@ -78,11 +78,11 @@ describe('pubsub', () => {
 		describe('when a client makes multiple attempts to subscribe to the same channel', () => {
 			it('should only record a single entry of the client id in the channel subscriptions, and vice versa', () => {
 				const data = { channel: 'entertainment' };
-				const ws = {
+				const socket = {
 					clientId: 'zzzz',
 				};
-				const firstResponse = hub.pubsub.subscribe({ data, ws });
-				const secondResponse = hub.pubsub.subscribe({ data, ws });
+				const firstResponse = hub.pubsub.subscribe({ data, socket });
+				const secondResponse = hub.pubsub.subscribe({ data, socket });
 				assert(firstResponse.success);
 				assert(secondResponse.success);
 				const message = 'Client "zzzz" subscribed to channel "entertainment"';

@@ -5,7 +5,6 @@ const RPC = require('../../lib/rpc');
 const WebSocket = require('ws');
 const { v4: uuidv4 } = require('uuid');
 const { Hub, HubClient } = require('../../index');
-const { encode } = require('../../lib/dataTransformer');
 const { delayUntil } = require('../../helpers/delay');
 const httpShutdown = require('http-shutdown');
 
@@ -23,8 +22,8 @@ describe('rpc', () => {
 
 	describe('adding an action function', () => {
 		it('should add a function for an action name', () => {
-			helloFunc = ({ data, ws }) => {
-				ws.send(data);
+			helloFunc = ({ data, reply }) => {
+				reply(data);
 			};
 			rpc.add('hello', helloFunc);
 			assert.deepStrictEqual(rpc.list('hello'), [helloFunc]);
@@ -44,8 +43,8 @@ describe('rpc', () => {
 	describe('removing an action function', () => {
 		it('should remove a function for an action name', () => {
 			const firstFunc = () => {};
-			const secondFunc = ({ data, ws }) => {
-				ws.send(data);
+			const secondFunc = ({ data, reply }) => {
+				reply(data);
 			};
 			rpc.add('world', firstFunc);
 			rpc.add('world', secondFunc);
@@ -59,7 +58,7 @@ describe('rpc', () => {
 			it('should execute the action and return a response to the client', () => {
 				let responsePayload;
 
-				const searchFunc = ({ id, data, ws }) => {
+				const searchFunc = ({ id, data, reply }) => {
 					const entries = [
 						'cat',
 						'dog',
@@ -75,7 +74,7 @@ describe('rpc', () => {
 					const results = entries.filter((x) =>
 						x.includes(data.term)
 					);
-					ws.send({
+					reply({
 						id,
 						action: 'search',
 						type: 'response',
@@ -103,7 +102,7 @@ describe('rpc', () => {
 
 				rpc.receive({ message: requestPayload, ws });
 
-				assert.deepStrictEqual(responsePayload, {
+				assert.deepStrictEqual(JSON.parse(responsePayload), {
 					id,
 					action: 'search',
 					type: 'response',
@@ -154,7 +153,7 @@ describe('rpc', () => {
 				const hubClient = new HubClient({ sarusConfig });
 				hubClient.rpc.add(
 					'get-environment',
-					({ id, type, action, sarus }) => {
+					({ id, type, action, reply }) => {
 						const { arch, platform, version } = process;
 						if (type === 'request') {
 							const payload = {
@@ -163,7 +162,7 @@ describe('rpc', () => {
 								type: 'response',
 								data: { arch, platform, version },
 							};
-							sarus.send(encode(payload));
+							reply(payload);
 						}
 					}
 				);

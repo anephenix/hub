@@ -22,7 +22,6 @@ Feature: RPC
 	When the server calls that RPC action on the client
 	Then the server should receive a response from the client
 
-  @wip
   Scenario: Make an RPC call to the client from the server, but get an error back
 	Given a new client opens a connection to the server
 	Given an RPC action exists on the client
