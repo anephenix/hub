@@ -149,8 +149,7 @@ describe('rpc', () => {
 			it('should execute the action and return a response to the server', async () => {
 				const hubServer = new Hub({ port: 4001 });
 				const shutSignal = httpShutdown(hubServer.listen());
-				const sarusConfig = { url: 'ws://localhost:4001' };
-				const hubClient = new HubClient({ sarusConfig });
+				const hubClient = new HubClient({ url: 'ws://localhost:4001' });
 				hubClient.rpc.add(
 					'get-environment',
 					({ id, type, action, reply }) => {
@@ -187,8 +186,7 @@ describe('rpc', () => {
 			it('should return an error response if no corresponding action was found', async () => {
 				const hubServer = new Hub({ port: 4002 });
 				const shutSignal = httpShutdown(hubServer.listen());
-				const sarusConfig = { url: 'ws://localhost:4002' };
-				const hubClient = new HubClient({ sarusConfig });
+				const hubClient = new HubClient({ url: 'ws://localhost:4002' });
 				await delayUntil(() => {
 					return hubClient.sarus.ws.readyState === 1;
 				}, 5000);

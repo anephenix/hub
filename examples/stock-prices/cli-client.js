@@ -10,8 +10,7 @@ const { enableMessageLogger } = require('./messageLogger');
 
 // Starts the repl
 const replInstance = repl.start('> ');
-const sarusConfig = { url: 'ws://localhost:5000' };
-const hubClient = new HubClient({ sarusConfig });
+const hubClient = new HubClient({ url: 'ws://localhost:5000' });
 
 // // This enables message logging
 enableMessageLogger(hubClient.sarus);

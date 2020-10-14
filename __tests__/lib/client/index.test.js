@@ -12,10 +12,7 @@ describe('Client library', () => {
 	beforeAll(async () => {
 		hub = new Hub({ port: 5001 });
 		shutdownInstance = httpShutdown(hub.listen());
-		const sarusConfig = {
-			url: 'ws://localhost:5001',
-		};
-		hubClient = new HubClient({ sarusConfig });
+		hubClient = new HubClient({ url: 'ws://localhost:5001' });
 		await delayUntil(() => hubClient.sarus.ws.readyState === 1);
 		await delayUntil(() => {
 			return (

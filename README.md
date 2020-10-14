@@ -43,13 +43,19 @@ And for the client, you can load this code:
 // Dependencies
 const { HubClient } = require('@anephenix/hub');
 
-// HubClient uses Sarus for the WebSocket client,
-// here is the config for that
-const sarusConfig = { url: 'ws://localhost:4000' };
+// Create an instance of HubClient
+const hubClient = new HubClient({ url: 'ws://localhost:4000' });
+```
 
-// Create an instance of HubClient with the config
-// for Sarus
-const hubClient = new HubClient({ sarusConfig });
+HubClient uses Sarus as the WebSocket client behind the scenes. If you want to
+provide custom config options to Sarus, you can do so by using this code:
+
+```javascript
+// Create an instance of HubClient
+const hubClient = new HubClient({
+	url: 'ws://localhost:4000',
+	sarusConfig: { retryConnectionDelay: 500 },
+});
 ```
 
 The client can be loaded via either code on the browser, or
@@ -66,7 +72,6 @@ We will show examples of both below:
 ##### Creating an RPC function on the server
 
 ```javascript
-
 // Here's some example data of say cryptocurrency prices
 const cryptocurrencies = {
 	bitcoin: 11393.9,

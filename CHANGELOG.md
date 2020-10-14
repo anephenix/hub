@@ -1,5 +1,9 @@
 # CHANGELOG
 
+### 0.0.6 - Wednesday 14th October, 2020
+
+-   Changed how config options are passed to the HubClient
+
 ### 0.0.5 - Tuesday 13th October, 2020
 
 -   Clients can now handle messages for channels with a single function call

@@ -1,7 +1,7 @@
 // Dependencies
 const assert = require('assert');
 const httpShutdown = require('http-shutdown');
-const {Hub, HubClient} = require('../../index');
+const { Hub, HubClient } = require('../../index');
 const WebSocket = require('ws');
 const { v4: uuidv4 } = require('uuid');
 const { delay, delayUntil } = require('../../helpers/delay');
@@ -57,9 +57,12 @@ describe('pubsub', () => {
 			it('should throw an error indicating that the websocket does not have an id', () => {
 				const data = { channel: 'weather' };
 				const socket = {};
-				assert.throws(() => {
-					hub.pubsub.subscribe({ data, socket });
-				}, { message: 'No client id was found on the WebSocket' });
+				assert.throws(
+					() => {
+						hub.pubsub.subscribe({ data, socket });
+					},
+					{ message: 'No client id was found on the WebSocket' }
+				);
 			});
 		});
 
@@ -69,9 +72,12 @@ describe('pubsub', () => {
 				const socket = {
 					clientId: 'yyyy',
 				};
-				assert.throws(() => {
-					hub.pubsub.subscribe({ data, socket });				
-				}, {message: 'No channel was passed in the data'});
+				assert.throws(
+					() => {
+						hub.pubsub.subscribe({ data, socket });
+					},
+					{ message: 'No channel was passed in the data' }
+				);
 			});
 		});
 
@@ -85,7 +91,8 @@ describe('pubsub', () => {
 				const secondResponse = hub.pubsub.subscribe({ data, socket });
 				assert(firstResponse.success);
 				assert(secondResponse.success);
-				const message = 'Client "zzzz" subscribed to channel "entertainment"';
+				const message =
+					'Client "zzzz" subscribed to channel "entertainment"';
 				assert.strictEqual(firstResponse.message, message);
 				assert.strictEqual(secondResponse.message, message);
 				assert.deepStrictEqual(hub.pubsub.channels.entertainment, [
@@ -101,15 +108,19 @@ describe('pubsub', () => {
 	describe('#publish', () => {
 		it('should allow the client to publish a message to all of the channel subscribers, including themselves', async () => {
 			const messages = [];
-			const sarusConfig = { url: 'ws://localhost:5000' };
-			const hubClient = new HubClient({ sarusConfig });
+			const hubClient = new HubClient({ url: 'ws://localhost:5000' });
 			hubClient.sarus.on('message', (event) => {
 				const message = JSON.parse(event.data);
 				messages.push(message);
 			});
 			await delayUntil(() => hubClient.sarus.ws.readyState === 1);
-			// eslint-disable-next-line no-undef
-			await delayUntil(() => window.localStorage.getItem('sarus-client-id') !== undefined);
+
+			await delayUntil(() => {
+				return (
+					// eslint-disable-next-line no-undef
+					window.localStorage.getItem('sarus-client-id') !== undefined
+				);
+			});
 			// Subscribe the client to the channel
 			await hubClient.subscribe('politics');
 			// Acknowledge the channel subscription
@@ -129,7 +140,10 @@ describe('pubsub', () => {
 			const thePreviousLatestMessage = messages[messages.length - 2];
 			const theNextLatestMessage = messages[messages.length - 1];
 			assert.strictEqual(thePreviousLatestMessage.action, 'message');
-			assert.strictEqual(thePreviousLatestMessage.data.channel, 'politics');
+			assert.strictEqual(
+				thePreviousLatestMessage.data.channel,
+				'politics'
+			);
 			assert.strictEqual(
 				thePreviousLatestMessage.data.message,
 				'Elections held'
@@ -140,15 +154,18 @@ describe('pubsub', () => {
 
 		it('should allow the client to publish a message to all of the channel subscribers, excluding themselves', async () => {
 			const messages = [];
-			const sarusConfig = { url: 'ws://localhost:5000' };
-			const hubClient = new HubClient({ sarusConfig });
+			const hubClient = new HubClient({ url: 'ws://localhost:5000' });
 			hubClient.sarus.on('message', (event) => {
 				const message = JSON.parse(event.data);
 				messages.push(message);
 			});
 			await delayUntil(() => hubClient.sarus.ws.readyState === 1);
-			// eslint-disable-next-line no-undef
-			await delayUntil(() => window.localStorage.getItem('sarus-client-id') !== undefined);
+			await delayUntil(() => {
+				return (
+					// eslint-disable-next-line no-undef
+					window.localStorage.getItem('sarus-client-id') !== undefined
+				);
+			});
 			// Subscribe the client to the channel
 			await hubClient.subscribe('showbiz');
 			// Acknowledge the channel subscription
@@ -163,7 +180,11 @@ describe('pubsub', () => {
 			);
 
 			// Get the client to publish a message to the channel
-			await hubClient.publish('showbiz', 'Oscars ceremony to be virtual', true);
+			await hubClient.publish(
+				'showbiz',
+				'Oscars ceremony to be virtual',
+				true
+			);
 			// Check that the client does not receive the message
 			const thePreviousLatestMessage = messages[messages.length - 2];
 			const theNextLatestMessage = messages[messages.length - 1];
@@ -179,15 +200,19 @@ describe('pubsub', () => {
 
 		it('should allow the server to publish a message to all of the channel subscribers', async () => {
 			const messages = [];
-			const sarusConfig = { url: 'ws://localhost:5000' };
-			const hubClient = new HubClient({ sarusConfig });
+			const hubClient = new HubClient({ url: 'ws://localhost:5000' });
 			hubClient.sarus.on('message', (event) => {
 				const message = JSON.parse(event.data);
 				messages.push(message);
 			});
 			await delayUntil(() => hubClient.sarus.ws.readyState === 1);
-			// eslint-disable-next-line no-undef
-			await delayUntil(() => window.localStorage.getItem('sarus-client-id') !== undefined);
+
+			await delayUntil(() => {
+				return (
+					// eslint-disable-next-line no-undef
+					window.localStorage.getItem('sarus-client-id') !== undefined
+				);
+			});
 			// Subscribe the client to the channel
 			await hubClient.subscribe('markets');
 			// Acknowledge the channel subscription
@@ -201,7 +226,9 @@ describe('pubsub', () => {
 				`Client "${clientId}" subscribed to channel "markets"`
 			);
 			// Get the server to publish a message to the channel
-			hub.pubsub.publish({ data: { channel: 'markets', message: 'FTSE: 5845 (-5)' } });
+			hub.pubsub.publish({
+				data: { channel: 'markets', message: 'FTSE: 5845 (-5)' },
+			});
 			await delay(25);
 			// Check that the client receives the message
 			const theNextLatestMessage = messages[messages.length - 1];
@@ -242,15 +269,19 @@ describe('pubsub', () => {
 			});
 			it('should return an error response if the channel is missing', async () => {
 				const messages = [];
-				const sarusConfig = { url: 'ws://localhost:5000' };
-				const hubClient = new HubClient({ sarusConfig });
+				const hubClient = new HubClient({ url: 'ws://localhost:5000' });
 				hubClient.sarus.on('message', (event) => {
 					const message = JSON.parse(event.data);
 					messages.push(message);
 				});
 				await delayUntil(() => hubClient.sarus.ws.readyState === 1);
-				// eslint-disable-next-line no-undef
-				await delayUntil(() => window.localStorage.getItem('sarus-client-id') !== undefined);
+				await delayUntil(() => {
+					return (
+						// eslint-disable-next-line no-undef
+						window.localStorage.getItem('sarus-client-id') !==
+						undefined
+					);
+				});
 				// Subscribe the client to the channel
 				await hubClient.subscribe('showbiz');
 				// Acknowledge the channel subscription
@@ -276,15 +307,19 @@ describe('pubsub', () => {
 			});
 			it('should return an error response if the message is missing', async () => {
 				const messages = [];
-				const sarusConfig = { url: 'ws://localhost:5000' };
-				const hubClient = new HubClient({ sarusConfig });
+				const hubClient = new HubClient({ url: 'ws://localhost:5000' });
 				hubClient.sarus.on('message', (event) => {
 					const message = JSON.parse(event.data);
 					messages.push(message);
 				});
 				await delayUntil(() => hubClient.sarus.ws.readyState === 1);
-				// eslint-disable-next-line no-undef
-				await delayUntil(() => window.localStorage.getItem('sarus-client-id') !== undefined);
+				await delayUntil(() => {
+					return (
+						// eslint-disable-next-line no-undef
+						window.localStorage.getItem('sarus-client-id') !==
+						undefined
+					);
+				});
 				// Subscribe the client to the channel
 				await hubClient.subscribe('showbiz');
 				// Acknowledge the channel subscription
@@ -310,15 +345,19 @@ describe('pubsub', () => {
 
 			it('should note that the publish request was received, but that there are no subscribers for that channel', async () => {
 				const messages = [];
-				const sarusConfig = { url: 'ws://localhost:5000' };
-				const hubClient = new HubClient({ sarusConfig });
+				const hubClient = new HubClient({ url: 'ws://localhost:5000' });
 				hubClient.sarus.on('message', (event) => {
 					const message = JSON.parse(event.data);
 					messages.push(message);
 				});
 				await delayUntil(() => hubClient.sarus.ws.readyState === 1);
-				// eslint-disable-next-line no-undef
-				await delayUntil(() => window.localStorage.getItem('sarus-client-id') !== undefined);
+				await delayUntil(() => {
+					return (
+						// eslint-disable-next-line no-undef
+						window.localStorage.getItem('sarus-client-id') !==
+						undefined
+					);
+				});
 				// eslint-disable-next-line no-undef
 				const latestMessage = messages[messages.length - 1];
 				if (!latestMessage) throw new Error('No messages intercepted');
@@ -336,37 +375,46 @@ describe('pubsub', () => {
 
 		describe('when publishing from a server', () => {
 			it('should return an error response if the channel is missing', () => {
-				assert.throws(() => {
-					hub.pubsub.publish({
-						data: {
-							message: 'FTSE: 5845 (-5)',
-						},
-					});
-				}, { message: 'No channel was passed in the data' }
+				assert.throws(
+					() => {
+						hub.pubsub.publish({
+							data: {
+								message: 'FTSE: 5845 (-5)',
+							},
+						});
+					},
+					{ message: 'No channel was passed in the data' }
 				);
 			});
-				
+
 			it('should return an error response if the message is missing', async () => {
-				assert.throws(() => {
-					hub.pubsub.publish({
-						data: {
-							channel: 'markets',
-						},
-					});
-				}, { message: 'No message was passed in the data' }
+				assert.throws(
+					() => {
+						hub.pubsub.publish({
+							data: {
+								channel: 'markets',
+							},
+						});
+					},
+					{ message: 'No message was passed in the data' }
 				);
 			});
 
 			describe('publishing to a channel that has no subscribers', () => {
 				it('should note that the publish request was received, but that there are no subscribers for that channel', async () => {
-					assert.throws(() => {
-						hub.pubsub.publish({
-							data: {
-								channel: 'dashboard_x',
-								message: 'FTSE: 5845 (-5)',
-							},
-						});
-					}, { message: 'There are currently no subscribers to that channel' }
+					assert.throws(
+						() => {
+							hub.pubsub.publish({
+								data: {
+									channel: 'dashboard_x',
+									message: 'FTSE: 5845 (-5)',
+								},
+							});
+						},
+						{
+							message:
+								'There are currently no subscribers to that channel',
+						}
 					);
 				});
 			});
@@ -376,15 +424,19 @@ describe('pubsub', () => {
 	describe('#unsubscribe', () => {
 		it('should remove a client from a channel, and ensure that the client no longer receives messages for that channel', async () => {
 			const messages = [];
-			const sarusConfig = { url: 'ws://localhost:5000' };
-			const hubClient = new HubClient({ sarusConfig });
+			const config = { url: 'ws://localhost:5000' };
+			const hubClient = new HubClient(config);
 			hubClient.sarus.on('message', (event) => {
 				const message = JSON.parse(event.data);
 				messages.push(message);
 			});
 			await delayUntil(() => hubClient.sarus.ws.readyState === 1);
-			// eslint-disable-next-line no-undef
-			await delayUntil(() => window.localStorage.getItem('sarus-client-id') !== undefined);
+			await delayUntil(() => {
+				return (
+					// eslint-disable-next-line no-undef
+					window.localStorage.getItem('sarus-client-id') !== undefined
+				);
+			});
 			// Subscribe the client to the channel
 			await hubClient.subscribe('markets');
 			// Acknowledge the channel subscription
@@ -409,10 +461,14 @@ describe('pubsub', () => {
 
 			// a second client needs to be subscribed, and localstorage scrubbed to prevent duplicate client id assignment;
 			global.localStorage.removeItem('sarus-client-id');
-			const otherHubClient = new HubClient({ sarusConfig });
+			const otherHubClient = new HubClient(config);
 			await delayUntil(() => otherHubClient.sarus.ws.readyState === 1);
-			// eslint-disable-next-line no-undef
-			await delayUntil(() => window.localStorage.getItem('sarus-client-id') !== undefined);
+			await delayUntil(() => {
+				return (
+					// eslint-disable-next-line no-undef
+					window.localStorage.getItem('sarus-client-id') !== undefined
+				);
+			});
 			await otherHubClient.subscribe('markets');
 
 			hub.pubsub.publish({
@@ -456,15 +512,18 @@ describe('pubsub', () => {
 		});
 		it('should return an error response if the channel is missing', async () => {
 			const messages = [];
-			const sarusConfig = { url: 'ws://localhost:5000' };
-			const hubClient = new HubClient({ sarusConfig });
+			const hubClient = new HubClient({ url: 'ws://localhost:5000' });
 			hubClient.sarus.on('message', (event) => {
 				const message = JSON.parse(event.data);
 				messages.push(message);
 			});
 			await delayUntil(() => hubClient.sarus.ws.readyState === 1);
-			// eslint-disable-next-line no-undef
-			await delayUntil(() => window.localStorage.getItem('sarus-client-id') !== undefined);
+			await delayUntil(() => {
+				return (
+					// eslint-disable-next-line no-undef
+					window.localStorage.getItem('sarus-client-id') !== undefined
+				);
+			});
 			// Subscribe the client to the channel
 			await hubClient.subscribe('markets');
 			// Acknowledge the channel subscription

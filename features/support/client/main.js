@@ -12,12 +12,7 @@ if (global.window) {
 		window.sarusMessages.push(message.data);
 	};
 
-	const sarusConfig = {
-		// The url that the site is served at is localhost:3000
-		// The url that the test WebSocket server runs at is localhost:3001
-		url: 'ws://localhost:3001',
-	};
-	const hubClient = new HubClient({ sarusConfig });
+	const hubClient = new HubClient({ url: 'ws://localhost:3001' });
 	hubClient.sarus.on('message', storeMessage);
 
 	// eslint-disable-next-line no-undef
