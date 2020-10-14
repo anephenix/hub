@@ -124,13 +124,13 @@ const getClientId = async () => {
 
 // Checks that a client is subscribed to a channel
 const serverSubscribesClientToChannel = ({ clientId, channel }) => {
-	assert(scope.hub.pubsub.clients[clientId].indexOf(channel) !== -1);
-	assert(scope.hub.pubsub.channels[channel].indexOf(clientId) !== -1);
+	assert(scope.hub.pubsub.dataStore.clients[clientId].indexOf(channel) !== -1);
+	assert(scope.hub.pubsub.dataStore.channels[channel].indexOf(clientId) !== -1);
 };
 
 const serverUnsubscribesClientFromChannel = ({ clientId, channel }) => {
-	assert(scope.hub.pubsub.clients[clientId].indexOf(channel) === -1);
-	assert(scope.hub.pubsub.channels[channel].indexOf(clientId) === -1);
+	assert(scope.hub.pubsub.dataStore.clients[clientId].indexOf(channel) === -1);
+	assert(scope.hub.pubsub.dataStore.channels[channel].indexOf(clientId) === -1);
 };
 
 const clientReceivesSubscribeSuccessReponse = async ({ clientId, channel }) => {

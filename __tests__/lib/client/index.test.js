@@ -184,7 +184,7 @@ describe('Client library', () => {
 			// eslint-disable-next-line no-undef
 			const clientId = window.localStorage.getItem('sarus-client-id');
 			// assert that the hub server has that client noted as a subscriber to that channel
-			assert(hub.pubsub.channels.business.indexOf(clientId) !== -1);
+			assert(hub.pubsub.dataStore.channels.business.indexOf(clientId) !== -1);
 		});
 	});
 
@@ -196,10 +196,10 @@ describe('Client library', () => {
 			// eslint-disable-next-line no-undef
 			const clientId = window.localStorage.getItem('sarus-client-id');
 			// assert that the hub server has that client noted as a subscriber to that channel
-			assert(hub.pubsub.channels.markets.indexOf(clientId) !== -1);
+			assert(hub.pubsub.dataStore.channels.markets.indexOf(clientId) !== -1);
 			const unsubscribe = await hubClient.unsubscribe('markets');
 			assert(unsubscribe.success);
-			assert(hub.pubsub.channels.markets.indexOf(clientId) === -1);
+			assert(hub.pubsub.dataStore.channels.markets.indexOf(clientId) === -1);
 		});
 	});
 

@@ -36,17 +36,17 @@ describe('pubsub', () => {
 					response.message,
 					'Client "xxxx" subscribed to channel "sport"'
 				);
-				assert.deepStrictEqual(hub.pubsub.channels.sport, ['xxxx']);
-				assert.deepStrictEqual(hub.pubsub.clients.xxxx, ['sport']);
+				assert.deepStrictEqual(hub.pubsub.dataStore.channels.sport, ['xxxx']);
+				assert.deepStrictEqual(hub.pubsub.dataStore.clients.xxxx, ['sport']);
 				await hub.pubsub.subscribe({ data, socket: secondWs });
 				await hub.pubsub.subscribe({ data: secondData, socket });
-				assert.deepStrictEqual(hub.pubsub.channels.sport, [
+				assert.deepStrictEqual(hub.pubsub.dataStore.channels.sport, [
 					'xxxx',
 					'wwww',
 				]);
-				assert.deepStrictEqual(hub.pubsub.clients.wwww, ['sport']);
-				assert.deepStrictEqual(hub.pubsub.channels.business, ['xxxx']);
-				assert.deepStrictEqual(hub.pubsub.clients.xxxx, [
+				assert.deepStrictEqual(hub.pubsub.dataStore.clients.wwww, ['sport']);
+				assert.deepStrictEqual(hub.pubsub.dataStore.channels.business, ['xxxx']);
+				assert.deepStrictEqual(hub.pubsub.dataStore.clients.xxxx, [
 					'sport',
 					'business',
 				]);
@@ -101,10 +101,10 @@ describe('pubsub', () => {
 					'Client "zzzz" subscribed to channel "entertainment"';
 				assert.strictEqual(firstResponse.message, message);
 				assert.strictEqual(secondResponse.message, message);
-				assert.deepStrictEqual(hub.pubsub.channels.entertainment, [
+				assert.deepStrictEqual(hub.pubsub.dataStore.channels.entertainment, [
 					'zzzz',
 				]);
-				assert.deepStrictEqual(hub.pubsub.clients.zzzz, [
+				assert.deepStrictEqual(hub.pubsub.dataStore.clients.zzzz, [
 					'entertainment',
 				]);
 			});
