@@ -36,7 +36,7 @@ describe('Client library', () => {
 				handlerFunctionCalled = true;
 			};
 			hubClient.addChannelMessageHandler('news', handlerFunction);
-			hub.pubsub.publish({
+			await hub.pubsub.publish({
 				data: {
 					channel: 'news',
 					message: {

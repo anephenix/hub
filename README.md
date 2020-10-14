@@ -159,8 +159,8 @@ const response = await hubServer.rpc.send({
 
 ##### Calling an RPC function without wanting a response back
 
-In some cases you might want to make a request to an RPC function but not get 
-a reply back (such as sending an api key to a client). You can do that by 
+In some cases you might want to make a request to an RPC function but not get
+a reply back (such as sending an api key to a client). You can do that by
 passing a `noReply` boolean to the `rpc.send` function, like in this example:
 
 ```javascript
@@ -168,9 +168,10 @@ const response = await hubServer.rpc.send({
 	ws,
 	action: 'set-api-key',
 	data: { apiKey: 'eKam2aa3dah2jah4UtheeFaiPo6xahx5ohrohk5o' },
-	noReply: true
+	noReply: true,
 });
 ```
+
 The response will be a `null` value.
 
 #### PubSub (Publish/Subscribe)
@@ -206,9 +207,11 @@ await hubClient.publish('news', 'Some biscuits are in the kitchen', true);
 ```javascript
 const channel = 'news';
 const message = 'And cake too!';
-hub.pubsub.publish({
-	data: { channel, message },
-});
+(async () => {
+	await hub.pubsub.publish({
+		data: { channel, message },
+	});
+})();
 ```
 
 ##### Handling messages published for a channel

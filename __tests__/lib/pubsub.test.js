@@ -21,7 +21,7 @@ describe('pubsub', () => {
 
 	describe('#subscribe', () => {
 		describe('when passed a clientId and a channel', () => {
-			it('should add a client to a channel', () => {
+			it('should add a client to a channel', async () => {
 				const data = { channel: 'sport' };
 				const socket = {
 					clientId: 'xxxx',
@@ -30,7 +30,7 @@ describe('pubsub', () => {
 					clientId: 'wwww',
 				};
 				const secondData = { channel: 'business' };
-				const response = hub.pubsub.subscribe({ data, socket });
+				const response = await hub.pubsub.subscribe({ data, socket });
 				assert(response.success);
 				assert.strictEqual(
 					response.message,
@@ -38,8 +38,8 @@ describe('pubsub', () => {
 				);
 				assert.deepStrictEqual(hub.pubsub.channels.sport, ['xxxx']);
 				assert.deepStrictEqual(hub.pubsub.clients.xxxx, ['sport']);
-				hub.pubsub.subscribe({ data, socket: secondWs });
-				hub.pubsub.subscribe({ data: secondData, socket });
+				await hub.pubsub.subscribe({ data, socket: secondWs });
+				await hub.pubsub.subscribe({ data: secondData, socket });
 				assert.deepStrictEqual(hub.pubsub.channels.sport, [
 					'xxxx',
 					'wwww',
@@ -54,12 +54,12 @@ describe('pubsub', () => {
 		});
 
 		describe('when the websocket does not have a client id', () => {
-			it('should throw an error indicating that the websocket does not have an id', () => {
+			it('should throw an error indicating that the websocket does not have an id', async () => {
 				const data = { channel: 'weather' };
 				const socket = {};
-				assert.throws(
-					() => {
-						hub.pubsub.subscribe({ data, socket });
+				assert.rejects(
+					async () => {
+						await hub.pubsub.subscribe({ data, socket });
 					},
 					{ message: 'No client id was found on the WebSocket' }
 				);
@@ -67,14 +67,14 @@ describe('pubsub', () => {
 		});
 
 		describe('when the channel is not passed', () => {
-			it('should throw an error indicating that the channel was not passed', () => {
+			it('should throw an error indicating that the channel was not passed', async () => {
 				const data = {};
 				const socket = {
 					clientId: 'yyyy',
 				};
-				assert.throws(
-					() => {
-						hub.pubsub.subscribe({ data, socket });
+				assert.rejects(
+					async () => {
+						await hub.pubsub.subscribe({ data, socket });
 					},
 					{ message: 'No channel was passed in the data' }
 				);
@@ -82,13 +82,19 @@ describe('pubsub', () => {
 		});
 
 		describe('when a client makes multiple attempts to subscribe to the same channel', () => {
-			it('should only record a single entry of the client id in the channel subscriptions, and vice versa', () => {
+			it('should only record a single entry of the client id in the channel subscriptions, and vice versa', async () => {
 				const data = { channel: 'entertainment' };
 				const socket = {
 					clientId: 'zzzz',
 				};
-				const firstResponse = hub.pubsub.subscribe({ data, socket });
-				const secondResponse = hub.pubsub.subscribe({ data, socket });
+				const firstResponse = await hub.pubsub.subscribe({
+					data,
+					socket,
+				});
+				const secondResponse = await hub.pubsub.subscribe({
+					data,
+					socket,
+				});
 				assert(firstResponse.success);
 				assert(secondResponse.success);
 				const message =
@@ -226,7 +232,7 @@ describe('pubsub', () => {
 				`Client "${clientId}" subscribed to channel "markets"`
 			);
 			// Get the server to publish a message to the channel
-			hub.pubsub.publish({
+			await hub.pubsub.publish({
 				data: { channel: 'markets', message: 'FTSE: 5845 (-5)' },
 			});
 			await delay(25);
@@ -374,10 +380,10 @@ describe('pubsub', () => {
 		});
 
 		describe('when publishing from a server', () => {
-			it('should return an error response if the channel is missing', () => {
-				assert.throws(
-					() => {
-						hub.pubsub.publish({
+			it('should return an error response if the channel is missing', async () => {
+				assert.rejects(
+					async () => {
+						await hub.pubsub.publish({
 							data: {
 								message: 'FTSE: 5845 (-5)',
 							},
@@ -388,9 +394,9 @@ describe('pubsub', () => {
 			});
 
 			it('should return an error response if the message is missing', async () => {
-				assert.throws(
-					() => {
-						hub.pubsub.publish({
+				assert.rejects(
+					async () => {
+						await hub.pubsub.publish({
 							data: {
 								channel: 'markets',
 							},
@@ -402,9 +408,9 @@ describe('pubsub', () => {
 
 			describe('publishing to a channel that has no subscribers', () => {
 				it('should note that the publish request was received, but that there are no subscribers for that channel', async () => {
-					assert.throws(
-						() => {
-							hub.pubsub.publish({
+					assert.rejects(
+						async () => {
+							await hub.pubsub.publish({
 								data: {
 									channel: 'dashboard_x',
 									message: 'FTSE: 5845 (-5)',
@@ -471,7 +477,7 @@ describe('pubsub', () => {
 			});
 			await otherHubClient.subscribe('markets');
 
-			hub.pubsub.publish({
+			await hub.pubsub.publish({
 				data: {
 					channel: 'markets',
 					message: 'FTSE: 5845 (-5)',

@@ -156,7 +156,7 @@ const publishMessageToChannel = async ({
 	server,
 }) => {
 	if (server) {
-		scope.hub.pubsub.publish({
+		await scope.hub.pubsub.publish({
 			data: { channel, message },
 		});
 	} else {
