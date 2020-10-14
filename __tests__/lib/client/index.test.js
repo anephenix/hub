@@ -14,7 +14,6 @@ describe('Client library', () => {
 		shutdownInstance = httpShutdown(hub.listen());
 		const sarusConfig = {
 			url: 'ws://localhost:5001',
-			retryConnectionDelay: true,
 		};
 		hubClient = new HubClient({ sarusConfig });
 		await delayUntil(() => hubClient.sarus.ws.readyState === 1);

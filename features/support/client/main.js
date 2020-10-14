@@ -16,7 +16,6 @@ if (global.window) {
 		// The url that the site is served at is localhost:3000
 		// The url that the test WebSocket server runs at is localhost:3001
 		url: 'ws://localhost:3001',
-		retryConnectionDelay: true,
 	};
 	const hubClient = new HubClient({ sarusConfig });
 	hubClient.sarus.on('message', storeMessage);

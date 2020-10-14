@@ -236,7 +236,6 @@ const clientReceivesUnsubscribeSuccessReponse = async ({
 const otherClientSubscribesToChannel = async (channel) => {
 	const sarusConfig = {
 		url: 'ws://localhost:3001',
-		retryConnectionDelay: true,
 	};
 	scope.otherClient = new HubClient({ sarusConfig });
 	scope.otherClientMessages = [];
