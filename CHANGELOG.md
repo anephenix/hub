@@ -1,5 +1,9 @@
 # CHANGELOG
 
+### 0.0.7 - Wednesday 14th October, 2020
+
+-   Added a way to make RPC requests without requiring a response in return
+
 ### 0.0.6 - Wednesday 14th October, 2020
 
 -   Changed how config options are passed to the HubClient

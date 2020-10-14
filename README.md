@@ -157,6 +157,22 @@ const response = await hubServer.rpc.send({
 });
 ```
 
+##### Calling an RPC function without wanting a response back
+
+In some cases you might want to make a request to an RPC function but not get 
+a reply back (such as sending an api key to a client). You can do that by 
+passing a `noReply` boolean to the `rpc.send` function, like in this example:
+
+```javascript
+const response = await hubServer.rpc.send({
+	ws,
+	action: 'set-api-key',
+	data: { apiKey: 'eKam2aa3dah2jah4UtheeFaiPo6xahx5ohrohk5o' },
+	noReply: true
+});
+```
+The response will be a `null` value.
+
 #### PubSub (Publish/Subscribe)
 
 Hub has support for PubSub, where the client subscribes to channels and unsubscribes from them, and where both the client and the server can publish messages to those channels.

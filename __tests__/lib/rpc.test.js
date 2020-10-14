@@ -205,4 +205,44 @@ describe('rpc', () => {
 			});
 		});
 	});
+
+	describe('making a request without wanting a reply', () => {
+		it('should make a request but not receive a reply', async () => {
+			const hubServer = new Hub({ port: 4002 });
+			const shutSignal = httpShutdown(hubServer.listen());
+			const hubClient = new HubClient({ url: 'ws://localhost:4002' });
+			hubClient.rpc.add(
+				'set-api-key',
+				({ id, type, data, action, reply}) => {
+					if (type === 'request') {
+						assert.strictEqual(data.apiKey, 'xxx');
+						const payload = {
+							id,
+							action,
+							type: 'response',
+							data: { success: true, message: 'api key set' },
+						};
+						reply(payload);
+					}
+				}
+			);
+
+			await delayUntil(() => {
+				return hubClient.sarus.ws.readyState === 1;
+			}, 5000);
+
+			const ws = hubServer.wss.clients.values().next().value;
+			const response = await hubServer.rpc.send({
+				ws,
+				action: 'set-api-key',
+				data: { apiKey: 'xxx' },
+				noReply: true
+			});
+			assert.strictEqual(response, null);
+			await delayUntil(() => hubServer.rpc.requests.length === 0);			
+			assert.strictEqual(hubServer.rpc.requests.length, 0);
+			assert.strictEqual(hubServer.rpc.responses.length, 0);
+			shutSignal.shutdown();
+		});
+	});
 });
