@@ -50,6 +50,27 @@ describe('memory data store', () => {
 			});
 			assert.deepStrictEqual(memoryStore.channels[key], [anotherValue]);
 		});
+
+		it('should do nothing if passed a hash and key that have no existing values', async () => {
+			const copyofChannels = memoryStore.channels;
+			await memoryStore.removeItemFromCollection({
+				value,
+				hash: 'foo',
+				key: 'bar',
+			});
+			assert.deepStrictEqual(copyofChannels, memoryStore.channels);
+		});
+
+		it('should do nothing if passed a hash and key that have no existing values', async () => {
+			const copyofChannels = memoryStore.channels;
+			await memoryStore.removeItemFromCollection({
+				value: 'baz',
+				hash,
+				key,
+			});
+			assert.deepStrictEqual(copyofChannels, memoryStore.channels);
+		});
+
 	});
 
 	describe('#addClientToChannel', () => {
