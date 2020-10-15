@@ -9,7 +9,7 @@ describe('memory data store', () => {
 	const value = 'xxx';
 	const anotherValue = 'yyy';
 
-	it('should initialise with an empty set of clients and channesl', () => {
+	it('should initialise with an empty set of clients and channels', () => {
 		assert.deepStrictEqual(memoryStore.channels, {});
 		assert.deepStrictEqual(memoryStore.clients, {});
 	});
@@ -64,6 +64,29 @@ describe('memory data store', () => {
 		});
 		it('should add the channel value to the clientId key in the clients hash', () => {
 			assert.deepStrictEqual(memoryStore.clients[clientId], [channel]);
+		});
+	});
+
+	describe('#removeClientFromChannel', () => {
+		const clientId = 'aaa';
+		const otherClientId = 'bbb';
+		const channel = 'entertainment';
+		beforeAll(async () => {
+			await memoryStore.addClientToChannel({ clientId, channel });
+			await memoryStore.addClientToChannel({
+				clientId: otherClientId,
+				channel,
+			});
+			await memoryStore.removeClientFromChannel({ clientId, channel });
+		});
+
+		it('should remove the clientID value from the channel key in the channels hash', () => {
+			assert.deepStrictEqual(memoryStore.channels[channel], [
+				otherClientId,
+			]);
+		});
+		it('should remove the channel value from the clientId key in the clients hash', () => {
+			assert.deepStrictEqual(memoryStore.clients[clientId], []);
 		});
 	});
 
