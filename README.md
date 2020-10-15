@@ -204,7 +204,7 @@ Hub has support for PubSub, where the client subscribes to channels and unsubscr
 await hubClient.subscribe('news');
 ```
 
-##### Unsubscribing to a channel
+##### Unsubscribing from a channel
 
 ```javascript
 await hubClient.unsubscribe('news');
