@@ -258,6 +258,40 @@ function logger(message) {
 hubClient.removeChannelMessageHandler(channel, 'logger');
 ```
 
+### Handling client/channel subscriptions data
+
+Hub by default will store data about client/channel subscriptions in memory.
+This makes it easy to get started with using the library without needing to 
+setup databases to store the data.
+
+However, we recommend that you setup a database like Redis to store that 
+data, so that you don't lose the data if the Node.js process that is running 
+Hub ends.
+
+You can setup Hub to use Redis as a data store for client/channels 
+subscriptions data, as demonstrated in the example below:
+
+```javascript
+const hub = new Hub({
+	port: 4000,
+	dataStoreType: 'redis',
+	dataStoreOptions: {
+		channelsKey: 'channels' // by default it is hub-channels 
+		clientsKey: 'clients' // by default it is hub-clients 
+		/* 
+		* This is the same config options that can be passed into the redis NPM 
+		* module, with details here:
+		* https://www.npmjs.com/package/redis#options-object-properties
+		*/
+		redisConfig: {
+			db: 1
+		}
+	} 
+});
+
+
+```
+
 ### Running tests
 
 ```shell
