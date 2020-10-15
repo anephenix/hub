@@ -8,6 +8,7 @@ A Node.js WebSocket server and client with added features
 ### Dependencies
 
 -   Node.js
+-   Redis
 
 ### Install
 
@@ -40,8 +41,14 @@ hub.listen();
 And for the client, you can load this code:
 
 ```javascript
-// Dependencies
-const { HubClient } = require('@anephenix/hub');
+/* Dependencies
+
+	You will want to import just the HubClient library
+	if you are using a library to import and transpile
+	modules like WebPack for Next.js
+
+*/
+import HubClient from '@anephenix/hub/lib/client';
 
 // Create an instance of HubClient
 const hubClient = new HubClient({ url: 'ws://localhost:4000' });
@@ -59,7 +66,20 @@ const hubClient = new HubClient({
 ```
 
 The client can be loaded via either code on the browser, or
-as part of a Node.js program (see examples folder for more details).
+as part of a Node.js program.
+
+```javascript
+// Dependencies
+const repl = require('repl');
+const { HubClient } = require('@anephenix/hub');
+
+// Initialise the client
+const hubClient = new HubClient({ url: 'ws://localhost:3000' });
+
+// Start the REPL and make hubClient available
+const replInstance = repl.start('> ');
+replInstance.context.hubClient = hubClient;
+```
 
 #### RPC (Remote Procedure Calls)
 

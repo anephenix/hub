@@ -36,16 +36,24 @@ describe('pubsub', () => {
 					response.message,
 					'Client "xxxx" subscribed to channel "sport"'
 				);
-				assert.deepStrictEqual(hub.pubsub.dataStore.channels.sport, ['xxxx']);
-				assert.deepStrictEqual(hub.pubsub.dataStore.clients.xxxx, ['sport']);
+				assert.deepStrictEqual(hub.pubsub.dataStore.channels.sport, [
+					'xxxx',
+				]);
+				assert.deepStrictEqual(hub.pubsub.dataStore.clients.xxxx, [
+					'sport',
+				]);
 				await hub.pubsub.subscribe({ data, socket: secondWs });
 				await hub.pubsub.subscribe({ data: secondData, socket });
 				assert.deepStrictEqual(hub.pubsub.dataStore.channels.sport, [
 					'xxxx',
 					'wwww',
 				]);
-				assert.deepStrictEqual(hub.pubsub.dataStore.clients.wwww, ['sport']);
-				assert.deepStrictEqual(hub.pubsub.dataStore.channels.business, ['xxxx']);
+				assert.deepStrictEqual(hub.pubsub.dataStore.clients.wwww, [
+					'sport',
+				]);
+				assert.deepStrictEqual(hub.pubsub.dataStore.channels.business, [
+					'xxxx',
+				]);
 				assert.deepStrictEqual(hub.pubsub.dataStore.clients.xxxx, [
 					'sport',
 					'business',
@@ -101,9 +109,10 @@ describe('pubsub', () => {
 					'Client "zzzz" subscribed to channel "entertainment"';
 				assert.strictEqual(firstResponse.message, message);
 				assert.strictEqual(secondResponse.message, message);
-				assert.deepStrictEqual(hub.pubsub.dataStore.channels.entertainment, [
-					'zzzz',
-				]);
+				assert.deepStrictEqual(
+					hub.pubsub.dataStore.channels.entertainment,
+					['zzzz']
+				);
 				assert.deepStrictEqual(hub.pubsub.dataStore.clients.zzzz, [
 					'entertainment',
 				]);
@@ -550,6 +559,22 @@ describe('pubsub', () => {
 				theNextLatestMessage.error,
 				'No channel was passed in the data'
 			);
+		});
+	});
+
+	describe('dataStore types', () => {
+		it.todo('should use the memory data store by default');
+
+		describe('when passed a dataStoreType parameter', () => {
+			describe('when the dataStore type exists', () => {
+				it.todo(
+					'should create an instance of that dataStore type and bind it to the class'
+				);
+			});
+
+			describe('when the dataStore type does not exist', () => {
+				it.todo('should throw an error');
+			});
 		});
 	});
 });
