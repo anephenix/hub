@@ -5,6 +5,8 @@ const { Hub, HubClient } = require('../../index');
 const WebSocket = require('ws');
 const { v4: uuidv4 } = require('uuid');
 const { delay, delayUntil } = require('../../helpers/delay');
+const MemoryDataStore = require('../../lib/dataStores/memory');
+const RedisDataStore = require('../../lib/dataStores/redis');
 
 describe('pubsub', () => {
 	let hub;
@@ -563,17 +565,30 @@ describe('pubsub', () => {
 	});
 
 	describe('dataStore types', () => {
-		it.todo('should use the memory data store by default');
+		it('should use the memory data store by default', () => {
+			assert(hub.pubsub.dataStore instanceof MemoryDataStore);
+		});
 
 		describe('when passed a dataStoreType parameter', () => {
+
 			describe('when the dataStore type exists', () => {
-				it.todo(
-					'should create an instance of that dataStore type and bind it to the class'
+				it(
+					'should create an instance of that dataStore type and bind it to the class', async () => {
+						const redisHub = new Hub({ port: 6000, dataStoreType: 'redis' });
+						assert(redisHub.pubsub.dataStore instanceof RedisDataStore);
+						await redisHub.pubsub.dataStore.redis.quit();
+					}
 				);
 			});
 
 			describe('when the dataStore type does not exist', () => {
-				it.todo('should throw an error');
+				it('should throw an error', async () => {
+					assert.throws(() => {
+						new Hub({ port: 6000, dataStoreType: 'postgres' });
+					}, {
+						message: 'dataStoreType "postgres" is not a valid option' 
+					});
+				});
 			});
 		});
 	});
