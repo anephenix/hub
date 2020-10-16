@@ -99,7 +99,7 @@ describe('Hub', () => {
 			const { redis, channelsKey, clientsKey } = hub.pubsub.dataStore;
 			await redis.delAsync(channelsKey);
 			await redis.delAsync(clientsKey);
-			await hub.pubsub.dataStore.redis.quit();
+			// await hub.pubsub.dataStore.redis.quit();
 		});
 
 		it('should have a redis client', () => {

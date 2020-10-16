@@ -360,7 +360,7 @@ describe('pubsub', () => {
 				);
 			});
 
-			it('should note that the publish request was received, but that there are no subscribers for that channel', async () => {
+			it('should publish a message, even if there are no subscribers for that channel', async () => {
 				const messages = [];
 				const hubClient = new HubClient({ url: 'ws://localhost:5000' });
 				hubClient.sarus.on('message', (event) => {
@@ -382,10 +382,10 @@ describe('pubsub', () => {
 				await hubClient.publish('dashboard_y', 'Some data');
 				// Check that the client receives the message
 				const theNextLatestMessage = messages[messages.length - 1];
-				assert.strictEqual(theNextLatestMessage.type, 'error');
+				assert.strictEqual(theNextLatestMessage.type, 'response');
 				assert.strictEqual(
-					theNextLatestMessage.error,
-					'There are currently no subscribers to that channel'
+					theNextLatestMessage.data.message,
+					'Published message'
 				);
 			});
 		});
@@ -418,22 +418,68 @@ describe('pubsub', () => {
 			});
 
 			describe('publishing to a channel that has no subscribers', () => {
-				it('should note that the publish request was received, but that there are no subscribers for that channel', async () => {
-					assert.rejects(
-						async () => {
-							await hub.pubsub.publish({
-								data: {
-									channel: 'dashboard_x',
-									message: 'FTSE: 5845 (-5)',
-								},
-							});
+				it('should publish the message, even if there are no subscribers for that channel', async () => {
+					await hub.pubsub.publish({
+						data: {
+							channel: 'dashboard_x',
+							message: 'FTSE: 5845 (-5)',
 						},
-						{
-							message:
-								'There are currently no subscribers to that channel',
-						}
-					);
+					});
 				});
+			});
+		});
+
+		describe('when using the redis dataStore', () => {
+
+			let firstHub;
+			let secondHub;
+			let firstHubClient;
+			let secondHubClient;
+			
+			beforeAll(async () => {
+				firstHub = new Hub({ port: 4006, dataStoreType: 'redis' });
+				secondHub = new Hub({ port: 4007, dataStoreType: 'redis' });
+				firstHub.listen();
+				secondHub.listen();
+				firstHubClient = new HubClient({ url: 'ws://localhost:4006' });
+				secondHubClient = new HubClient({ url: 'ws://localhost:4007' });
+				await delayUntil(() => firstHubClient.getClientId() !== null && secondHubClient.getClientId() !== null);
+			});
+
+			afterAll(async () => {
+				// await firstHub.pubsub.dataStore.redis.quit();
+				// await secondHub.pubsub.dataStore.redis.quit();
+				// await firstHub.pubsub.dataStore.internalRedis.quit();
+				// await secondHub.pubsub.dataStore.internalRedis.quit();
+			});
+
+			it('should relay the published message to all Hub server instances via Redis', async () => {
+				let firstClientMessage;
+				let firstClientReceivesMessage = false;
+				let secondClientMessage;
+				let secondClientReceivesMessage = false;
+				const firstClientHandlerFunction = (message) => {
+					firstClientMessage = message;
+					firstClientReceivesMessage = true;
+				};
+				firstHubClient.addChannelMessageHandler('news', firstClientHandlerFunction);
+				const secondClientHandlerFunction = (message) => {
+					secondClientMessage = message;
+					secondClientReceivesMessage = true;
+				};
+				secondHubClient.addChannelMessageHandler('news', secondClientHandlerFunction);
+				await firstHubClient.subscribe('news');
+				await secondHubClient.subscribe('news');
+				const message = 'Sunny weather on the way';
+				await firstHub.pubsub.publish({
+					data: {
+						channel: 'news',
+						message
+					}
+				});
+				await delayUntil(() => firstClientReceivesMessage && secondClientReceivesMessage);
+				assert.strictEqual(firstClientMessage, message);
+				assert.strictEqual(secondClientMessage, message);
 			});
 		});
 	});
@@ -576,7 +622,7 @@ describe('pubsub', () => {
 					'should create an instance of that dataStore type and bind it to the class', async () => {
 						const redisHub = new Hub({ port: 6000, dataStoreType: 'redis' });
 						assert(redisHub.pubsub.dataStore instanceof RedisDataStore);
-						await redisHub.pubsub.dataStore.redis.quit();
+						// await redisHub.pubsub.dataStore.redis.quit();
 					}
 				);
 			});
