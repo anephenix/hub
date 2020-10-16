@@ -261,14 +261,14 @@ hubClient.removeChannelMessageHandler(channel, 'logger');
 ### Handling client/channel subscriptions data
 
 Hub by default will store data about client/channel subscriptions in memory.
-This makes it easy to get started with using the library without needing to 
+This makes it easy to get started with using the library without needing to
 setup databases to store the data.
 
-However, we recommend that you setup a database like Redis to store that 
-data, so that you don't lose the data if the Node.js process that is running 
+However, we recommend that you setup a database like Redis to store that
+data, so that you don't lose the data if the Node.js process that is running
 Hub ends.
 
-You can setup Hub to use Redis as a data store for client/channels 
+You can setup Hub to use Redis as a data store for client/channels
 subscriptions data, as demonstrated in the example below:
 
 ```javascript
@@ -276,21 +276,34 @@ const hub = new Hub({
 	port: 4000,
 	dataStoreType: 'redis',
 	dataStoreOptions: {
-		channelsKey: 'channels' // by default it is hub-channels 
-		clientsKey: 'clients' // by default it is hub-clients 
-		/* 
-		* This is the same config options that can be passed into the redis NPM 
+		channelsKey: 'channels' // by default it is hub-channels
+		clientsKey: 'clients' // by default it is hub-clients
+		/*
+		* This is the same config options that can be passed into the redis NPM
 		* module, with details here:
 		* https://www.npmjs.com/package/redis#options-object-properties
 		*/
 		redisConfig: {
 			db: 1
 		}
-	} 
+	}
 });
-
-
 ```
+
+The added benefit of using the Redis data store is that it supports horizontal scaling.
+
+For example, say you have two instances of Hub (server A and server B), and two clients
+(client A and client B). Both clients are subscribed to the channel 'news'.
+
+If a message is published to the channel 'news' using server A, then the message will be
+received by both servers A and B, and the message will be passed to clients that
+are subscribers to that channel, in this case both Client A and client B.
+
+This means that you don't have to worry about which clients are connected to which servers,
+or which servers are receiving the publish actions. You can then run multiple instances of
+Hub across multiple servers, and have a load balancer sit in front of the servers to handle
+availability (making sure WebSocket connections go to available servers, and if a server
+goes offline, that it can pass the reconnection attempt to another available server).
 
 ### Running tests
 

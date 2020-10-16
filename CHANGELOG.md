@@ -1,5 +1,9 @@
 # CHANGELOG
 
+### 0.0.9 - Friday 16th October, 2020
+
+-   Added horizontal scaling support for message publishing using Redis
+
 ### 0.0.8 - Wednesday 14th October, 2020
 
 -   Added the ability to store client/subscriptions data in Redis
