@@ -1,5 +1,9 @@
 # CHANGELOG
 
+### 0.0.8 - Wednesday 14th October, 2020
+
+-   Added the ability to store client/subscriptions data in Redis
+
 ### 0.0.7 - Wednesday 14th October, 2020
 
 -   Added a way to make RPC requests without requiring a response in return
