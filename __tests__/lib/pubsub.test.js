@@ -641,7 +641,6 @@ describe('pubsub', () => {
 
 	describe('#unsubscribeClientFromAllChannels', () => {
 		it('should unsubscribe the client from all of its channels', async () => {
-			// another hub
 			const newHub = await new Hub({ port: 5001 });
 			newHub.listen();
 			const hubClient = new HubClient({ url: 'ws://localhost:5001' });
@@ -651,7 +650,6 @@ describe('pubsub', () => {
 			await newHub.pubsub.unsubscribeClientFromAllChannels({ ws: { clientId: hubClient.getClientId() } });
 			const channels = await newHub.pubsub.dataStore.getChannelsForClientId(hubClient.getClientId());
 			const clientIds = await newHub.pubsub.dataStore.getClientIdsForChannel('shares');
-			// console.log({ channels, clientIds });
 			assert.deepStrictEqual(channels, []);
 			assert.deepStrictEqual(clientIds, []);
 			hubClient.sarus.disconnect();

@@ -4,6 +4,7 @@ const httpShutdown = require('http-shutdown');
 const WebSocket = require('ws');
 const { delayUntil } = require('../helpers/delay');
 const { RedisClient } = require('redis');
+const { delay } = require('bluebird');
 
 describe('Hub', () => {
 	it('should return a class function', () => {
@@ -135,5 +136,23 @@ describe('Hub', () => {
 			assert(response.success);
 		});
 
+	});
+
+	describe('when a client disconnects from the server', () => {
+		it('should unsubscribe that client from any channels they were subscribed to', async () => {
+			const newHub = await new Hub({ port: 5002 });
+			newHub.listen();
+			const hubClient = new HubClient({ url: 'ws://localhost:5002' });
+			await delayUntil(() => hubClient.sarus.ws.readyState === 1);
+			await delayUntil(() => { return hubClient.getClientId(); });
+			await hubClient.subscribe('accounts');
+			hubClient.sarus.disconnect();
+			await delay(100);
+			const channels = await newHub.pubsub.dataStore.getChannelsForClientId(hubClient.getClientId());
+			const clientIds = await newHub.pubsub.dataStore.getClientIdsForChannel('accounts');
+			assert.deepStrictEqual(channels, []);
+			assert.deepStrictEqual(clientIds, []);
+			newHub.server.close();
+		});
 	});
 });
