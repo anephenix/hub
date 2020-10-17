@@ -1,6 +1,5 @@
 // Dependencies
 const assert = require('assert');
-const httpShutdown = require('http-shutdown');
 const { Hub, HubClient } = require('../../index');
 const WebSocket = require('ws');
 const { v4: uuidv4 } = require('uuid');
@@ -10,15 +9,14 @@ const RedisDataStore = require('../../lib/dataStores/redis');
 
 describe('pubsub', () => {
 	let hub;
-	let server;
 
 	beforeAll(async () => {
 		hub = new Hub({ port: 5000 });
-		server = await httpShutdown(hub.server.listen(5000));
+		hub.listen();
 	});
 
-	afterAll(async () => {
-		await server.shutdown();
+	afterAll(() => {
+		hub.server.close();
 	});
 
 	describe('#subscribe', () => {
@@ -447,6 +445,8 @@ describe('pubsub', () => {
 			});
 
 			afterAll(async () => {
+				firstHub.server.close();
+				secondHub.server.close();
 				// await firstHub.pubsub.dataStore.redis.quit();
 				// await secondHub.pubsub.dataStore.redis.quit();
 				// await firstHub.pubsub.dataStore.internalRedis.quit();
@@ -638,4 +638,25 @@ describe('pubsub', () => {
 			});
 		});
 	});
+
+	describe('#unsubscribeClientFromAllChannels', () => {
+		it('should unsubscribe the client from all of its channels', async () => {
+			// another hub
+			const newHub = await new Hub({ port: 5001 });
+			newHub.listen();
+			const hubClient = new HubClient({ url: 'ws://localhost:5001' });
+			await delayUntil(() => hubClient.sarus.ws.readyState === 1);
+			await delayUntil(() => { return hubClient.getClientId(); });
+			await hubClient.subscribe('shares');
+			await newHub.pubsub.unsubscribeClientFromAllChannels({ ws: { clientId: hubClient.getClientId() } });
+			const channels = await newHub.pubsub.dataStore.getChannelsForClientId(hubClient.getClientId());
+			const clientIds = await newHub.pubsub.dataStore.getClientIdsForChannel('shares');
+			// console.log({ channels, clientIds });
+			assert.deepStrictEqual(channels, []);
+			assert.deepStrictEqual(clientIds, []);
+			hubClient.sarus.disconnect();
+			newHub.server.close();
+		});
+	});
+
 });

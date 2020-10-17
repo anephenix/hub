@@ -24,14 +24,14 @@ describe('Hub', () => {
 			assert(hub.wss);
 		});
 		it('should attach event listener bindings to the websocket server', () => {
-			assert(hub.serverEventListeners.connection.length > 0);
+			assert(hub.serverEventListeners.connection.length === 1);
 			assert(hub.serverEventListeners.listening.length === 0);
 			assert(hub.serverEventListeners.headers.length === 0);
 			assert(hub.serverEventListeners.error.length === 0);
 			assert(hub.serverEventListeners.close.length === 0);
 			assert(hub.connectionEventListeners.message.length > 0);
 			assert(hub.connectionEventListeners.error.length === 0);
-			assert(hub.connectionEventListeners.close.length === 0);
+			assert(hub.connectionEventListeners.close.length === 1);
 			assert.strictEqual(hub.wss._eventsCount, 5);
 		});
 		describe('#listen', () => {

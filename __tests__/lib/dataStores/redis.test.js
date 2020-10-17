@@ -7,7 +7,7 @@ const redisLib = require('redis');
 bluebird.promisifyAll(redisLib.RedisClient.prototype);
 bluebird.promisifyAll(redisLib.Multi.prototype);
 const redisConfig = { db: 1 };
-const redis = redisLib.createClient(redisConfig);
+let redis;
 
 describe('redis data store', () => {
 
@@ -17,9 +17,14 @@ describe('redis data store', () => {
 	const value = 'xxx';
 	const anotherValue = 'yyy';
 
+	beforeAll(() => {
+		redis = redisLib.createClient(redisConfig);
+	});
+
 	afterAll(async () => {
 		await redis.delAsync(dataStore.channelsKey);
 		await redis.delAsync(dataStore.clientsKey);
+		await redis.quit();
 	});
 
 	it('should initialise with a redis client', () => {

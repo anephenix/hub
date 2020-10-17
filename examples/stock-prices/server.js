@@ -1,6 +1,6 @@
 // Dependencies
 const { Hub } = require('../../index');
-const hub = new Hub({ port: 5000 });
+const hub = new Hub({ port: 5000, dataStoreType: 'redis' });
 
 // The message logger helper function
 const messageLogger = (hub) => {
