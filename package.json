@@ -1,6 +1,6 @@
 {
 	"name": "@anephenix/hub",
-	"version": "0.0.9",
+	"version": "0.0.10",
 	"description": "A WebSocket server for Sarus",
 	"main": "index.js",
 	"scripts": {
@@ -8,7 +8,7 @@
 		"cover": "npx jest --coverage --coverageReporters=text-lcov | coveralls",
 		"cucumber": "NODE_ENV=test npx cucumber-js --no-strict --exit",
 		"cucumber-wip": "NODE_ENV=test npx cucumber-js --no-strict -t @wip",
-		"test": "NODE_ENV=test npx jest --coverage"
+		"test": "NODE_ENV=test npx jest --coverage --forceExit"
 	},
 	"keywords": [
 		"websocket",

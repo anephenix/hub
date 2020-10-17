@@ -110,17 +110,9 @@ setInterval(() => {
 }, 1000);
 
 // Here we define the function to be added as an RPC function
-const getPriceFunction = ({ id, action, type, data, reply }) => {
-	if (type === 'request') {
-		let cryptocurrency = cryptocurrencies[data.cryptocurrency];
-		const response = {
-			id,
-			action,
-			type: 'response',
-			data: { cryptocurrency },
-		};
-		reply(response);
-	}
+const getPriceFunction = ({ data, reply }) => {
+	let cryptocurrency = cryptocurrencies[data.cryptocurrency];
+	reply({ data: { cryptocurrency } });
 };
 
 // We then attach that function to the RPC action 'get-price'
@@ -148,18 +140,10 @@ console.log({ cryptocurrency });
 
 ```javascript
 // Create an RPC function to call on the client
-const getEnvironment = ({ id, type, action, reply }) => {
+const getEnvironment = ({ reply }) => {
 	// Get some details from a Node CLI running on a server
 	const { arch, platform, version } = process;
-	if (type === 'request') {
-		const payload = {
-			id,
-			action,
-			type: 'response',
-			data: { arch, platform, version },
-		};
-		reply(payload);
-	}
+	reply({ data: { arch, platform, version } });
 };
 // Add that function for the 'get-environment RPC call'
 hubClient.rpc.add('get-environment', getEnvironment);

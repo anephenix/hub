@@ -124,13 +124,21 @@ const getClientId = async () => {
 
 // Checks that a client is subscribed to a channel
 const serverSubscribesClientToChannel = ({ clientId, channel }) => {
-	assert(scope.hub.pubsub.dataStore.clients[clientId].indexOf(channel) !== -1);
-	assert(scope.hub.pubsub.dataStore.channels[channel].indexOf(clientId) !== -1);
+	assert(
+		scope.hub.pubsub.dataStore.clients[clientId].indexOf(channel) !== -1
+	);
+	assert(
+		scope.hub.pubsub.dataStore.channels[channel].indexOf(clientId) !== -1
+	);
 };
 
 const serverUnsubscribesClientFromChannel = ({ clientId, channel }) => {
-	assert(scope.hub.pubsub.dataStore.clients[clientId].indexOf(channel) === -1);
-	assert(scope.hub.pubsub.dataStore.channels[channel].indexOf(clientId) === -1);
+	assert(
+		scope.hub.pubsub.dataStore.clients[clientId].indexOf(channel) === -1
+	);
+	assert(
+		scope.hub.pubsub.dataStore.channels[channel].indexOf(clientId) === -1
+	);
 };
 
 const clientReceivesSubscribeSuccessReponse = async ({ clientId, channel }) => {
@@ -258,16 +266,8 @@ const otherClientReceivesMessageForChannel = async (message, channel) => {
 
 const rpcActionExistsOnServer = function () {
 	if (scope.hub.rpc.list('hello')) return;
-	const helloFunc = ({ id, action, type, reply }) => {
-		if (type === 'request') {
-			const response = {
-				id,
-				action,
-				type: 'response',
-				data: 'Hello to you too',
-			};
-			reply(response);
-		}
+	const helloFunc = ({ reply }) => {
+		reply({ data: 'Hello to you too' });
 	};
 	scope.hub.rpc.add('hello', helloFunc);
 };
@@ -334,16 +334,8 @@ const rpcActionExistsOnClient = async () => {
 		// eslint-disable-next-line no-undef
 		if (hubClient.rpc.list('time')) return;
 		// eslint-disable-next-line no-undef
-		hubClient.rpc.add('time', ({ id, type, action, reply }) => {
-			if (type === 'request') {
-				const payload = {
-					id,
-					action,
-					type: 'response',
-					data: 'The time is now',
-				};
-				reply(payload);
-			}
+		hubClient.rpc.add('time', ({ reply }) => {
+			reply({ data: 'The time is now' });
 		});
 	});
 };

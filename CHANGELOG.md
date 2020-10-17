@@ -1,5 +1,9 @@
 # CHANGELOG
 
+### 0.0.10 - Saturday 17th October, 2020
+
+-   Adapted the rpc reply function so that it includes some parameters and simplifies the interface
+
 ### 0.0.9 - Friday 16th October, 2020
 
 -   Added horizontal scaling support for message publishing using Redis

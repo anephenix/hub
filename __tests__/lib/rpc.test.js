@@ -23,7 +23,7 @@ describe('rpc', () => {
 	describe('adding an action function', () => {
 		it('should add a function for an action name', () => {
 			helloFunc = ({ data, reply }) => {
-				reply(data);
+				reply({ data });
 			};
 			rpc.add('hello', helloFunc);
 			assert.deepStrictEqual(rpc.list('hello'), [helloFunc]);
@@ -44,7 +44,7 @@ describe('rpc', () => {
 		it('should remove a function for an action name', () => {
 			const firstFunc = () => {};
 			const secondFunc = ({ data, reply }) => {
-				reply(data);
+				reply({ data });
 			};
 			rpc.add('world', firstFunc);
 			rpc.add('world', secondFunc);
@@ -150,21 +150,10 @@ describe('rpc', () => {
 				const hubServer = new Hub({ port: 4001 });
 				const shutSignal = httpShutdown(hubServer.listen());
 				const hubClient = new HubClient({ url: 'ws://localhost:4001' });
-				hubClient.rpc.add(
-					'get-environment',
-					({ id, type, action, reply }) => {
-						const { arch, platform, version } = process;
-						if (type === 'request') {
-							const payload = {
-								id,
-								action,
-								type: 'response',
-								data: { arch, platform, version },
-							};
-							reply(payload);
-						}
-					}
-				);
+				hubClient.rpc.add('get-environment', ({ reply }) => {
+					const { arch, platform, version } = process;
+					reply({ data: { arch, platform, version } });
+				});
 
 				await delayUntil(() => {
 					return hubClient.sarus.ws.readyState === 1;
@@ -211,21 +200,10 @@ describe('rpc', () => {
 			const hubServer = new Hub({ port: 4002 });
 			const shutSignal = httpShutdown(hubServer.listen());
 			const hubClient = new HubClient({ url: 'ws://localhost:4002' });
-			hubClient.rpc.add(
-				'set-api-key',
-				({ id, type, data, action, reply}) => {
-					if (type === 'request') {
-						assert.strictEqual(data.apiKey, 'xxx');
-						const payload = {
-							id,
-							action,
-							type: 'response',
-							data: { success: true, message: 'api key set' },
-						};
-						reply(payload);
-					}
-				}
-			);
+			hubClient.rpc.add('set-api-key', ({ data, reply }) => {
+				assert.strictEqual(data.apiKey, 'xxx');
+				reply({ data: { success: true, message: 'api key set' } });
+			});
 
 			await delayUntil(() => {
 				return hubClient.sarus.ws.readyState === 1;
@@ -236,10 +214,10 @@ describe('rpc', () => {
 				ws,
 				action: 'set-api-key',
 				data: { apiKey: 'xxx' },
-				noReply: true
+				noReply: true,
 			});
 			assert.strictEqual(response, null);
-			await delayUntil(() => hubServer.rpc.requests.length === 0);			
+			await delayUntil(() => hubServer.rpc.requests.length === 0);
 			assert.strictEqual(hubServer.rpc.requests.length, 0);
 			assert.strictEqual(hubServer.rpc.responses.length, 0);
 			shutSignal.shutdown();
