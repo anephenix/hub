@@ -242,6 +242,22 @@ function logger(message) {
 hubClient.removeChannelMessageHandler(channel, 'logger');
 ```
 
+### Handling client disconnects/reconnects
+
+When a client disconnects from the server, the client will automatically be
+unsubscribed from any channels that they were subscribed to. The server
+handles this, meaning that the list of clients subscribed to channels is
+always up-to-date.
+
+When a client reconnects to the server, the client will automatically be
+resubscribed to the channels that they were originally subscribed to. The
+client handles this, as it maintains a list of channels currently subscribed
+to, which can be inspected here:
+
+```javascript
+hubClient.channels;
+```
+
 ### Handling client/channel subscriptions data
 
 Hub by default will store data about client/channel subscriptions in memory.

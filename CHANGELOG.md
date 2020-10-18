@@ -1,5 +1,10 @@
 # CHANGELOG
 
+### 0.0.11 - Sunday 18th October, 2020
+
+-   Clients are automatically resubscribed to channels when they reconnect
+-   Clients are automatically unsubscribed from channels when they disconnect
+
 ### 0.0.10 - Saturday 17th October, 2020
 
 -   Adapted the rpc reply function so that it includes some parameters and simplifies the interface
