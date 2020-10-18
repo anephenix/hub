@@ -2,7 +2,8 @@
 const assert = require('assert');
 const { Hub, HubClient } = require('../../../index');
 const httpShutdown = require('http-shutdown');
-const { delayUntil } = require('../../../helpers/delay');
+const { delay, delayUntil } = require('../../../helpers/delay');
+const { decode } = require('../../../lib/dataTransformer');
 
 describe('Client library', () => {
 	let hub;
@@ -186,6 +187,10 @@ describe('Client library', () => {
 			// assert that the hub server has that client noted as a subscriber to that channel
 			assert(hub.pubsub.dataStore.channels.business.indexOf(clientId) !== -1);
 		});
+
+		it('should add the channel to the list of channels', () => {
+			assert(hubClient.channels.indexOf('business') !== -1);
+		});
 	});
 
 	describe('#unsubscribe', () => {
@@ -200,6 +205,10 @@ describe('Client library', () => {
 			const unsubscribe = await hubClient.unsubscribe('markets');
 			assert(unsubscribe.success);
 			assert(hub.pubsub.dataStore.channels.markets.indexOf(clientId) === -1);
+		});
+
+		it('should remove the channel from the list of channels', () => {
+			assert(hubClient.channels.indexOf('markets') === -1);
 		});
 	});
 
@@ -239,4 +248,141 @@ describe('Client library', () => {
 			});
 		});
 	});
+
+	describe('#addChannel', () => {
+		const channel = 'tunnel';
+		it('should add the channel to the list of channels subscribed to', () => {
+			hubClient.addChannel(channel);
+			assert.deepStrictEqual(hubClient.channels, ['news', 'business', 'culture', 'arts', channel]);
+		});
+		it('should add the channel only once in case it has already been added before', () => {
+			hubClient.addChannel(channel);
+			assert.deepStrictEqual(hubClient.channels, ['news', 'business', 'culture', 'arts', channel]);
+		});
+	});
+
+	describe('#removeChannel', () => {
+		const channel = 'tunnel';
+		it('should remove the channel from the list of channels subscribed to', () => {
+			hubClient.removeChannel(channel);
+			assert.deepStrictEqual(hubClient.channels, ['news', 'business', 'culture', 'arts']);
+		});
+		it('should remove the channel only once in case it has already been removed before', () => {
+			hubClient.removeChannel(channel);
+			assert.deepStrictEqual(hubClient.channels, ['news', 'business', 'culture', 'arts']);
+		});
+	});
+
+	describe('#resubscribeOnReconnect', () => {
+		describe('when the client has no channel subscriptions', () => {
+			it('should not ask the server if the websocket connection has a client id set', async () => {
+				const messages = [];
+				const newHubClient = new HubClient({ url: 'ws://localhost:5001' });
+				newHubClient.sarus.on('message', (event) => {
+					messages.push(decode(event.data));
+				});
+				newHubClient.sarus.disconnect();
+				await delay(100);
+				await newHubClient.resubscribeOnReconnect();
+				assert.strictEqual(messages.map(m => m.action).indexOf('has-client-id'), -1);
+			});
+		});
+
+		describe('when the client has channel subscriptions', () => {
+			const messages = [];
+			const newHubClient = new HubClient({ url: 'ws://localhost:5001', clientIdKey: 'another-sarus-client-id' });
+			newHubClient.sarus.on('message', (event) => {
+				messages.push(decode(event.data));
+			});
+			beforeAll(async () => {
+				await delayUntil(() => newHubClient.sarus.ws.readyState === 1);
+				await delayUntil(() => newHubClient.getClientId());
+				newHubClient.addChannel('dogs');
+				await newHubClient.resubscribeOnReconnect();
+			});
+
+			it('should ask the server if the websocket connection has a client id set', async () => {
+				await delayUntil(() => {
+					return messages.map(m => m.action).indexOf('has-client-id') !== -1;
+				});
+			});
+			it('should resubscribe to all of the client channels', async () => {
+				const clientId = newHubClient.getClientId();
+				const channels = await hub.pubsub.dataStore.getChannelsForClientId(clientId);
+				assert.deepStrictEqual(channels, ['dogs']);
+			});
+		});
+	});
+
+	describe('when the client reconnects to the server', () => {
+		const messages = [];
+		let newHubClient;
+		const channelOne = 'baseball-game-x';
+		const channelTwo = 'baseball-game-y';
+
+		beforeAll(async () => {
+			newHubClient = new HubClient({ url: 'ws://localhost:5001', clientIdKey: 'yet-another-sarus-client-id' });
+			newHubClient.sarus.on('message', (event) => {
+				messages.push(decode(event.data));
+			});
+			await delayUntil(() => newHubClient.sarus.ws.readyState === 1);
+			await delayUntil(() => newHubClient.getClientId());
+			await newHubClient.subscribe(channelOne);
+			await newHubClient.subscribe(channelTwo);
+			assert.deepStrictEqual(newHubClient.channels, [channelOne, channelTwo]);
+			const channels = await hub.pubsub.dataStore.getChannelsForClientId(newHubClient.getClientId());
+			assert.deepStrictEqual(channels, [channelOne, channelTwo]);
+			newHubClient.sarus.disconnect();
+			await delay(50);
+			newHubClient.sarus.reconnect();
+			await delayUntil(() => {
+				return messages.map(m => m.action).indexOf('has-client-id') !== -1;
+			});
+		});
+
+		describe('and the client has subscriptions', () => {
+			it('should check that the server has a clientId set for the webSocket', async () => {
+				await delayUntil(() => {
+					return messages.map(m => m.action).indexOf('has-client-id') !== -1;
+				});
+			});
+			it('should then resubscribe the client to their channels', async () => {
+				const clientId = newHubClient.getClientId();
+				await delayUntil(async () => {
+					const channels = await hub.pubsub.dataStore.getChannelsForClientId(clientId);
+					return channels.length === 2;
+				});
+				const channels = await hub.pubsub.dataStore.getChannelsForClientId(clientId);
+				assert.strictEqual(channels.length, 2);
+				// The order of the channels cannot be guaranteed 
+				assert(channels.indexOf(channelOne) > -1);
+				assert(channels.indexOf(channelTwo) > -1);
+			});
+		});
+
+		describe('and the client does not have subscriptions', () => {
+
+			const otherMessages = [];
+			let otherHubClient;
+
+			beforeAll(async () => {
+				otherHubClient = new HubClient({ url: 'ws://localhost:5001', clientIdKey: 'other-sarus-client-id' });
+				otherHubClient.sarus.on('message', (event) => {
+					otherMessages.push(decode(event.data));
+				});
+				await delayUntil(() => otherHubClient.sarus.ws.readyState === 1);
+				await delayUntil(() => otherHubClient.getClientId());
+				otherHubClient.sarus.disconnect();
+				await delay(50);
+				otherHubClient.sarus.reconnect();
+			});
+
+			it('should not check that the server has a clientId set for the webSocket', async () => {
+				await delay(1100);
+				assert(otherMessages.map(m => m.action).indexOf('has-client-id') === -1);
+			});
+		});
+
+	});
+
 });

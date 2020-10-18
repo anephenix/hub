@@ -5,6 +5,7 @@ const WebSocket = require('ws');
 const { delayUntil } = require('../helpers/delay');
 const { RedisClient } = require('redis');
 const { delay } = require('bluebird');
+const { checkHasClientId } = require('../lib/clientId');
 
 describe('Hub', () => {
 	it('should return a class function', () => {
@@ -74,6 +75,13 @@ describe('Hub', () => {
 					})
 				);
 				client.close();
+			});
+
+			it('should attach the hasClientId rpc action', () => {
+				assert.deepStrictEqual(
+					hub.rpc.actions['has-client-id'],
+					[checkHasClientId]
+				);
 			});
 		});
 	});

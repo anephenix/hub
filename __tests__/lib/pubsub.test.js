@@ -641,9 +641,9 @@ describe('pubsub', () => {
 
 	describe('#unsubscribeClientFromAllChannels', () => {
 		it('should unsubscribe the client from all of its channels', async () => {
-			const newHub = await new Hub({ port: 5001 });
+			const newHub = await new Hub({ port: 5004 });
 			newHub.listen();
-			const hubClient = new HubClient({ url: 'ws://localhost:5001' });
+			const hubClient = new HubClient({ url: 'ws://localhost:5004' });
 			await delayUntil(() => hubClient.sarus.ws.readyState === 1);
 			await delayUntil(() => { return hubClient.getClientId(); });
 			await hubClient.subscribe('shares');

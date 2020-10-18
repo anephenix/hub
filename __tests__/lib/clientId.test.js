@@ -1,7 +1,7 @@
 const assert = require('assert');
 const { v4: uuidv4 } = require('uuid');
 const {
-	requestClientId,
+	requestClientId, checkHasClientId,
 } = require('../../lib/clientId');
 const RPC = require('../../lib/rpc');
 
@@ -94,6 +94,32 @@ describe('clientId', () => {
 				const parsedMessage = JSON.parse(lastMessage);
 				assert.strictEqual(parsedMessage.action, 'set-client-id');
 				assert.strictEqual(parsedMessage.data.clientId, newClientId);
+			});
+		});
+	});
+
+	describe('#checkHasClientId', () => {
+		describe('when the websocket has a clientId set', () => {
+			it('should return true', async () => {
+				let dataReceived;
+				const socket = ws;
+				const reply = ({data}) => {
+					dataReceived = data;
+				};
+				await checkHasClientId({ socket, reply });
+				assert.strictEqual(dataReceived.hasClientId, true);
+			});
+		});
+
+		describe('when the websocket does not have a clientId set', () => {
+			it('should return false', async () => {
+				let dataReceived;
+				const socket = {};
+				const reply = ({data}) => {
+					dataReceived = data;
+				};
+				await checkHasClientId({ socket, reply });
+				assert.strictEqual(dataReceived.hasClientId, false);
 			});
 		});
 	});
