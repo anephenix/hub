@@ -24,7 +24,9 @@ describe('redis data store', () => {
 	afterAll(async () => {
 		await redis.delAsync(dataStore.channelsKey);
 		await redis.delAsync(dataStore.clientsKey);
-		await redis.quit();
+		await redis.quitAsync();
+		await dataStore.internalRedis.quitAsync();
+		await dataStore.redis.quitAsync();
 	});
 
 	it('should initialise with a redis client', () => {

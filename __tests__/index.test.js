@@ -113,8 +113,8 @@ describe('Hub', () => {
 			// We delay so that the client can be unsubscribed
 			await delay(100);
 			try {
-				await hub.pubsub.dataStore.internalRedis.quit();
-				await hub.pubsub.dataStore.redis.quit();
+				await hub.pubsub.dataStore.internalRedis.quitAsync();
+				await hub.pubsub.dataStore.redis.quitAsync();
 			} catch (err) {
 				console.error(err);
 			}
