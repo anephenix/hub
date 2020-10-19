@@ -6,17 +6,20 @@ const { v4: uuidv4 } = require('uuid');
 const { delay, delayUntil } = require('../../helpers/delay');
 const MemoryDataStore = require('../../lib/dataStores/memory');
 const RedisDataStore = require('../../lib/dataStores/redis');
+const httpShutdown = require('http-shutdown');
 
 describe('pubsub', () => {
 	let hub;
+	let server;
 
 	beforeAll(async () => {
 		hub = new Hub({ port: 5000 });
-		hub.listen();
+		server = httpShutdown(hub.server);
+		server.listen(5000);
 	});
 
-	afterAll(() => {
-		hub.server.close();
+	afterAll((done) => {
+		server.shutdown(done);
 	});
 
 	describe('#subscribe', () => {
@@ -165,6 +168,7 @@ describe('pubsub', () => {
 			);
 			assert.strictEqual(theNextLatestMessage.action, 'publish');
 			assert.strictEqual(theNextLatestMessage.data.success, true);
+			hubClient.sarus.disconnect();
 		});
 
 		it('should allow the client to publish a message to all of the channel subscribers, excluding themselves', async () => {
@@ -211,6 +215,7 @@ describe('pubsub', () => {
 				theNextLatestMessage.data.message,
 				'Published message'
 			);
+			hubClient.sarus.disconnect();
 		});
 
 		it('should allow the server to publish a message to all of the channel subscribers', async () => {
@@ -253,6 +258,7 @@ describe('pubsub', () => {
 				theNextLatestMessage.data.message,
 				'FTSE: 5845 (-5)'
 			);
+			hubClient.sarus.disconnect();
 		});
 
 		describe('when publishing from a client', () => {
@@ -281,6 +287,7 @@ describe('pubsub', () => {
 					latestMessage.error,
 					'No client id was found on the WebSocket'
 				);
+				client.close();
 			});
 			it('should return an error response if the channel is missing', async () => {
 				const messages = [];
@@ -319,6 +326,7 @@ describe('pubsub', () => {
 					theNextLatestMessage.error,
 					'No channel was passed in the data'
 				);
+				hubClient.sarus.disconnect();
 			});
 			it('should return an error response if the message is missing', async () => {
 				const messages = [];
@@ -356,6 +364,7 @@ describe('pubsub', () => {
 					theNextLatestMessage.error,
 					'No message was passed in the data'
 				);
+				hubClient.sarus.disconnect();
 			});
 
 			it('should publish a message, even if there are no subscribers for that channel', async () => {
@@ -385,6 +394,7 @@ describe('pubsub', () => {
 					theNextLatestMessage.data.message,
 					'Published message'
 				);
+				hubClient.sarus.disconnect();
 			});
 		});
 
@@ -445,12 +455,15 @@ describe('pubsub', () => {
 			});
 
 			afterAll(async () => {
+				firstHubClient.sarus.disconnect();
+				secondHubClient.sarus.disconnect();
 				firstHub.server.close();
 				secondHub.server.close();
-				// await firstHub.pubsub.dataStore.redis.quit();
-				// await secondHub.pubsub.dataStore.redis.quit();
-				// await firstHub.pubsub.dataStore.internalRedis.quit();
-				// await secondHub.pubsub.dataStore.internalRedis.quit();
+				await delay(100);
+				await firstHub.pubsub.dataStore.redis.quitAsync();
+				await secondHub.pubsub.dataStore.redis.quitAsync();
+				await firstHub.pubsub.dataStore.internalRedis.quitAsync();
+				await secondHub.pubsub.dataStore.internalRedis.quitAsync();
 			});
 
 			it('should relay the published message to all Hub server instances via Redis', async () => {
@@ -545,6 +558,8 @@ describe('pubsub', () => {
 			// Check that the client does not receive the message
 			const theFinalLatestMessage = messages[messages.length - 1];
 			assert.notStrictEqual(theFinalLatestMessage.action, 'message');
+			hubClient.sarus.disconnect();
+			otherHubClient.sarus.disconnect();
 		});
 
 		it('should return an error response if the websocket client id is not present', async () => {
@@ -572,6 +587,7 @@ describe('pubsub', () => {
 				latestMessage.error,
 				'No client id was found on the WebSocket'
 			);
+			client.close();
 		});
 		it('should return an error response if the channel is missing', async () => {
 			const messages = [];
@@ -607,6 +623,7 @@ describe('pubsub', () => {
 				theNextLatestMessage.error,
 				'No channel was passed in the data'
 			);
+			hubClient.sarus.disconnect();
 		});
 	});
 
@@ -622,7 +639,8 @@ describe('pubsub', () => {
 					'should create an instance of that dataStore type and bind it to the class', async () => {
 						const redisHub = new Hub({ port: 6000, dataStoreType: 'redis' });
 						assert(redisHub.pubsub.dataStore instanceof RedisDataStore);
-						// await redisHub.pubsub.dataStore.redis.quit();
+						await redisHub.pubsub.dataStore.internalRedis.quitAsync();
+						await redisHub.pubsub.dataStore.redis.quitAsync();
 					}
 				);
 			});
