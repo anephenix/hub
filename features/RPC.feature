@@ -15,7 +15,6 @@ Feature: RPC
 	When the client calls the wrong RPC action on the server
 	Then the client should receive an error response from the server saying that the action was not found
 
-  @wip
   Scenario: Make an RPC call to the client from the server
 	Given a new client opens a connection to the server
 	Given an RPC action exists on the client

@@ -32,6 +32,11 @@ const {
 	serverReceivesTimeRPCReply,
 	serverMakesIncorrecRPCRequest,
 	serverReceivesIncorrectRPCReply,
+	addAuthenticatedChannelWithPassword,
+	clientSubscribesToChannelWithPassword,
+	serverReceivesSubscriptionRequestWithPassword,
+	serverMakesRequiresAuthenticationReply,
+	clientShouldNotBeSubscribedToChannel,
 } = require('../support/actions');
 
 Given('pending', () => 'pending');
@@ -76,9 +81,7 @@ Given('the client subscribes to the channel {string}', async (channel) => {
 
 Then(
 	'the server should receive a request to subscribe the client to the channel {string}',
-	async (channel) => {
-		await serverReceivesSubscriptionRequest(channel);
-	}
+	serverReceivesSubscriptionRequest
 );
 
 Then(
@@ -235,4 +238,29 @@ When(
 Then(
 	'the server should receive an error response from the client saying that the action was not found',
 	serverReceivesIncorrectRPCReply
+);
+
+Given(
+	'the server has the channel {string} that requires authentication with the password {string}',
+	addAuthenticatedChannelWithPassword
+);
+
+Given(
+	'the client subscribes to the channel {string} with the password {string}',
+	clientSubscribesToChannelWithPassword
+);
+
+Then(
+	'the server should receive a request to subscribe the client to the channel {string} with the password {string}',
+	serverReceivesSubscriptionRequestWithPassword
+);
+
+Then(
+	'the server should reply with an error saying that the channel requires authentication',
+	serverMakesRequiresAuthenticationReply
+);
+
+Then(
+	'the client should not be subscribed to the channel {string}',
+	clientShouldNotBeSubscribedToChannel
 );

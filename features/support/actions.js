@@ -380,6 +380,65 @@ const serverReceivesIncorrectRPCReply = () => {
 	assert.strictEqual(error, 'No client action found');
 };
 
+const addAuthenticatedChannelWithPassword = async (channel, password) => {
+	const authenticate = async ({ data }) => {
+		if (!data.password) throw new Error('Requires authentication');
+		return data.password === password;
+	};
+	scope.hub.pubsub.addChannelConfiguration({ channel, authenticate });
+};
+
+const clientSubscribesToChannelWithPassword = async (channel, password) => {
+	const { currentPage } = scope.context;
+	// We need to make a request from the client to the server to subscribe to a channel
+	await currentPage.evaluate(
+		async (channel, password) => {
+			// eslint-disable-next-line no-undef
+			await hubClient.subscribe(channel, { password });
+		},
+		channel,
+		password
+	);
+};
+
+const serverReceivesSubscriptionRequestWithPassword = async (
+	channel,
+	password
+) => {
+	const message = scope.messages[scope.messages.length - 1];
+	const parsedMessage = JSON.parse(message);
+	assert.strictEqual(parsedMessage.action, 'subscribe');
+	assert.strictEqual(parsedMessage.data.channel, channel);
+	assert.strictEqual(parsedMessage.data.password, password);
+};
+
+const serverMakesRequiresAuthenticationReply = async () => {
+	const { currentPage } = scope.context;
+	const messages = await currentPage.evaluate(() => {
+		// eslint-disable-next-line no-undef
+		if (sarusMessages.length === 0) return false;
+		// eslint-disable-next-line no-undef
+		return sarusMessages;
+	});
+	const { action, type, error } = JSON.parse(messages[messages.length - 1]);
+	assert.strictEqual(action, 'subscribe');
+	assert.strictEqual(type, 'error');
+	assert.strictEqual(error, 'Requires authentication');
+};
+
+const clientShouldNotBeSubscribedToChannel = async (channel) => {
+	const { currentPage } = scope.context;
+	// We need to make a request from the client to the server to subscribe to a channel
+	const clientId = await currentPage.evaluate(async () => {
+		// eslint-disable-next-line no-undef
+		await hubClient.getClientId();
+	});
+	const clients = await scope.hub.pubsub.dataStore.getClientIdsForChannel(
+		channel
+	);
+	assert(!clients || clients.indexOf(clientId) === -1);
+};
+
 module.exports = {
 	visitPage,
 	closePage,
@@ -412,4 +471,9 @@ module.exports = {
 	serverReceivesTimeRPCReply,
 	serverMakesIncorrecRPCRequest,
 	serverReceivesIncorrectRPCReply,
+	addAuthenticatedChannelWithPassword,
+	clientSubscribesToChannelWithPassword,
+	serverReceivesSubscriptionRequestWithPassword,
+	serverMakesRequiresAuthenticationReply,
+	clientShouldNotBeSubscribedToChannel,
 };

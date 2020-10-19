@@ -92,6 +92,12 @@ describe('pubsub', () => {
 			});
 		});
 
+		describe('when the channel has been added by the server with options', () => {
+			it.todo(
+				'should run a check against the authenticate function set for that channel'
+			);
+		});
+
 		describe('when a client makes multiple attempts to subscribe to the same channel', () => {
 			it('should only record a single entry of the client id in the channel subscriptions, and vice versa', async () => {
 				const data = { channel: 'entertainment' };
@@ -438,12 +444,11 @@ describe('pubsub', () => {
 		});
 
 		describe('when using the redis dataStore', () => {
-
 			let firstHub;
 			let secondHub;
 			let firstHubClient;
 			let secondHubClient;
-			
+
 			beforeAll(async () => {
 				firstHub = new Hub({ port: 4006, dataStoreType: 'redis' });
 				secondHub = new Hub({ port: 4007, dataStoreType: 'redis' });
@@ -451,7 +456,11 @@ describe('pubsub', () => {
 				secondHub.listen();
 				firstHubClient = new HubClient({ url: 'ws://localhost:4006' });
 				secondHubClient = new HubClient({ url: 'ws://localhost:4007' });
-				await delayUntil(() => firstHubClient.getClientId() !== null && secondHubClient.getClientId() !== null);
+				await delayUntil(
+					() =>
+						firstHubClient.getClientId() !== null &&
+						secondHubClient.getClientId() !== null
+				);
 			});
 
 			afterAll(async () => {
@@ -475,22 +484,32 @@ describe('pubsub', () => {
 					firstClientMessage = message;
 					firstClientReceivesMessage = true;
 				};
-				firstHubClient.addChannelMessageHandler('news', firstClientHandlerFunction);
+				firstHubClient.addChannelMessageHandler(
+					'news',
+					firstClientHandlerFunction
+				);
 				const secondClientHandlerFunction = (message) => {
 					secondClientMessage = message;
 					secondClientReceivesMessage = true;
 				};
-				secondHubClient.addChannelMessageHandler('news', secondClientHandlerFunction);
+				secondHubClient.addChannelMessageHandler(
+					'news',
+					secondClientHandlerFunction
+				);
 				await firstHubClient.subscribe('news');
 				await secondHubClient.subscribe('news');
 				const message = 'Sunny weather on the way';
 				await firstHub.pubsub.publish({
 					data: {
 						channel: 'news',
-						message
-					}
+						message,
+					},
 				});
-				await delayUntil(() => firstClientReceivesMessage && secondClientReceivesMessage);
+				await delayUntil(
+					() =>
+						firstClientReceivesMessage &&
+						secondClientReceivesMessage
+				);
 				assert.strictEqual(firstClientMessage, message);
 				assert.strictEqual(secondClientMessage, message);
 			});
@@ -633,25 +652,29 @@ describe('pubsub', () => {
 		});
 
 		describe('when passed a dataStoreType parameter', () => {
-
 			describe('when the dataStore type exists', () => {
-				it(
-					'should create an instance of that dataStore type and bind it to the class', async () => {
-						const redisHub = new Hub({ port: 6000, dataStoreType: 'redis' });
-						assert(redisHub.pubsub.dataStore instanceof RedisDataStore);
-						await redisHub.pubsub.dataStore.internalRedis.quitAsync();
-						await redisHub.pubsub.dataStore.redis.quitAsync();
-					}
-				);
+				it('should create an instance of that dataStore type and bind it to the class', async () => {
+					const redisHub = new Hub({
+						port: 6000,
+						dataStoreType: 'redis',
+					});
+					assert(redisHub.pubsub.dataStore instanceof RedisDataStore);
+					await redisHub.pubsub.dataStore.internalRedis.quitAsync();
+					await redisHub.pubsub.dataStore.redis.quitAsync();
+				});
 			});
 
 			describe('when the dataStore type does not exist', () => {
 				it('should throw an error', async () => {
-					assert.throws(() => {
-						new Hub({ port: 6000, dataStoreType: 'postgres' });
-					}, {
-						message: 'dataStoreType "postgres" is not a valid option' 
-					});
+					assert.throws(
+						() => {
+							new Hub({ port: 6000, dataStoreType: 'postgres' });
+						},
+						{
+							message:
+								'dataStoreType "postgres" is not a valid option',
+						}
+					);
 				});
 			});
 		});
@@ -663,11 +686,19 @@ describe('pubsub', () => {
 			newHub.listen();
 			const hubClient = new HubClient({ url: 'ws://localhost:5004' });
 			await delayUntil(() => hubClient.sarus.ws.readyState === 1);
-			await delayUntil(() => { return hubClient.getClientId(); });
+			await delayUntil(() => {
+				return hubClient.getClientId();
+			});
 			await hubClient.subscribe('shares');
-			await newHub.pubsub.unsubscribeClientFromAllChannels({ ws: { clientId: hubClient.getClientId() } });
-			const channels = await newHub.pubsub.dataStore.getChannelsForClientId(hubClient.getClientId());
-			const clientIds = await newHub.pubsub.dataStore.getClientIdsForChannel('shares');
+			await newHub.pubsub.unsubscribeClientFromAllChannels({
+				ws: { clientId: hubClient.getClientId() },
+			});
+			const channels = await newHub.pubsub.dataStore.getChannelsForClientId(
+				hubClient.getClientId()
+			);
+			const clientIds = await newHub.pubsub.dataStore.getClientIdsForChannel(
+				'shares'
+			);
 			assert.deepStrictEqual(channels, []);
 			assert.deepStrictEqual(clientIds, []);
 			hubClient.sarus.disconnect();
@@ -675,4 +706,11 @@ describe('pubsub', () => {
 		});
 	});
 
+	describe('#addChannelConfiguration', () => {
+		describe('when passed an authenticate option', () => {
+			it.todo(
+				'should add a channel with an authenticate function to call during subscription requests'
+			);
+		});
+	});
 });
