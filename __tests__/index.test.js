@@ -108,7 +108,16 @@ describe('Hub', () => {
 			const { redis, channelsKey, clientsKey } = hub.pubsub.dataStore;
 			await redis.delAsync(channelsKey);
 			await redis.delAsync(clientsKey);
-			// await hub.pubsub.dataStore.redis.quit();
+			hubClient.sarus.disconnect();
+			hub.server.close();
+			// We delay so that the client can be unsubscribed
+			await delay(100);
+			try {
+				await hub.pubsub.dataStore.internalRedis.quit();
+				await hub.pubsub.dataStore.redis.quit();
+			} catch (err) {
+				console.error(err);
+			}
 		});
 
 		it('should have a redis client', () => {
@@ -148,7 +157,7 @@ describe('Hub', () => {
 
 	describe('when a client disconnects from the server', () => {
 		it('should unsubscribe that client from any channels they were subscribed to', async () => {
-			const newHub = await new Hub({ port: 5002 });
+			const newHub = await new Hub({ port: 5002, dataStoreType: 'memory' });
 			newHub.listen();
 			const hubClient = new HubClient({ url: 'ws://localhost:5002' });
 			await delayUntil(() => hubClient.sarus.ws.readyState === 1);
