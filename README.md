@@ -27,32 +27,32 @@ More upcoming features are listed in the TODO.md file.
 
 **Getting started**
 
-[Starting a server](#starting-a-server)
-[Loading a client in the browser](#loading-a-client-in-the-browser)
-[Loading a client in Node.js](#loading-a-client-in-Node.js)
+-   [Starting a server](#starting-a-server)
+-   [Loading a client in the browser](#loading-a-client-in-the-browser)
+-   [Loading a client in Node.js](#loading-a-client-in-Node.js)
 
 **RPC (Remote Procedure Calls)**
 
-[Creating an RPC function on the server](#creating-an-rpc-function-on-the-server)
-[Calling the RPC function from the client](#calling-the-rpc-function-from-the-client)
-[Creating an RPC function on the client](#creating-an-rpc-function-on-the-client)
-[Calling the RPC function from the server](#calling-the-rpc-function-from-the-server)
-[Calling an RPC function without wanting a response back](#calling-an-rpc-function-without-wanting-a-response-back)
+-   [Creating an RPC function on the server](#creating-an-rpc-function-on-the-server)
+-   [Calling the RPC function from the client](#calling-the-rpc-function-from-the-client)
+-   [Creating an RPC function on the client](#creating-an-rpc-function-on-the-client)
+-   [Calling the RPC function from the server](#calling-the-rpc-function-from-the-server)
+-   [Calling an RPC function without wanting a response back](#calling-an-rpc-function-without-wanting-a-response-back)
 
 **PubSub (Publish/Subscribe)**
 
-[Subscribing to a channel](#subscribing-to-a-channel)
-[Unsubscribing from a channel](#unsubscribing-from-a-channel)
-[Publishing a message from the client](#publishing-a-message-from-the-client)
-[Publishing a message from the server](#publishing-a-message-from-the-server)
-[Handling messages published for a channel](#handling-messages-published-for-a-channel)
-[Removing message handlers for a channel](#removing-message-handlers-for-a-channel)
+-   [Subscribing to a channel](#subscribing-to-a-channel)
+-   [Unsubscribing from a channel](#unsubscribing-from-a-channel)
+-   [Publishing a message from the client](#publishing-a-message-from-the-client)
+-   [Publishing a message from the server](#publishing-a-message-from-the-server)
+-   [Handling messages published for a channel](#handling-messages-published-for-a-channel)
+-   [Removing message handlers for a channel](#removing-message-handlers-for-a-channel)
 
 **Extra options**
 
-[Handling client disconnects/reconnects](#handling-client-disconnects/reconnects)
-[Handling client/channel subscriptions data](#handling-client/channel-subscriptions-data)
-[Creating channels that require authentication](#Creating-channels-that-require-authentication)
+-   [Handling client disconnects/reconnects](#handling-client-disconnects/reconnects)
+-   [Handling client/channel subscriptions data](#handling-client/channel-subscriptions-data)
+-   [Creating channels that require authentication](#Creating-channels-that-require-authentication)
 
 #### Getting started
 
