@@ -1,6 +1,6 @@
 {
 	"name": "@anephenix/hub",
-	"version": "0.0.11",
+	"version": "0.0.12",
 	"description": "A WebSocket server for Sarus",
 	"main": "index.js",
 	"scripts": {
@@ -37,7 +37,7 @@
 		"eslint-plugin-jest": "^24.1.0",
 		"gradient-string": "^1.2.0",
 		"http-shutdown": "^1.2.2",
-		"jest": "^26.5.3",
+		"jest": "^26.6.0",
 		"npm-upgrade": "^2.0.4",
 		"parcel-bundler": "^1.12.4",
 		"pre-commit": "^1.2.2",

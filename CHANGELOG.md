@@ -1,5 +1,10 @@
 # CHANGELOG
 
+### 0.0.12 - Tuesday 20th October, 2020
+
+-   Developers can now configure channels to require authentication
+-   Clients can subscribe to channels that require authentication
+
 ### 0.0.11 - Sunday 18th October, 2020
 
 -   Clients are automatically resubscribed to channels when they reconnect

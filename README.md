@@ -305,6 +305,43 @@ Hub across multiple servers, and have a load balancer sit in front of the server
 availability (making sure WebSocket connections go to available servers, and if a server
 goes offline, that it can pass the reconnection attempt to another available server).
 
+### Creating channels that require authentication
+
+There will likely be cases where you want to use channels that only some users can subscribe to.
+
+Hub provides a way to add private channels by providing channel configurtions to the server, like
+in this example below:
+
+```javascript
+const channel = 'internal_announcements';
+/*
+ * Here we create a function that is called every time a client tries to
+ * subscribe to a channel with a given name
+ */
+const authenticate = ({ socket, data }) => {
+	// We have access to the socket of the client and the data they pass in
+	// the subscribe request.
+	//
+	// isAllowed and isValid are just example functions that the developer can
+	// define to perform the backend authentication for the subscription
+	// request.
+	if (isAllowed(data.channel, socket.clientId)) return true;
+	if (isValidToken(data.token)) return true;
+	// The function must return true is the client is allowed to subscribe
+};
+
+hub.pubsub.addChannelConfiguration({ channel, authenticate });
+```
+
+Then on the client, a user can subscribe and provide additional data to authenticate the channel
+
+```javascript
+const channel = 'internal_announcements';
+const token = 'ahghaCeciawi5aefi5oolah6ahc8Yeeshie5opai';
+
+await hubClient.subscribe(channel, { token });
+```
+
 ### Running tests
 
 ```shell
