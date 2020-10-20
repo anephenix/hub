@@ -195,9 +195,16 @@ describe('Client library', () => {
 		});
 
 		describe('when options are passed', () => {
-			it.todo(
-				'should pass those options into the data payload for the rpc request'
-			);
+			it('should pass those options into the data payload for the rpc request', async () => {
+				const messages = [];
+				hub.rpc.add('subscribe', ({ data }) => {
+					messages.push(data);
+				});
+				await hubClient.subscribe('cats', { password: 'tuna' });
+				const lastMessage = messages[messages.length - 1];
+				assert.strictEqual(lastMessage.password, 'tuna');
+				await hubClient.unsubscribe('cats');
+			});
 		});
 	});
 
@@ -283,6 +290,19 @@ describe('Client library', () => {
 				channel,
 			]);
 		});
+		it('should also store options if they are passed', () => {
+			const opts = { token: 'd028hd020j1d0j' };
+			hubClient.removeChannel(channel);
+			hubClient.addChannel(channel, opts);
+			assert.deepStrictEqual(hubClient.channels, [
+				'news',
+				'business',
+				'culture',
+				'arts',
+				channel,
+			]);
+			assert.deepStrictEqual(hubClient.channelOptions[channel], opts);
+		});
 	});
 
 	describe('#removeChannel', () => {
@@ -304,6 +324,19 @@ describe('Client library', () => {
 				'culture',
 				'arts',
 			]);
+		});
+
+		it('should also remove any options that were stored for that channel', () => {
+			const opts = { token: 'd028hd020j1d0j' };
+			hubClient.addChannel(channel, opts);
+			hubClient.removeChannel(channel);
+			assert.deepStrictEqual(hubClient.channels, [
+				'news',
+				'business',
+				'culture',
+				'arts',
+			]);
+			assert.deepStrictEqual(hubClient.channelOptions[channel], null);
 		});
 	});
 
@@ -358,6 +391,48 @@ describe('Client library', () => {
 					clientId
 				);
 				assert.deepStrictEqual(channels, ['dogs']);
+			});
+		});
+
+		describe('when the client has channel subscriptions that require authentication', () => {
+			it('should resubscribe to those channels too', async () => {
+				// Ok, we need to:
+				//
+				// - create a channel configuration for the server
+				// - subscribe to that channel with the required authentication
+				// - then disconnect
+				// - then reconnect
+				// - then check that the client has resubscribed to the channel
+				const channel = 'cheeses';
+				const authenticate = ({ data }) => {
+					return data.password === 'brie';
+				};
+				hub.pubsub.addChannelConfiguration({ channel, authenticate });
+				const anotherHubClient = new HubClient({
+					url: 'ws://localhost:5001',
+					clientIdKey: 'one-more-sarus-client-id',
+				});
+				await delayUntil(() => {
+					return anotherHubClient.sarus.ws.readyState === 1;
+				});
+				await delayUntil(() => {
+					return anotherHubClient.getClientId();
+				});
+				await anotherHubClient.subscribe(channel, { password: 'brie' });
+				await delay(100);
+				const channels = await hub.pubsub.dataStore.getChannelsForClientId(
+					anotherHubClient.getClientId()
+				);
+				assert(channels && channels.indexOf(channel) !== -1);
+				anotherHubClient.sarus.disconnect();
+				await delay(100);
+				anotherHubClient.sarus.reconnect();
+				await delay(1200);
+				const freshChannels = await hub.pubsub.dataStore.getChannelsForClientId(
+					anotherHubClient.getClientId()
+				);
+				assert(freshChannels && freshChannels.indexOf(channel) !== -1);
+				await anotherHubClient.unsubscribe(channel);
 			});
 		});
 	});

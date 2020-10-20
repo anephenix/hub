@@ -93,9 +93,31 @@ describe('pubsub', () => {
 		});
 
 		describe('when the channel has been added by the server with options', () => {
-			it.todo(
-				'should run a check against the authenticate function set for that channel'
-			);
+			it('should run a check against the authenticate function set for that channel', async () => {
+				const channel = 'fish';
+				let called = false;
+				const authenticate = ({ data, socket }) => {
+					assert.strictEqual(data.password, 'food');
+					assert.strictEqual(socket.clientId, 'ooo');
+					called = true;
+					return called;
+				};
+				hub.pubsub.addChannelConfiguration({ channel, authenticate });
+
+				const data = {
+					channel,
+					password: 'food',
+				};
+				const socket = {
+					clientId: 'ooo',
+				};
+				await hub.pubsub.subscribe({ data, socket });
+				assert(called);
+				const channels = await hub.pubsub.dataStore.getChannelsForClientId(
+					socket.clientId
+				);
+				assert(channels.indexOf('fish') !== -1);
+			});
 		});
 
 		describe('when a client makes multiple attempts to subscribe to the same channel', () => {
@@ -708,9 +730,34 @@ describe('pubsub', () => {
 
 	describe('#addChannelConfiguration', () => {
 		describe('when passed an authenticate option', () => {
-			it.todo(
-				'should add a channel with an authenticate function to call during subscription requests'
-			);
+			it('should add a channel with an authenticate function to call during subscription requests', async () => {
+				const channel = 'dogs';
+				let called = false;
+				const authenticate = ({ data, socket }) => {
+					assert.strictEqual(data.password, 'food');
+					assert.strictEqual(socket.clientId, 'woof');
+					called = true;
+					return called;
+				};
+				hub.pubsub.addChannelConfiguration({ channel, authenticate });
+				assert.deepStrictEqual(
+					hub.pubsub.channelConfigurations.dogs.authenticate,
+					authenticate
+				);
+				const data = {
+					channel,
+					password: 'food',
+				};
+				const socket = {
+					clientId: 'woof',
+				};
+				await hub.pubsub.subscribe({ data, socket });
+				assert(called);
+				const channels = await hub.pubsub.dataStore.getChannelsForClientId(
+					socket.clientId
+				);
+				assert(channels.indexOf('dogs') !== -1);
+			});
 		});
 	});
 });
