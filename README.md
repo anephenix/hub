@@ -50,8 +50,8 @@ More upcoming features are listed in the TODO.md file.
 
 **Extra options**
 
--   [Handling client disconnects/reconnects](#handling-client-disconnects/reconnects)
--   [Handling client/channel subscriptions data](#handling-client/channel-subscriptions-data)
+-   [Handling client disconnects / reconnects](#handling-client-disconnects-reconnects)
+-   [Handling client / channel subscriptions data](#handling-client-channel-subscriptions-data)
 -   [Creating channels that require authentication](#Creating-channels-that-require-authentication)
 
 #### Getting started
@@ -91,7 +91,7 @@ import HubClient from '@anephenix/hub/lib/client';
 const hubClient = new HubClient({ url: 'ws://localhost:4000' });
 ```
 
-HubClient uses Sarus as the WebSocket client behind the scenes. If you want to
+HubClient uses [Sarus](https://sarus.anephenix.com) as the WebSocket client behind the scenes. If you want to
 provide custom config options to Sarus, you can do so by using this code:
 
 ```javascript
@@ -290,7 +290,7 @@ function logger(message) {
 hubClient.removeChannelMessageHandler(channel, 'logger');
 ```
 
-### Handling client disconnects/reconnects
+### Handling client disconnects / reconnects
 
 When a client disconnects from the server, the client will automatically be
 unsubscribed from any channels that they were subscribed to. The server
@@ -306,7 +306,7 @@ to, which can be inspected here:
 hubClient.channels;
 ```
 
-### Handling client/channel subscriptions data
+### Handling client / channel subscriptions data
 
 Hub by default will store data about client/channel subscriptions in memory.
 This makes it easy to get started with using the library without needing to
