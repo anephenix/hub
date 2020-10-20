@@ -50,8 +50,8 @@ More upcoming features are listed in the TODO.md file.
 
 **Extra options**
 
--   [Handling client disconnects / reconnects](#handling-client-disconnects-reconnects)
--   [Handling client / channel subscriptions data](#handling-client-channel-subscriptions-data)
+-   [Handling client disconnects / reconnects](#handling-client-disconnects--reconnects)
+-   [Handling client / channel subscriptions data](#handling-client--channel-subscriptions-data)
 -   [Creating channels that require authentication](#Creating-channels-that-require-authentication)
 
 #### Getting started
