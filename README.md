@@ -53,10 +53,11 @@ More upcoming features are listed in the TODO.md file.
 -   [Handling client disconnects / reconnects](#handling-client-disconnects--reconnects)
 -   [Handling client / channel subscriptions data](#handling-client--channel-subscriptions-data)
 -   [Creating channels that require authentication](#Creating-channels-that-require-authentication)
+-   [Adding wildcard channels configurations](#Adding-wildcard-channel-configurations)
 
 #### Getting started
 
-Here is how to get started without needing
+Here is how to get started quickly.
 
 ##### Starting a server
 
@@ -389,6 +390,35 @@ const token = 'ahghaCeciawi5aefi5oolah6ahc8Yeeshie5opai';
 
 await hubClient.subscribe(channel, { token });
 ```
+
+### Adding wildcard channels configurations
+
+There may be a case where you want to apply authentication across a range of channels without wanting
+to add a channel configuration for each channel. There is support for wildcard channel configurations.
+
+To illustrate, say you have a number of channels that are named like this:
+
+- dashboard_IeK0iithee
+- dashboard_aipe0Paith
+- dashboard_ETh2ielah1
+
+Rather than having to add channel configurations for each channel, you can add a wildcard channel
+configuration like this:
+
+```javascript
+// The wildcard matching character is *
+const channel = 'dashboard_*';
+const authenticate = ({ socket, data }) => {
+	// For implementing authentication specific to each channel,
+	// the channel is available in the data object
+	if (isAllowed(data.channel, socket.clientId)) return true;
+};
+
+hub.pubsub.addChannelConfiguration({ channel, authenticate });
+```
+
+The `dashboard_*` wildcard channel will then run across all channels that have
+a name containing `dashboard_` in them.
 
 ### Running tests
 

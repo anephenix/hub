@@ -1,6 +1,6 @@
 {
 	"name": "@anephenix/hub",
-	"version": "0.0.12",
+	"version": "0.0.13",
 	"description": "A WebSocket server for Sarus",
 	"main": "index.js",
 	"scripts": {

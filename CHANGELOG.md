@@ -1,5 +1,10 @@
 # CHANGELOG
 
+### 0.0.13 - Thursday 22nd October, 2020
+
+-   Added support for adding wildcard channel configurations
+-   Added support for removing channel configurations
+
 ### 0.0.12 - Tuesday 20th October, 2020
 
 -   Developers can now configure channels to require authentication
