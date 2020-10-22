@@ -759,6 +759,49 @@ describe('pubsub', () => {
 				assert(channels.indexOf('dogs') !== -1);
 			});
 		});
+
+		describe('when passed a wildcard channel name', () => {
+			it('should be able to run the channel configuration for channels that match the wildcard channel name', async () => {
+				// create a channel configuration for multiple dashboards
+				const wildcardChannel = 'dashboard_*';
+				let callCount = 0;
+				const authenticate = ({ data, socket }) => {
+					assert.strictEqual(data.password, 'opensesame');
+					assert.strictEqual(socket.clientId, 'viewer');
+					callCount++;
+					return true;
+				};
+				hub.pubsub.addChannelConfiguration({ channel: wildcardChannel, authenticate });
+				assert.deepStrictEqual(
+					hub.pubsub.channelConfigurations[wildcardChannel].authenticate,
+					authenticate
+				);
+				const data = {
+					channel: 'dashboard_e220j92',
+					password: 'opensesame',
+				};
+				const socket = {
+					clientId: 'viewer',
+				};
+				await hub.pubsub.subscribe({ data, socket });
+				assert(callCount === 1);
+				const channels = await hub.pubsub.dataStore.getChannelsForClientId(
+					socket.clientId
+				);
+				assert(channels.indexOf('dashboard_e220j92') !== -1);
+				const dataTwo = {
+					channel: 'dashboard_29jd92j',
+					password: 'opensesame',
+				};
+				await hub.pubsub.subscribe({ data: dataTwo, socket });
+				assert(callCount === 2);
+				const channelsTwo = await hub.pubsub.dataStore.getChannelsForClientId(
+					socket.clientId
+				);
+				assert(channelsTwo.indexOf('dashboard_29jd92j') !== -1);
+			});
+		});
+
 	});
 
 	describe('#removeChannelConfiguration', () => {
