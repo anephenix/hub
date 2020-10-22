@@ -800,8 +800,49 @@ describe('pubsub', () => {
 				);
 				assert(channelsTwo.indexOf('dashboard_29jd92j') !== -1);
 			});
-		});
 
+			it('should prevent the developer from adding wildcard channels that might overlap in channel matches', async () => {
+				// First case - long then short wildcard overlap
+				const wildcardChannelOne = 'magazine_*';
+				const wildcardChannelTwo = 'mag*';
+
+				// Second case - short then long wildcard overlap
+				const wildcardChannelThree = 'des*';
+				const wildcardChannelFour = 'design*';
+				const normalChannelFive = 'de';
+
+				// Just an example
+				const authenticate = ({ data }) => {
+					return data.password === 'xyz';
+				};
+				hub.pubsub.addChannelConfiguration({ channel: wildcardChannelOne, authenticate });
+				assert.deepStrictEqual(
+					hub.pubsub.channelConfigurations[wildcardChannelOne].authenticate,
+					authenticate
+				);
+				assert.throws(() => {
+					hub.pubsub.addChannelConfiguration({ channel: wildcardChannelTwo, authenticate });
+				}, {
+					message: `Wildcard channel name too ambiguous - will collide with "${wildcardChannelOne}"`
+				});
+
+				hub.pubsub.addChannelConfiguration({ channel: wildcardChannelThree, authenticate });
+				assert.deepStrictEqual(
+					hub.pubsub.channelConfigurations[wildcardChannelThree].authenticate,
+					authenticate
+				);
+				assert.throws(() => {
+					hub.pubsub.addChannelConfiguration({ channel: wildcardChannelFour, authenticate });
+				}, {
+					message: `Wildcard channel name too ambiguous - will collide with "${wildcardChannelThree}"`
+				});
+				assert.throws(() => {
+					hub.pubsub.addChannelConfiguration({ channel: normalChannelFive, authenticate });
+				}, {
+					message: `Wildcard channel name too ambiguous - will collide with "${wildcardChannelThree}"`
+				});
+			});
+		});
 	});
 
 	describe('#removeChannelConfiguration', () => {
