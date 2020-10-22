@@ -395,7 +395,7 @@ describe('pubsub', () => {
 				hubClient.sarus.disconnect();
 			});
 
-			it('should publish a message, even if there are no subscribers for that channel', async () => {
+			it('should not allow a client to publish to a channel that they are not subscribed to', async () => {
 				const messages = [];
 				const hubClient = new HubClient({ url: 'ws://localhost:5000' });
 				hubClient.sarus.on('message', (event) => {
@@ -417,10 +417,10 @@ describe('pubsub', () => {
 				await hubClient.publish('dashboard_y', 'Some data');
 				// Check that the client receives the message
 				const theNextLatestMessage = messages[messages.length - 1];
-				assert.strictEqual(theNextLatestMessage.type, 'response');
+				assert.strictEqual(theNextLatestMessage.type, 'error');
 				assert.strictEqual(
-					theNextLatestMessage.data.message,
-					'Published message'
+					theNextLatestMessage.error,
+					'You must subscribe to the channel to publish messages to it'
 				);
 				hubClient.sarus.disconnect();
 			});
