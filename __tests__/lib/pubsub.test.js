@@ -760,4 +760,15 @@ describe('pubsub', () => {
 			});
 		});
 	});
+
+	describe('#removeChannelConfiguration', () => {
+
+		it('should remove the channel configuration', () => {
+			const channel = 'dogs';
+			assert(hub.pubsub.channelConfigurations[channel]);
+			hub.pubsub.removeChannelConfiguration(channel);
+			assert(!hub.pubsub.channelConfigurations[channel]);
+		});
+
+	});
 });
