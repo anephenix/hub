@@ -843,6 +843,72 @@ describe('pubsub', () => {
 				});
 			});
 		});
+
+		describe('when passed a clientCanPublish value', () => {
+
+			describe('and the value is true', () => {
+				it('should allow the client to publish to the channel', async () => {
+					const channelAllowed = 'birds';
+					let messageReceived;
+					hub.pubsub.addChannelConfiguration({ channel: channelAllowed, clientCanPublish: true });
+					const hubClient = new HubClient({ url: 'ws://localhost:5000' });
+					await delayUntil(() => hubClient.sarus.ws.readyState === 1);
+					await delayUntil(() => hubClient.getClientId());
+					await hubClient.subscribe(channelAllowed);
+					hubClient.addChannelMessageHandler(channelAllowed, message => {
+						messageReceived = message;
+					});
+					await hubClient.publish(channelAllowed, 'hello everyone');
+					assert.strictEqual(messageReceived, 'hello everyone');
+				});
+			});
+
+			describe('and the value is false', () => {
+				it('should not allow the client to publish to the channel', async () => {
+					let messageReceived;
+					const channelNotAllowed = 'crocadiles';
+					hub.pubsub.addChannelConfiguration({ channel: channelNotAllowed, clientCanPublish: false });
+					const hubClient = new HubClient({ url: 'ws://localhost:5000' });
+					await delayUntil(() => hubClient.sarus.ws.readyState === 1);
+					await delayUntil(() => hubClient.getClientId());
+					await hubClient.subscribe(channelNotAllowed);
+					hubClient.addChannelMessageHandler(channelNotAllowed, message => {
+						messageReceived = message;
+					});
+					const response = await hubClient.publish(channelNotAllowed, 'hello everyone');
+					assert.strictEqual(response, 'Clients cannot publish to the channel');
+					assert.notStrictEqual(messageReceived, 'hello everyone');
+				});
+			});
+
+			describe('and the value is a function', () => {
+				it('should be passed the data and the socket', async () => {
+					const channelAllowed = 'lizards';
+					let messageReceived;
+					let dataPassed;
+					let socketPassed;
+					const clientCanPublish = ({ data, socket }) => {
+						dataPassed = data;
+						socketPassed = socket;
+						return true;
+					};
+					hub.pubsub.addChannelConfiguration({ channel: channelAllowed, clientCanPublish });
+					const hubClient = new HubClient({ url: 'ws://localhost:5000' });
+					await delayUntil(() => hubClient.sarus.ws.readyState === 1);
+					await delayUntil(() => hubClient.getClientId());
+					await hubClient.subscribe(channelAllowed);
+					hubClient.addChannelMessageHandler(channelAllowed, message => {
+						messageReceived = message;
+					});
+					await hubClient.publish(channelAllowed, 'hello everyone');
+					assert.strictEqual(messageReceived, 'hello everyone');
+					assert.strictEqual(dataPassed.channel, channelAllowed);
+					assert.strictEqual(dataPassed.message, 'hello everyone');
+					assert.strictEqual(socketPassed.clientId, hubClient.getClientId());
+				});
+			});
+
+		});
 	});
 
 	describe('#removeChannelConfiguration', () => {
