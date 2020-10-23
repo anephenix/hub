@@ -1,7 +1,7 @@
 {
 	"name": "@anephenix/hub",
-	"version": "0.0.13",
-	"description": "A WebSocket server for Sarus",
+	"version": "0.0.14",
+	"description": "A Node.js WebSocket server and client with added features",
 	"main": "index.js",
 	"scripts": {
 		"lint": "npx eslint .",

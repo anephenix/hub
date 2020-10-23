@@ -1,5 +1,9 @@
 # CHANGELOG
 
+### 0.0.14 - Friday 23rd October, 2020
+
+-   Added support for clientCanPublish checks on channel configurations
+
 ### 0.0.13 - Thursday 22nd October, 2020
 
 -   Added support for adding wildcard channel configurations
