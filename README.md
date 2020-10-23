@@ -54,6 +54,7 @@ More upcoming features are listed in the TODO.md file.
 -   [Handling client / channel subscriptions data](#handling-client--channel-subscriptions-data)
 -   [Creating channels that require authentication](#Creating-channels-that-require-authentication)
 -   [Adding wildcard channels configurations](#Adding-wildcard-channel-configurations)
+-   [Enabling / disabling client publish capability](#enabling--disabling-client-publish-capability)
 
 #### Getting started
 
@@ -419,6 +420,36 @@ hub.pubsub.addChannelConfiguration({ channel, authenticate });
 
 The `dashboard_*` wildcard channel will then run across all channels that have
 a name containing `dashboard_` in them.
+
+##### Enabling / disabling client publish capability
+
+By default clients can publish messages to a channel. There may be some 
+channels where you do not want clients to be able to do this, or cases where 
+only some of the clients can publish messages.
+
+In such cases, you can set a `clientCanPublish` boolean flag when adding a 
+channel configuration, like in the example below:
+
+```javascript
+const channel = 'announcements';
+hub.pubsub.addChannelConfiguration({ channel, clientCanPublish: false });
+```
+
+If you need to enable/disable client publish on a client basis, you can pass a
+function that receives the data and socket, like this:
+
+```javascript
+const channel = 'panel_discussion';
+const clientCanPublish = ({data, socket}) => {
+	// Here you can inspect the publish data and the socket
+	// of the client trying to publish
+	//
+	// isAllowed && isSafeToPublish are example functions
+	//
+	return isAllowed(socket.clientId) && isSafeToPublish(data.message);
+}
+hub.pubsub.addChannelConfiguration({ channel, clientCanPublish });
+```
 
 ### Running tests
 
