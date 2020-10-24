@@ -4,6 +4,7 @@
 	"description": "A Node.js WebSocket server and client with added features",
 	"main": "index.js",
 	"scripts": {
+		"certs": "mkdir certs && cd certs && mkcert localhost 127.0.0.1 ::1",
 		"lint": "npx eslint .",
 		"cover": "npx jest --coverage --coverageReporters=text-lcov | coveralls",
 		"cucumber": "NODE_ENV=test npx cucumber-js --no-strict --exit",
