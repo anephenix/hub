@@ -18,10 +18,15 @@ npm i @anephenix/hub
 
 ### Features
 
+-   Isomorphic WebSocket client support
+-   Bi-directional RPC (Remote Procedure Call)
+-   Request-only RPC calls
 -   PubSub (Publish/Subscribe)
--   RPC (Remote Procedure Call)
-
-More upcoming features are listed in the TODO.md file.
+-   Automatically unsubscribe clients from channels on disconnect
+-   Automatically resubscribe clients to channels on resconnect
+-   Authenticated Channels
+-   Restrict client channel publish capability on a per-client basis
+-   Use an existing HTTP/HTTPS server with the WebSocket server
 
 ### Usage
 
@@ -55,6 +60,10 @@ More upcoming features are listed in the TODO.md file.
 -   [Creating channels that require authentication](#Creating-channels-that-require-authentication)
 -   [Adding wildcard channels configurations](#Adding-wildcard-channel-configurations)
 -   [Enabling / disabling client publish capability](#enabling--disabling-client-publish-capability)
+
+**Security**
+
+-   [Using a secure server with Hub](#using-a-secure-server-with-hub)
 
 #### Getting started
 
@@ -399,9 +408,9 @@ to add a channel configuration for each channel. There is support for wildcard c
 
 To illustrate, say you have a number of channels that are named like this:
 
-- dashboard_IeK0iithee
-- dashboard_aipe0Paith
-- dashboard_ETh2ielah1
+-   dashboard_IeK0iithee
+-   dashboard_aipe0Paith
+-   dashboard_ETh2ielah1
 
 Rather than having to add channel configurations for each channel, you can add a wildcard channel
 configuration like this:
@@ -423,11 +432,11 @@ a name containing `dashboard_` in them.
 
 ##### Enabling / disabling client publish capability
 
-By default clients can publish messages to a channel. There may be some 
-channels where you do not want clients to be able to do this, or cases where 
+By default clients can publish messages to a channel. There may be some
+channels where you do not want clients to be able to do this, or cases where
 only some of the clients can publish messages.
 
-In such cases, you can set a `clientCanPublish` boolean flag when adding a 
+In such cases, you can set a `clientCanPublish` boolean flag when adding a
 channel configuration, like in the example below:
 
 ```javascript
@@ -440,20 +449,66 @@ function that receives the data and socket, like this:
 
 ```javascript
 const channel = 'panel_discussion';
-const clientCanPublish = ({data, socket}) => {
+const clientCanPublish = ({ data, socket }) => {
 	// Here you can inspect the publish data and the socket
 	// of the client trying to publish
 	//
 	// isAllowed && isSafeToPublish are example functions
 	//
 	return isAllowed(socket.clientId) && isSafeToPublish(data.message);
-}
+};
 hub.pubsub.addChannelConfiguration({ channel, clientCanPublish });
 ```
 
+### Security
+
+#### Using-a-secure-server-with-hub
+
+Hub by default will initialise a HTTP server to attach the WebSocket server to.
+However, it is recommended to use HTTPS to ensure that connections are secure.
+
+Hub allows you 2 ways to setup the server to run on https - either pass an
+instance of a https server to Hub:
+
+```javascript
+const https = require('https');
+const fs = require('fs');
+const { Hub } = require('@anephenix/hub');
+
+const serverOptions = {
+	key: fs.readFileSync('PATH_TO_SSL_CERTIFICATE_KEY_FILE'),
+	cert: fs.readFileSync('PATH_TO_SSL_CERTIFICATE_FILE');
+};
+
+const httpsServer = https.createServer(serverOptions);
+
+const hub = await new Hub({port: 4000, server: httpsServer});
+```
+
+Alternatively, you can pass the string 'https' with the https
+server options passed as a `serverOptions` property to Hub.
+
+```javascript
+const fs = require('fs');
+const { Hub } = require('@anephenix/hub');
+
+const serverOptions = {
+	key: fs.readFileSync('PATH_TO_SSL_CERTIFICATE_KEY_FILE'),
+	cert: fs.readFileSync('PATH_TO_SSL_CERTIFICATE_FILE');
+};
+
+const hub = await new Hub({port: 4000, server: 'https', serverOptions });
+```
+
+When you use a https server with Hub, the url for connecting to the server
+will use `wss://` instead of `ws://`.
+
 ### Running tests
 
+To run tests, make sure that you have [mkcert](https://mkcert.dev) installed to generate some SSL certificates on your local machine.
+
 ```shell
+npm run certs
 npm t
 npm run cucumber
 ```

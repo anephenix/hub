@@ -4,13 +4,12 @@ Get these features in place:
 
 -   Enhanced Security options
 
-    -   Websocket Secure protocol support
     -   Client input scanning
     -   Client origin filtering
     -   Client IP Address filtering
     -   Kick clients and ban them if required
 
--   Support this kind fo usage example
+-   Support this kind of usage example
 
 ```javascript
 // Initialise an instance of Hub

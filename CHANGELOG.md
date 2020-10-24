@@ -1,5 +1,9 @@
 # CHANGELOG
 
+### 0.0.15 - Saturday 24th October, 2020
+
+-   Added support for passing a http/https server with options to Hub
+
 ### 0.0.14 - Friday 23rd October, 2020
 
 -   Added support for clientCanPublish checks on channel configurations
