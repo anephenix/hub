@@ -1,4 +1,6 @@
 const assert = require('assert');
+const http = require('http');
+const https = require('https');
 const { Hub, HubClient } = require('../index');
 const httpShutdown = require('http-shutdown');
 const WebSocket = require('ws');
@@ -6,6 +8,8 @@ const { delayUntil } = require('../helpers/delay');
 const { RedisClient } = require('redis');
 const { delay } = require('bluebird');
 const { checkHasClientId } = require('../lib/clientId');
+const fs = require('fs');
+const path = require('path');
 
 describe('Hub', () => {
 	it('should return a class function', () => {
@@ -152,7 +156,6 @@ describe('Hub', () => {
 			const response = await hubClient.unsubscribe('news');
 			assert(response.success);
 		});
-
 	});
 
 	describe('when a client disconnects from the server', () => {
@@ -170,6 +173,71 @@ describe('Hub', () => {
 			assert.deepStrictEqual(channels, []);
 			assert.deepStrictEqual(clientIds, []);
 			newHub.server.close();
+		});
+	});
+
+	describe('server option', () => {
+		describe('when no option is passed', () => {
+			it('should load a http server by default', async () => {
+				const plainHub = await new Hub({ port: 5003 });
+				assert(plainHub.server instanceof http.Server);
+				assert.strictEqual(plainHub.protocol, 'ws');
+			});
+		});
+
+		describe('when http is passed', () => {
+			it('should load a http server', async () => {
+				const plainHub = await new Hub({ port: 5003, server: 'http' });
+				assert(plainHub.server instanceof http.Server);
+				assert.strictEqual(plainHub.protocol, 'ws');
+			});
+		});
+
+		describe('when a http server is passed', () => {
+			it('should load that http server', async () => {
+				const httpServer = http.createServer();
+				const plainHub = await new Hub({ port: 5003, server: httpServer });
+				assert(plainHub.server instanceof http.Server);
+				assert.deepStrictEqual(plainHub.server, httpServer);
+				assert.strictEqual(plainHub.protocol, 'ws');
+			});
+		});
+
+		describe('when https is passed', () => {
+			it('should load a https server initialialised with the serverOptions', async () => {
+				const serverOptions = {
+					key: fs.readFileSync(path.join(process.cwd(), 'certs', 'localhost-key.pem')),
+					cert: fs.readFileSync(path.join(process.cwd(), 'certs', 'localhost.pem')),
+				};
+				const secureHub = await new Hub({ port: 5003, server: 'https', serverOptions });
+				assert(secureHub.server instanceof https.Server);
+				assert.strictEqual(secureHub.protocol, 'wss');
+			});
+		});
+
+		describe('when a https server is passed', () => {
+			it('should load that https server', async () => {
+				const serverOptions = {
+					key: fs.readFileSync(path.join(process.cwd(), 'certs', 'localhost-key.pem')),
+					cert: fs.readFileSync(path.join(process.cwd(), 'certs', 'localhost.pem')),
+				};
+				const httpsServer = https.createServer(serverOptions);
+				const secureHub = await new Hub({ port: 5003, server: httpsServer });
+				assert(secureHub.server instanceof https.Server);
+				assert.deepStrictEqual(secureHub.server, httpsServer);
+				assert.strictEqual(secureHub.protocol, 'wss');
+			});
+		});
+
+		describe('when an invalid server option is passed', () => {
+			it('should throw an error', async () => {
+				try {
+					await new Hub({ port: 5003, server: 'secure' });
+					assert(false, 'Should not reach this point');
+				} catch (err) {
+					assert.strictEqual(err.message, 'Invalid option passed for server');
+				}			
+			});
 		});
 	});
 });
