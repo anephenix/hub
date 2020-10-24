@@ -34,7 +34,7 @@ jobs:
                   key: v2-dependencies-{{ checksum "package.json" }}
 
             # run tests!
-            - run: curl -sSL -o /usr/local/bin/mkcert -O https://github.com/FiloSottile/mkcert/releases/download/v1.4.1/mkcert-v1.4.1-linux-amd64 && chmod +x /usr/local/bin/mkcert
+            - run: curl -sSL -o ./mkcert -O https://github.com/FiloSottile/mkcert/releases/download/v1.4.1/mkcert-v1.4.1-linux-amd64 && chmod +x ./mkcert
             - run: mkcert -install
             - run: npm run certs
             - run: npm run cucumber
