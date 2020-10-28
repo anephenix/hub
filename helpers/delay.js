@@ -4,15 +4,19 @@ const delay = (duration) =>
 const delayUntil = (condition, timeout) => {
 	return new Promise((resolve, reject) => {
 		let interval;
-		const timeAtStart = new Date();
+		const timeAtStart = new Date().getTime();
 		interval = setInterval(() => {
 			if (condition()) {
 				resolve(true);
 				clearInterval(interval);
 			} else {
-				const currentTime = new Date();
-				if (timeout && ((currentTime - timeAtStart) > timeAtStart)) {
-					reject(false);
+				const currentTime = new Date().getTime();
+				if (timeout && currentTime - timeAtStart > timeout) {
+					reject(
+						new Error(
+							'Condition did not resolve before the timeout'
+						)
+					);
 					clearInterval(interval);
 				}
 			}
@@ -20,4 +24,4 @@ const delayUntil = (condition, timeout) => {
 	});
 };
 
-module.exports = { delay, delayUntil};
+module.exports = { delay, delayUntil };
