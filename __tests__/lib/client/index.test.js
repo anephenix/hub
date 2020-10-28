@@ -423,7 +423,7 @@ describe('Client library', () => {
 				const channels = await hub.pubsub.dataStore.getChannelsForClientId(
 					anotherHubClient.getClientId()
 				);
-				assert(channels && channels.indexOf(channel) !== -1);
+				assert(channels?.indexOf(channel) !== -1);
 				anotherHubClient.sarus.disconnect();
 				await delay(100);
 				anotherHubClient.sarus.reconnect();
@@ -431,7 +431,7 @@ describe('Client library', () => {
 				const freshChannels = await hub.pubsub.dataStore.getChannelsForClientId(
 					anotherHubClient.getClientId()
 				);
-				assert(freshChannels && freshChannels.indexOf(channel) !== -1);
+				assert(freshChannels?.indexOf(channel) !== -1);
 				await anotherHubClient.unsubscribe(channel);
 			});
 		});
