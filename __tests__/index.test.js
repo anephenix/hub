@@ -82,16 +82,14 @@ describe('Hub', () => {
 			});
 
 			it('should attach the hasClientId rpc action', () => {
-				assert.deepStrictEqual(
-					hub.rpc.actions['has-client-id'],
-					[checkHasClientId]
-				);
+				assert.deepStrictEqual(hub.rpc.actions['has-client-id'], [
+					checkHasClientId,
+				]);
 			});
 		});
 	});
 
 	describe('initialising with redis data store options', () => {
-
 		let hub;
 		let hubClient;
 		beforeAll(() => {
@@ -100,9 +98,9 @@ describe('Hub', () => {
 				dataStoreType: 'redis',
 				dataStoreOptions: {
 					redisConfig: {
-						db: 1
-					}
-				}
+						db: 1,
+					},
+				},
 			});
 			hub.listen();
 			hubClient = new HubClient({ url: 'ws://localhost:4005' });
@@ -148,7 +146,9 @@ describe('Hub', () => {
 			hubClient.addChannelMessageHandler('news', () => {
 				called = true;
 			});
-			await hub.pubsub.publish({ data: { channel: 'news', message: 'rain is on the way' } });
+			await hub.pubsub.publish({
+				data: { channel: 'news', message: 'rain is on the way' },
+			});
 			await delayUntil(() => called, 5000);
 		});
 
@@ -160,16 +160,25 @@ describe('Hub', () => {
 
 	describe('when a client disconnects from the server', () => {
 		it('should unsubscribe that client from any channels they were subscribed to', async () => {
-			const newHub = await new Hub({ port: 5002, dataStoreType: 'memory' });
+			const newHub = await new Hub({
+				port: 5002,
+				dataStoreType: 'memory',
+			});
 			newHub.listen();
 			const hubClient = new HubClient({ url: 'ws://localhost:5002' });
 			await delayUntil(() => hubClient.sarus.ws.readyState === 1);
-			await delayUntil(() => { return hubClient.getClientId(); });
+			await delayUntil(() => {
+				return hubClient.getClientId();
+			});
 			await hubClient.subscribe('accounts');
 			hubClient.sarus.disconnect();
 			await delay(100);
-			const channels = await newHub.pubsub.dataStore.getChannelsForClientId(hubClient.getClientId());
-			const clientIds = await newHub.pubsub.dataStore.getClientIdsForChannel('accounts');
+			const channels = await newHub.pubsub.dataStore.getChannelsForClientId(
+				hubClient.getClientId()
+			);
+			const clientIds = await newHub.pubsub.dataStore.getClientIdsForChannel(
+				'accounts'
+			);
 			assert.deepStrictEqual(channels, []);
 			assert.deepStrictEqual(clientIds, []);
 			newHub.server.close();
@@ -196,7 +205,10 @@ describe('Hub', () => {
 		describe('when a http server is passed', () => {
 			it('should load that http server', async () => {
 				const httpServer = http.createServer();
-				const plainHub = await new Hub({ port: 5003, server: httpServer });
+				const plainHub = await new Hub({
+					port: 5003,
+					server: httpServer,
+				});
 				assert(plainHub.server instanceof http.Server);
 				assert.deepStrictEqual(plainHub.server, httpServer);
 				assert.strictEqual(plainHub.protocol, 'ws');
@@ -206,10 +218,18 @@ describe('Hub', () => {
 		describe('when https is passed', () => {
 			it('should load a https server initialialised with the serverOptions', async () => {
 				const serverOptions = {
-					key: fs.readFileSync(path.join(process.cwd(), 'certs', 'localhost-key.pem')),
-					cert: fs.readFileSync(path.join(process.cwd(), 'certs', 'localhost.pem')),
+					key: fs.readFileSync(
+						path.join(process.cwd(), 'certs', 'localhost+2-key.pem')
+					),
+					cert: fs.readFileSync(
+						path.join(process.cwd(), 'certs', 'localhost+2.pem')
+					),
 				};
-				const secureHub = await new Hub({ port: 5003, server: 'https', serverOptions });
+				const secureHub = await new Hub({
+					port: 5003,
+					server: 'https',
+					serverOptions,
+				});
 				assert(secureHub.server instanceof https.Server);
 				assert.strictEqual(secureHub.protocol, 'wss');
 			});
@@ -218,11 +238,18 @@ describe('Hub', () => {
 		describe('when a https server is passed', () => {
 			it('should load that https server', async () => {
 				const serverOptions = {
-					key: fs.readFileSync(path.join(process.cwd(), 'certs', 'localhost-key.pem')),
-					cert: fs.readFileSync(path.join(process.cwd(), 'certs', 'localhost.pem')),
+					key: fs.readFileSync(
+						path.join(process.cwd(), 'certs', 'localhost+2-key.pem')
+					),
+					cert: fs.readFileSync(
+						path.join(process.cwd(), 'certs', 'localhost+2.pem')
+					),
 				};
 				const httpsServer = https.createServer(serverOptions);
-				const secureHub = await new Hub({ port: 5003, server: httpsServer });
+				const secureHub = await new Hub({
+					port: 5003,
+					server: httpsServer,
+				});
 				assert(secureHub.server instanceof https.Server);
 				assert.deepStrictEqual(secureHub.server, httpsServer);
 				assert.strictEqual(secureHub.protocol, 'wss');
@@ -235,8 +262,11 @@ describe('Hub', () => {
 					await new Hub({ port: 5003, server: 'secure' });
 					assert(false, 'Should not reach this point');
 				} catch (err) {
-					assert.strictEqual(err.message, 'Invalid option passed for server');
-				}			
+					assert.strictEqual(
+						err.message,
+						'Invalid option passed for server'
+					);
+				}
 			});
 		});
 	});
