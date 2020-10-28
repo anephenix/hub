@@ -19,7 +19,6 @@ const visitPage = async (pageUrl) => {
 			args,
 		});
 
-	// NOTE - Puppeteer 1.10.0 breaks on this line - fixed on 1.9.0 for that reason
 	// eslint-disable-next-line require-atomic-updates
 	scope.context.currentPage = await scope.browser.newPage();
 	// Cater for admin urls

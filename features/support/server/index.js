@@ -13,12 +13,7 @@ hub.connectionEventListeners.message.push(({ message }) => {
 	messages.push(message);
 });
 
-// NOTE - add something that records messages being sent to the server from the client,
-// and then have a way to inspect those messages from cucumber
-
 // Start the server with http-shutdown
-const server = httpShutdown(
-	hub.listen()
-);
+const server = httpShutdown(hub.listen());
 
 module.exports = { hub, server, messages };
