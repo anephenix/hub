@@ -37,5 +37,9 @@ jobs:
             - run: curl -sSL -o ./mkcert -O https://github.com/FiloSottile/mkcert/releases/download/v1.4.1/mkcert-v1.4.1-linux-amd64 && chmod +x ./mkcert
             - run: ./mkcert -install
             - run: mkdir certs && cd certs && ../mkcert localhost 127.0.0.1 ::1 && cd ..
+            - run: curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+            - run: chmod +x ./cc-test-reporter
             - run: npm run cucumber
+            - run: ./cc-test-reporter before-build 
             - run: npm run cover
+            - run: ./cc-test-reporter after-build --coverage-input-type lcov
