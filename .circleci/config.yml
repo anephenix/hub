@@ -42,4 +42,4 @@ jobs:
             - run: npm run cucumber
             - run: ./cc-test-reporter before-build 
             - run: npm run cover
-            - run: ./cc-test-reporter after-build --coverage-input-type lcov
+            - run: ./cc-test-reporter after-build --coverage-input-type clover
