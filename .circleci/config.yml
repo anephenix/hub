@@ -40,6 +40,7 @@ jobs:
             - run: curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
             - run: chmod +x ./cc-test-reporter
             - run: npm run cucumber
-            - run: ./cc-test-reporter before-build 
             - run: npm run cover
-            - run: cd coverage && ../cc-test-reporter after-build --coverage-input-type clover
+            - run: ./cc-test-reporter before-build 
+            - run: npm t
+            - run: ./cc-test-reporter after-build --coverage-input-type clover coverage/clover.xml
