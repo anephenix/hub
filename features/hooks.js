@@ -9,14 +9,14 @@ const scope = require('./support/scope');
 */
 const web = require('./support/client');
 
-BeforeAll({timeout: 10000}, async () => {
+BeforeAll({timeout: 20000}, async () => {
 	scope.web = await web.server();
 });
 
 After(async () => {
 	if (scope.browser && scope.context.currentPage) {
 		const cookies = await scope.context.currentPage.cookies();
-		if (cookies && cookies.length > 0) {
+		if (cookies?.length > 0) {
 			await scope.context.currentPage.deleteCookie(...cookies);
 		}
 		await scope.context.currentPage.close();
