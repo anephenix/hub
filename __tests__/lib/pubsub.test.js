@@ -772,6 +772,13 @@ describe('pubsub', () => {
 					return true;
 				};
 				hub.pubsub.addChannelConfiguration({ channel: wildcardChannel, authenticate });
+				const otherWildcardChannel = 'dash_*';
+				let otherCallCount = 0;
+				const otherAuthenticate = () => {
+					otherCallCount++;
+					return true;
+				};
+				hub.pubsub.addChannelConfiguration({ channel: otherWildcardChannel, authenticate: otherAuthenticate });
 				assert.deepStrictEqual(
 					hub.pubsub.channelConfigurations[wildcardChannel].authenticate,
 					authenticate
@@ -799,6 +806,7 @@ describe('pubsub', () => {
 					socket.clientId
 				);
 				assert(channelsTwo.indexOf('dashboard_29jd92j') !== -1);
+				assert.strictEqual(otherCallCount,0);
 			});
 
 			it('should prevent the developer from adding wildcard channels that might overlap in channel matches', async () => {

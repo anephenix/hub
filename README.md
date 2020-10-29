@@ -7,7 +7,7 @@ A Node.js WebSocket server and client with added features
 
 ### Dependencies
 
--   Node.js
+-   Node.js (version 14 or greater)
 -   Redis
 
 ### Install
