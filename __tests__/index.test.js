@@ -186,6 +186,16 @@ describe('Hub', () => {
 	});
 
 	describe('server option', () => {
+
+		const serverOptions = {
+			key: fs.readFileSync(
+				path.join(process.cwd(), 'certs', 'localhost+2-key.pem')
+			),
+			cert: fs.readFileSync(
+				path.join(process.cwd(), 'certs', 'localhost+2.pem')
+			),
+		};
+
 		describe('when no option is passed', () => {
 			it('should load a http server by default', async () => {
 				const plainHub = await new Hub({ port: 5003 });
@@ -217,14 +227,6 @@ describe('Hub', () => {
 
 		describe('when https is passed', () => {
 			it('should load a https server initialialised with the serverOptions', async () => {
-				const serverOptions = {
-					key: fs.readFileSync(
-						path.join(process.cwd(), 'certs', 'localhost+2-key.pem')
-					),
-					cert: fs.readFileSync(
-						path.join(process.cwd(), 'certs', 'localhost+2.pem')
-					),
-				};
 				const secureHub = await new Hub({
 					port: 5003,
 					server: 'https',
@@ -237,14 +239,6 @@ describe('Hub', () => {
 
 		describe('when a https server is passed', () => {
 			it('should load that https server', async () => {
-				const serverOptions = {
-					key: fs.readFileSync(
-						path.join(process.cwd(), 'certs', 'localhost+2-key.pem')
-					),
-					cert: fs.readFileSync(
-						path.join(process.cwd(), 'certs', 'localhost+2.pem')
-					),
-				};
 				const httpsServer = https.createServer(serverOptions);
 				const secureHub = await new Hub({
 					port: 5003,
