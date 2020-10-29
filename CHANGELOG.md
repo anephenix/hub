@@ -1,5 +1,11 @@
 # CHANGELOG
 
+### 0.0.16 - Thursday 29th October, 2020
+
+-   Refactored the code to improve readability
+-   Fixed a bug with wildcard channel matching
+-   Fixed a bug with the delayUntil helper function
+
 ### 0.0.15 - Saturday 24th October, 2020
 
 -   Added support for passing a http/https server with options to Hub
