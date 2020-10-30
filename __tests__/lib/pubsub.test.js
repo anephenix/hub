@@ -159,14 +159,7 @@ describe('pubsub', () => {
 				const message = JSON.parse(event.data);
 				messages.push(message);
 			});
-			await delayUntil(() => hubClient.sarus.ws.readyState === 1);
-
-			await delayUntil(() => {
-				return (
-					// eslint-disable-next-line no-undef
-					window.localStorage.getItem('sarus-client-id') !== undefined
-				);
-			});
+			await hubClient.isReady();
 			// Subscribe the client to the channel
 			await hubClient.subscribe('politics');
 			// Acknowledge the channel subscription
@@ -206,13 +199,7 @@ describe('pubsub', () => {
 				const message = JSON.parse(event.data);
 				messages.push(message);
 			});
-			await delayUntil(() => hubClient.sarus.ws.readyState === 1);
-			await delayUntil(() => {
-				return (
-					// eslint-disable-next-line no-undef
-					window.localStorage.getItem('sarus-client-id') !== undefined
-				);
-			});
+			await hubClient.isReady();
 			// Subscribe the client to the channel
 			await hubClient.subscribe('showbiz');
 			// Acknowledge the channel subscription
@@ -253,14 +240,7 @@ describe('pubsub', () => {
 				const message = JSON.parse(event.data);
 				messages.push(message);
 			});
-			await delayUntil(() => hubClient.sarus.ws.readyState === 1);
-
-			await delayUntil(() => {
-				return (
-					// eslint-disable-next-line no-undef
-					window.localStorage.getItem('sarus-client-id') !== undefined
-				);
-			});
+			await hubClient.isReady();
 			// Subscribe the client to the channel
 			await hubClient.subscribe('markets');
 			// Acknowledge the channel subscription
@@ -324,14 +304,7 @@ describe('pubsub', () => {
 					const message = JSON.parse(event.data);
 					messages.push(message);
 				});
-				await delayUntil(() => hubClient.sarus.ws.readyState === 1);
-				await delayUntil(() => {
-					return (
-						// eslint-disable-next-line no-undef
-						window.localStorage.getItem('sarus-client-id') !==
-						undefined
-					);
-				});
+				await hubClient.isReady();
 				// Subscribe the client to the channel
 				await hubClient.subscribe('showbiz');
 				// Acknowledge the channel subscription
@@ -363,14 +336,7 @@ describe('pubsub', () => {
 					const message = JSON.parse(event.data);
 					messages.push(message);
 				});
-				await delayUntil(() => hubClient.sarus.ws.readyState === 1);
-				await delayUntil(() => {
-					return (
-						// eslint-disable-next-line no-undef
-						window.localStorage.getItem('sarus-client-id') !==
-						undefined
-					);
-				});
+				await hubClient.isReady();
 				// Subscribe the client to the channel
 				await hubClient.subscribe('showbiz');
 				// Acknowledge the channel subscription
@@ -402,14 +368,7 @@ describe('pubsub', () => {
 					const message = JSON.parse(event.data);
 					messages.push(message);
 				});
-				await delayUntil(() => hubClient.sarus.ws.readyState === 1);
-				await delayUntil(() => {
-					return (
-						// eslint-disable-next-line no-undef
-						window.localStorage.getItem('sarus-client-id') !==
-						undefined
-					);
-				});
+				await hubClient.isReady();
 				// eslint-disable-next-line no-undef
 				const latestMessage = messages[messages.length - 1];
 				if (!latestMessage) throw new Error('No messages intercepted');
@@ -547,13 +506,7 @@ describe('pubsub', () => {
 				const message = JSON.parse(event.data);
 				messages.push(message);
 			});
-			await delayUntil(() => hubClient.sarus.ws.readyState === 1);
-			await delayUntil(() => {
-				return (
-					// eslint-disable-next-line no-undef
-					window.localStorage.getItem('sarus-client-id') !== undefined
-				);
-			});
+			await hubClient.isReady();
 			// Subscribe the client to the channel
 			await hubClient.subscribe('markets');
 			// Acknowledge the channel subscription
@@ -579,13 +532,7 @@ describe('pubsub', () => {
 			// a second client needs to be subscribed, and localstorage scrubbed to prevent duplicate client id assignment;
 			global.localStorage.removeItem('sarus-client-id');
 			const otherHubClient = new HubClient(config);
-			await delayUntil(() => otherHubClient.sarus.ws.readyState === 1);
-			await delayUntil(() => {
-				return (
-					// eslint-disable-next-line no-undef
-					window.localStorage.getItem('sarus-client-id') !== undefined
-				);
-			});
+			await otherHubClient.isReady();
 			await otherHubClient.subscribe('markets');
 
 			await hub.pubsub.publish({
@@ -637,13 +584,7 @@ describe('pubsub', () => {
 				const message = JSON.parse(event.data);
 				messages.push(message);
 			});
-			await delayUntil(() => hubClient.sarus.ws.readyState === 1);
-			await delayUntil(() => {
-				return (
-					// eslint-disable-next-line no-undef
-					window.localStorage.getItem('sarus-client-id') !== undefined
-				);
-			});
+			await hubClient.isReady();
 			// Subscribe the client to the channel
 			await hubClient.subscribe('markets');
 			// Acknowledge the channel subscription
@@ -707,10 +648,7 @@ describe('pubsub', () => {
 			const newHub = await new Hub({ port: 5004 });
 			newHub.listen();
 			const hubClient = new HubClient({ url: 'ws://localhost:5004' });
-			await delayUntil(() => hubClient.sarus.ws.readyState === 1);
-			await delayUntil(() => {
-				return hubClient.getClientId();
-			});
+			await hubClient.isReady();
 			await hubClient.subscribe('shares');
 			await newHub.pubsub.unsubscribeClientFromAllChannels({
 				ws: { clientId: hubClient.getClientId() },
@@ -860,8 +798,7 @@ describe('pubsub', () => {
 					let messageReceived;
 					hub.pubsub.addChannelConfiguration({ channel: channelAllowed, clientCanPublish: true });
 					const hubClient = new HubClient({ url: 'ws://localhost:5000' });
-					await delayUntil(() => hubClient.sarus.ws.readyState === 1);
-					await delayUntil(() => hubClient.getClientId());
+					await hubClient.isReady();
 					await hubClient.subscribe(channelAllowed);
 					hubClient.addChannelMessageHandler(channelAllowed, message => {
 						messageReceived = message;
@@ -877,8 +814,7 @@ describe('pubsub', () => {
 					const channelNotAllowed = 'crocadiles';
 					hub.pubsub.addChannelConfiguration({ channel: channelNotAllowed, clientCanPublish: false });
 					const hubClient = new HubClient({ url: 'ws://localhost:5000' });
-					await delayUntil(() => hubClient.sarus.ws.readyState === 1);
-					await delayUntil(() => hubClient.getClientId());
+					await hubClient.isReady();
 					await hubClient.subscribe(channelNotAllowed);
 					hubClient.addChannelMessageHandler(channelNotAllowed, message => {
 						messageReceived = message;
@@ -902,8 +838,7 @@ describe('pubsub', () => {
 					};
 					hub.pubsub.addChannelConfiguration({ channel: channelAllowed, clientCanPublish });
 					const hubClient = new HubClient({ url: 'ws://localhost:5000' });
-					await delayUntil(() => hubClient.sarus.ws.readyState === 1);
-					await delayUntil(() => hubClient.getClientId());
+					await hubClient.isReady();
 					await hubClient.subscribe(channelAllowed);
 					hubClient.addChannelMessageHandler(channelAllowed, message => {
 						messageReceived = message;

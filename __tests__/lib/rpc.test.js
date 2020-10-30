@@ -155,9 +155,7 @@ describe('rpc', () => {
 					reply({ data: { arch, platform, version } });
 				});
 
-				await delayUntil(() => {
-					return hubClient.sarus.ws.readyState === 1;
-				}, 5000);
+				await hubClient.isReady();
 
 				const ws = hubServer.wss.clients.values().next().value;
 				const response = await hubServer.rpc.send({
@@ -176,10 +174,7 @@ describe('rpc', () => {
 				const hubServer = new Hub({ port: 4002 });
 				const shutSignal = httpShutdown(hubServer.listen());
 				const hubClient = new HubClient({ url: 'ws://localhost:4002' });
-				await delayUntil(() => {
-					return hubClient.sarus.ws.readyState === 1;
-				}, 5000);
-
+				await hubClient.isReady();
 				const ws = hubServer.wss.clients.values().next().value;
 				try {
 					await hubServer.rpc.send({
@@ -204,11 +199,7 @@ describe('rpc', () => {
 				assert.strictEqual(data.apiKey, 'xxx');
 				reply({ data: { success: true, message: 'api key set' } });
 			});
-
-			await delayUntil(() => {
-				return hubClient.sarus.ws.readyState === 1;
-			}, 5000);
-
+			await hubClient.isReady();
 			const ws = hubServer.wss.clients.values().next().value;
 			const response = await hubServer.rpc.send({
 				ws,

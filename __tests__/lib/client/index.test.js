@@ -14,13 +14,7 @@ describe('Client library', () => {
 		hub = new Hub({ port: 5001 });
 		shutdownInstance = httpShutdown(hub.listen());
 		hubClient = new HubClient({ url: 'ws://localhost:5001' });
-		await delayUntil(() => hubClient.sarus.ws.readyState === 1);
-		await delayUntil(() => {
-			return (
-				// eslint-disable-next-line no-undef
-				window.localStorage.getItem('sarus-client-id') !== undefined
-			);
-		});
+		await hubClient.isReady();
 	});
 
 	afterAll(() => {
@@ -370,8 +364,7 @@ describe('Client library', () => {
 				messages.push(decode(event.data));
 			});
 			beforeAll(async () => {
-				await delayUntil(() => newHubClient.sarus.ws.readyState === 1);
-				await delayUntil(() => newHubClient.getClientId());
+				await newHubClient.isReady();
 				newHubClient.addChannel('dogs');
 				await newHubClient.resubscribeOnReconnect();
 			});
@@ -412,12 +405,7 @@ describe('Client library', () => {
 					url: 'ws://localhost:5001',
 					clientIdKey: 'one-more-sarus-client-id',
 				});
-				await delayUntil(() => {
-					return anotherHubClient.sarus.ws.readyState === 1;
-				});
-				await delayUntil(() => {
-					return anotherHubClient.getClientId();
-				});
+				await anotherHubClient.isReady();
 				await anotherHubClient.subscribe(channel, { password: 'brie' });
 				await delay(100);
 				const channels = await hub.pubsub.dataStore.getChannelsForClientId(
@@ -451,8 +439,7 @@ describe('Client library', () => {
 			newHubClient.sarus.on('message', (event) => {
 				messages.push(decode(event.data));
 			});
-			await delayUntil(() => newHubClient.sarus.ws.readyState === 1);
-			await delayUntil(() => newHubClient.getClientId());
+			await newHubClient.isReady();
 			await newHubClient.subscribe(channelOne);
 			await newHubClient.subscribe(channelTwo);
 			assert.deepStrictEqual(newHubClient.channels, [
@@ -514,10 +501,7 @@ describe('Client library', () => {
 				otherHubClient.sarus.on('message', (event) => {
 					otherMessages.push(decode(event.data));
 				});
-				await delayUntil(
-					() => otherHubClient.sarus.ws.readyState === 1
-				);
-				await delayUntil(() => otherHubClient.getClientId());
+				await otherHubClient.isReady();
 				otherHubClient.sarus.disconnect();
 				await delay(50);
 				otherHubClient.sarus.reconnect();

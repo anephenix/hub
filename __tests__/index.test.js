@@ -166,10 +166,12 @@ describe('Hub', () => {
 			});
 			newHub.listen();
 			const hubClient = new HubClient({ url: 'ws://localhost:5002' });
-			await delayUntil(() => hubClient.sarus.ws.readyState === 1);
-			await delayUntil(() => {
-				return hubClient.getClientId();
-			});
+			// await delayUntil(() => hubClient.sarus.ws.readyState === 1);
+			// await delayUntil(() => {
+			// 	return hubClient.getClientId();
+			// });
+
+			await hubClient.isReady();
 			await hubClient.subscribe('accounts');
 			hubClient.sarus.disconnect();
 			await delay(100);

@@ -1,6 +1,5 @@
 // Dependencies
 const assert = require('assert');
-const { delayUntil } = require('../../helpers/delay');
 const { HubClient } = require('../../index');
 const scope = require('./scope');
 
@@ -246,12 +245,7 @@ const otherClientSubscribesToChannel = async (channel) => {
 	scope.otherClient.sarus.on('message', (message) =>
 		scope.otherClientMessages.push(message.data)
 	);
-	await delayUntil(() => {
-		return scope.otherClient.sarus.ws.readyState === 1;
-	}, 5000);
-	await delayUntil(() => {
-		return global.localStorage.getItem('sarus-client-id') !== undefined;
-	}, 5000);
+	await scope.otherClient.isReady();
 	await scope.otherClient.subscribe(channel);
 };
 
