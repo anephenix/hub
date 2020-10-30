@@ -1,5 +1,10 @@
 # CHANGELOG
 
+### 0.0.17 - Friday 30th October, 2020
+
+-   Small fix for loading the client in a browser context
+-   Updated dependencies
+
 ### 0.0.16 - Thursday 29th October, 2020
 
 -   Refactored the code to improve readability
