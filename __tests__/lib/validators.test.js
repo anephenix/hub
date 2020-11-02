@@ -34,22 +34,25 @@ describe('validators', () => {
 			});
 
 			describe('for each required key, when the key is present', () => {
+
+				const checkThatItThrows = (input) => {
+					assert.throws(() => {
+						return auditServerEventListeners(input);
+					});
+				};
+
 				describe('when the key value is not an array', () => {
 					it('should throw an error', () => {
-						assert.throws(() => {
-							return auditServerEventListeners({
-								listening: {},
-							});
+						checkThatItThrows({
+							listening: {},
 						});
 					});
 				});
 
 				describe('when the key is an array', () => {
 					it('should throw an error if it contains something other than functions', () => {
-						assert.throws(() => {
-							return auditServerEventListeners({
-								listening: [{}],
-							});
+						checkThatItThrows({
+							listening: [{}],
 						});
 					});
 				});
@@ -84,22 +87,25 @@ describe('validators', () => {
 			});
 
 			describe('for each required key, when the key is present', () => {
+
+				const checkThatItThrows = (input) => {
+					assert.throws(() => {
+						return auditConnectionEventListeners(input);
+					});
+				};
+
 				describe('when the key value is not an array', () => {
 					it('should throw an error', () => {
-						assert.throws(() => {
-							return auditConnectionEventListeners({
-								message: {},
-							});
+						checkThatItThrows({
+							message: {},
 						});
 					});
 				});
 
 				describe('when the key is an array', () => {
 					it('should throw an error if it contains something other than functions', () => {
-						assert.throws(() => {
-							return auditConnectionEventListeners({
-								message: [{}],
-							});
+						checkThatItThrows({
+							message: [{}],
 						});
 					});
 				});
