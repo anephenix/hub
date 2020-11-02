@@ -5,7 +5,15 @@ const {
 } = require('../../lib/validators');
 
 describe('validators', () => {
+
+	const checkThatItThrows = (method, input) => {
+		assert.throws(() => {
+			return method(input);
+		});
+	};
+
 	describe('auditServerEventListeners', () => {
+
 		describe('when the serverEventListeners parameter is undefined', () => {
 			it('should return null', () => {
 				assert.strictEqual(auditServerEventListeners(), null);
@@ -14,9 +22,7 @@ describe('validators', () => {
 
 		describe('when the serverEventListeners parameter is not an object', () => {
 			it('should throw an error', () => {
-				assert.throws(() => {
-					return auditServerEventListeners([]);
-				});
+				checkThatItThrows(auditServerEventListeners, []);
 			});
 		});
 
@@ -35,15 +41,9 @@ describe('validators', () => {
 
 			describe('for each required key, when the key is present', () => {
 
-				const checkThatItThrows = (input) => {
-					assert.throws(() => {
-						return auditServerEventListeners(input);
-					});
-				};
-
 				describe('when the key value is not an array', () => {
 					it('should throw an error', () => {
-						checkThatItThrows({
+						checkThatItThrows(auditServerEventListeners, {
 							listening: {},
 						});
 					});
@@ -51,7 +51,7 @@ describe('validators', () => {
 
 				describe('when the key is an array', () => {
 					it('should throw an error if it contains something other than functions', () => {
-						checkThatItThrows({
+						checkThatItThrows(auditServerEventListeners, {
 							listening: [{}],
 						});
 					});
@@ -88,15 +88,9 @@ describe('validators', () => {
 
 			describe('for each required key, when the key is present', () => {
 
-				const checkThatItThrows = (input) => {
-					assert.throws(() => {
-						return auditConnectionEventListeners(input);
-					});
-				};
-
 				describe('when the key value is not an array', () => {
 					it('should throw an error', () => {
-						checkThatItThrows({
+						checkThatItThrows(auditConnectionEventListeners, {
 							message: {},
 						});
 					});
@@ -104,7 +98,7 @@ describe('validators', () => {
 
 				describe('when the key is an array', () => {
 					it('should throw an error if it contains something other than functions', () => {
-						checkThatItThrows({
+						checkThatItThrows(auditConnectionEventListeners, {
 							message: [{}],
 						});
 					});
