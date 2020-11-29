@@ -19,7 +19,7 @@
 ### Features to implement
 
 -   [ ] Client input scanning
--   [ ] Client origin filtering
+-   [x] Client origin filtering
 -   [ ] Client IP Address filtering
 -   [ ] Kick clients and ban them if required
 -   [ ] Think about how to support message catchup for clients that disconnect and then reconnect.

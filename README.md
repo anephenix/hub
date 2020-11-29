@@ -57,13 +57,14 @@ npm i @anephenix/hub
 
 -   [Handling client disconnects / reconnects](#handling-client-disconnects--reconnects)
 -   [Handling client / channel subscriptions data](#handling-client--channel-subscriptions-data)
--   [Creating channels that require authentication](#Creating-channels-that-require-authentication)
--   [Adding wildcard channels configurations](#Adding-wildcard-channel-configurations)
+-   [Creating channels that require authentication](#creating-channels-that-require-authentication)
+-   [Adding wildcard channels configurations](#adding-wildcard-channel-configurations)
 -   [Enabling / disabling client publish capability](#enabling--disabling-client-publish-capability)
 
 **Security**
 
 -   [Using a secure server with Hub](#using-a-secure-server-with-hub)
+-	[Restricting where WebSockets can connect from](#restricting-where-webSockets-can-connect-from)
 
 #### Getting started
 
@@ -502,6 +503,19 @@ const hub = await new Hub({port: 4000, server: 'https', serverOptions });
 
 When you use a https server with Hub, the url for connecting to the server
 will use `wss://` instead of `ws://`.
+
+#### Restricting where WebSockets can connect from
+
+You can restrict the urls where WebSocket connections can be established by 
+passing an array of url origins to the `allowedOrigins` property for a server:
+
+```javascript
+const { Hub } = require('@anephenix/hub');
+
+const hub = await new Hub({port: 4000, allowedOrigins: ['landscape.anephenix.com'] });
+```
+
+This means that any attempted connections from websites not hosted on 'landscape.anephenix.com' will be closed by the server.
 
 ### Running tests
 

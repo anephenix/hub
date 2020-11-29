@@ -1,5 +1,9 @@
 # CHANGELOG
 
+### 0.0.18 - Sunday 29th November, 2020
+
+-   Added allowedOrigins feature to restrict where clients can connect from
+
 ### 0.0.17 - Friday 30th October, 2020
 
 -   Small fix for loading the client in a browser context
