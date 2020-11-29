@@ -15,11 +15,11 @@
 -   [x] Think about how to support channel subscriptions where the client needs some form of authentication/authorization
 -   [x] Wildcard channel configurations
 -   [x] clientCanPublish channel configuration option
+-   [x] Client origin filtering
 
 ### Features to implement
 
 -   [ ] Client input scanning
--   [x] Client origin filtering
 -   [ ] Client IP Address filtering
 -   [ ] Kick clients and ban them if required
 -   [ ] Think about how to support message catchup for clients that disconnect and then reconnect.
