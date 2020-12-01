@@ -27,6 +27,7 @@ npm i @anephenix/hub
 -   Authenticated Channels
 -   Restrict client channel publish capability on a per-client basis
 -   Use an existing HTTP/HTTPS server with the WebSocket server
+- 	Allow client connections from only url origins or ip addresses
 
 ### Usage
 
@@ -515,7 +516,18 @@ const { Hub } = require('@anephenix/hub');
 const hub = await new Hub({port: 4000, allowedOrigins: ['landscape.anephenix.com'] });
 ```
 
-This means that any attempted connections from websites not hosted on 'landscape.anephenix.com' will be closed by the server.
+This means that any attempted connections from websites not hosted on 
+'landscape.anephenix.com' will be closed by the server.
+
+Alernatively, you can also restrict the IP Addresses that clients can make
+WebSocket connections from:
+
+```javascript
+const { Hub } = require('@anephenix/hub');
+
+const hub = await new Hub({port: 4000, allowedIpAddresses: ['76.76.21.21'] });
+```
+
 
 ### Running tests
 

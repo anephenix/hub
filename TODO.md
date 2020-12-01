@@ -16,11 +16,11 @@
 -   [x] Wildcard channel configurations
 -   [x] clientCanPublish channel configuration option
 -   [x] Client origin filtering
+-   [x] Client IP Address filtering
 
 ### Features to implement
 
 -   [ ] Client input scanning
--   [ ] Client IP Address filtering
 -   [ ] Kick clients and ban them if required
 -   [ ] Think about how to support message catchup for clients that disconnect and then reconnect.
 -   [ ] Think about how to publish to all clients, and whether that needs simple support (i.e. hub.pubsub.publishToAll and hubClient.addGlobalMessageHandler)

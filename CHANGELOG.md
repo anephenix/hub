@@ -1,5 +1,9 @@
 # CHANGELOG
 
+### 0.0.19 - Tuesday 1st December, 2020
+
+-   Allowed allowedIpAddresses feature to restrict where clients can connect from
+
 ### 0.0.18 - Sunday 29th November, 2020
 
 -   Added allowedOrigins feature to restrict where clients can connect from
