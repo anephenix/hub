@@ -27,7 +27,7 @@ npm i @anephenix/hub
 -   Authenticated Channels
 -   Restrict client channel publish capability on a per-client basis
 -   Use an existing HTTP/HTTPS server with the WebSocket server
-- 	Allow client connections from only url origins or ip addresses
+- 	Allow client connections only from a list of url origins or ip addresses
 
 ### Usage
 

@@ -15,13 +15,14 @@
 -   [x] Think about how to support channel subscriptions where the client needs some form of authentication/authorization
 -   [x] Wildcard channel configurations
 -   [x] clientCanPublish channel configuration option
--   [x] Client origin filtering
+-   [x] Client url origin filtering
 -   [x] Client IP Address filtering
 
 ### Features to implement
 
--   [ ] Client input scanning
 -   [ ] Kick clients and ban them if required
+
+-   [ ] Client input scanning
 -   [ ] Think about how to support message catchup for clients that disconnect and then reconnect.
 -   [ ] Think about how to publish to all clients, and whether that needs simple support (i.e. hub.pubsub.publishToAll and hubClient.addGlobalMessageHandler)
 -   [ ] A broadcast server api call, with an option to handle on the client

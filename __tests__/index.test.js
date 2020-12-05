@@ -86,6 +86,7 @@ describe('Hub', () => {
 					checkHasClientId,
 				]);
 			});
+
 		});
 	});
 
@@ -265,5 +266,32 @@ describe('Hub', () => {
 				}
 			});
 		});
+	});
+
+	describe('setHostAndIp', () => {
+
+		let hub;
+		let hubClient;
+		beforeAll(() => {
+			hub = new Hub({
+				port: 4009,
+			});
+			hub.listen();
+			hubClient = new HubClient({ url: 'ws://localhost:4009' });
+		});
+
+		afterAll(async () => {
+			hubClient.sarus.disconnect();
+			hub.server.close();
+			await delay(100);
+		});
+
+		it('should set the hostname and ip address on the websocket client', async () => {
+			await hubClient.isReady();
+			const ws = Array.from(hub.wss.clients)[0];
+			assert.strictEqual(ws.host, 'localhost:4009');
+			assert.strictEqual(ws.ipAddress, '::ffff:127.0.0.1');
+		});
+
 	});
 });
