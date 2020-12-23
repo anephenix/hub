@@ -86,7 +86,6 @@ describe('Hub', () => {
 					checkHasClientId,
 				]);
 			});
-
 		});
 	});
 
@@ -189,7 +188,6 @@ describe('Hub', () => {
 	});
 
 	describe('server option', () => {
-
 		const serverOptions = {
 			key: fs.readFileSync(
 				path.join(process.cwd(), 'certs', 'localhost+2-key.pem')
@@ -269,7 +267,6 @@ describe('Hub', () => {
 	});
 
 	describe('setHostAndIp', () => {
-
 		let hub;
 		let hubClient;
 		beforeAll(() => {
@@ -292,6 +289,47 @@ describe('Hub', () => {
 			assert.strictEqual(ws.host, 'localhost:4009');
 			assert.strictEqual(ws.ipAddress, '::ffff:127.0.0.1');
 		});
+	});
 
+	describe('kick', () => {
+		let hub;
+		let hubClient;
+		const messages = [];
+
+		beforeAll(async () => {
+			hub = new Hub({
+				port: 4010,
+			});
+			hub.listen();
+			hubClient = new HubClient({ url: 'ws://localhost:4010' });
+			hubClient.sarus.on('message', (event) => {
+				const message = JSON.parse(event.data);
+				messages.push(message);
+			});
+
+			await hubClient.isReady();
+			const ws = Array.from(hub.wss.clients)[0];
+			await hub.kick({ ws });
+			await delay(100);
+		});
+
+		afterAll(async () => {
+			hub.server.close();
+			await delay(25);
+		});
+
+		it('should send a RPC action to the client to stop them from automatically reconnecting', async () => {
+			const lastMessage = messages[messages.length - 1];
+			assert.strictEqual(lastMessage.type, 'request');
+			assert.strictEqual(lastMessage.action, 'kick');
+			assert.strictEqual(
+				lastMessage.data,
+				'Server has kicked the client'
+			);
+		});
+
+		it('should then close the websocket connection to the client', async () => {
+			assert.strictEqual(hubClient.sarus.ws.readyState, 3);
+		});
 	});
 });
