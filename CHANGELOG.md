@@ -1,5 +1,11 @@
 # CHANGELOG
 
+### 0.0.20 - Wendesday 30th December, 2020
+
+-   Added support for kicking a client off the server
+-   Added support for banning a client from the server
+-   Developers can add/remove ban rules for clients
+
 ### 0.0.19 - Tuesday 1st December, 2020
 
 -   Allowed allowedIpAddresses feature to restrict where clients can connect from
