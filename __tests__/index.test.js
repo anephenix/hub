@@ -332,4 +332,70 @@ describe('Hub', () => {
 			assert.strictEqual(hubClient.sarus.ws.readyState, 3);
 		});
 	});
+
+	describe('kickAndBan', () => {
+		let hub;
+		let hubClient;
+		let ws;
+
+		beforeAll(async () => {
+			hub = new Hub({
+				port: 4011,
+			});
+			hub.listen();
+			hubClient = new HubClient({ url: 'ws://localhost:4011' });
+			await hubClient.isReady();
+			ws = Array.from(hub.wss.clients)[0];
+			await hub.kickAndBan({ ws });
+			await delay(100);
+		});
+
+		it('should add the client to the ban list', async () => {
+			const { clientId, host, ipAddress } = ws;
+			assert(ws.clientId !== null);
+			const hasBeenBanned = await hub.dataStore.hasBanRule({
+				clientId,
+				host,
+				ipAddress,
+			});
+			assert.strictEqual(hasBeenBanned, true);
+		});
+
+		it('should then kick the client', () => {
+			assert.strictEqual(hubClient.sarus.ws.readyState, 3);
+		});
+	});
+
+	describe('kickIfBanned', () => {
+		let hub;
+		let hubClient;
+		let ws;
+
+		beforeAll(async () => {
+			hub = new Hub({
+				port: 4012,
+			});
+			hub.listen();
+		});
+
+		describe('when the client is not banned', () => {
+			it('should allow the client to proceed', async () => {
+				hubClient = new HubClient({ url: 'ws://localhost:4012' });
+				await hubClient.isReady();
+				ws = Array.from(hub.wss.clients)[0];
+				await delay(100);
+				assert.strictEqual(hubClient.sarus.ws.readyState, 1);
+			});
+		});
+
+		describe('when the client is banned', () => {
+			it('should not allow the client to proceed, and kick them off', async () => {
+				await hub.kickAndBan({ ws });
+				await delay(100);
+				hubClient.sarus.connect();
+				await delay(100);
+				assert.strictEqual(hubClient.sarus.ws.readyState, 3);
+			});
+		});
+	});
 });

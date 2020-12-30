@@ -70,7 +70,6 @@ describe('memory data store', () => {
 			});
 			assert.deepStrictEqual(copyofChannels, memoryStore.channels);
 		});
-
 	});
 
 	describe('#addClientToChannel', () => {
@@ -124,6 +123,134 @@ describe('memory data store', () => {
 		it('should return the channels that a clientId has subscribed to', async () => {
 			const channels = await memoryStore.getChannelsForClientId('zzz');
 			assert.deepStrictEqual(channels, ['business']);
+		});
+	});
+
+	describe('#getBanRules', () => {
+		afterAll(async () => {
+			await memoryStore.clearBanRules();
+		});
+
+		describe('when there are no rules yet', () => {
+			it('should return an empty array', async () => {
+				const existingBanRules = await memoryStore.getBanRules();
+				assert.deepStrictEqual(existingBanRules, []);
+			});
+		});
+
+		describe('when there are rules', () => {
+			it('should return an array containing rules', async () => {
+				const banRule = {
+					clientId: 'xxx',
+					host: 'app.local',
+					ipAddress: '127.0.0.1',
+				};
+				await memoryStore.addBanRule(banRule);
+				const latestBanRules = await memoryStore.getBanRules();
+				assert.deepStrictEqual(latestBanRules, [banRule]);
+			});
+		});
+	});
+
+	describe('#clearBanRules', () => {
+		it('should remove all of the rules', async () => {
+			const banRule = {
+				clientId: 'xxx',
+				host: 'app.local',
+				ipAddress: '127.0.0.1',
+			};
+			await memoryStore.addBanRule(banRule);
+			const currentBanRules = await memoryStore.getBanRules();
+			assert.deepStrictEqual(currentBanRules, [banRule]);
+			await memoryStore.clearBanRules();
+			const latestBanRules = await memoryStore.getBanRules();
+			assert.deepStrictEqual(latestBanRules, []);
+		});
+	});
+
+	describe('#hasBanRule', () => {
+		afterAll(async () => {
+			await memoryStore.clearBanRules();
+		});
+		const banRule = {
+			clientId: 'xxx',
+			host: 'app.local',
+			ipAddress: '127.0.0.1',
+		};
+
+		describe('when the ban rules list has the ban rule', () => {
+			it('should return true', async () => {
+				await memoryStore.addBanRule(banRule);
+				const ruleExists = await memoryStore.hasBanRule(banRule);
+				assert.strictEqual(ruleExists, true);
+			});
+		});
+
+		describe('when the ban rules list does not have the ban rule', () => {
+			it('should return false', async () => {
+				const ruleExists = await memoryStore.hasBanRule({
+					clientId: banRule.clientId,
+					host: banRule.host,
+				});
+				assert.strictEqual(ruleExists, false);
+			});
+		});
+	});
+
+	describe('#addBanRule', () => {
+		const banRule = {
+			clientId: 'xxx',
+			host: 'app.local',
+			ipAddress: '127.0.0.1',
+		};
+
+		describe('when the rule is new', () => {
+			it('should be added to the list of banRules', async () => {
+				const existingBanRules = await memoryStore.getBanRules();
+				assert.deepStrictEqual(existingBanRules, []);
+				await memoryStore.addBanRule(banRule);
+				const latestBanRules = await memoryStore.getBanRules();
+				assert.deepStrictEqual(latestBanRules, [banRule]);
+			});
+		});
+
+		describe('when the same rule has been added before', () => {
+			it('should not be added to the existing list of banRules', async () => {
+				const existingBanRules = await memoryStore.getBanRules();
+				assert.deepStrictEqual(existingBanRules, [banRule]);
+				await memoryStore.addBanRule(banRule);
+				const latestBanRules = await memoryStore.getBanRules();
+				assert.deepStrictEqual(latestBanRules, [banRule]);
+			});
+		});
+	});
+
+	describe('#removeBanRule', () => {
+		describe('when a ban rule is found for removal', () => {
+			it('should be removed from the list of ban rules, and return the ban rule that was removed', async () => {
+				const banRule = {
+					clientId: 'xxx',
+					host: 'app.local',
+					ipAddress: '127.0.0.1',
+				};
+				await memoryStore.addBanRule(banRule);
+				const removedBanRule = await memoryStore.removeBanRule(banRule);
+				assert.deepStrictEqual(removedBanRule, banRule);
+				const latestBanRules = await memoryStore.getBanRules();
+				assert.deepStrictEqual(latestBanRules, []);
+			});
+		});
+
+		describe('when a ban rule is not found for removal', () => {
+			it('should return null', async () => {
+				const banRule = {
+					clientId: 'yyy',
+					host: 'app.local',
+					ipAddress: '127.0.0.1',
+				};
+				const removedBanRule = await memoryStore.removeBanRule(banRule);
+				assert.deepStrictEqual(removedBanRule, null);
+			});
 		});
 	});
 });

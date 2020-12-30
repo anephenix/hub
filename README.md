@@ -23,11 +23,11 @@ npm i @anephenix/hub
 -   Request-only RPC calls
 -   PubSub (Publish/Subscribe)
 -   Automatically unsubscribe clients from channels on disconnect
--   Automatically resubscribe clients to channels on resconnect
+-   Automatically resubscribe clients to channels on reconnect
 -   Authenticated Channels
 -   Restrict client channel publish capability on a per-client basis
 -   Use an existing HTTP/HTTPS server with the WebSocket server
-- 	Allow client connections only from a list of url origins or ip addresses
+-   Allow client connections only from a list of url origins or ip addresses
 
 ### Usage
 
@@ -54,7 +54,7 @@ npm i @anephenix/hub
 -   [Handling messages published for a channel](#handling-messages-published-for-a-channel)
 -   [Removing message handlers for a channel](#removing-message-handlers-for-a-channel)
 
-**Extra options**
+**Advanced PubSub**
 
 -   [Handling client disconnects / reconnects](#handling-client-disconnects--reconnects)
 -   [Handling client / channel subscriptions data](#handling-client--channel-subscriptions-data)
@@ -65,7 +65,10 @@ npm i @anephenix/hub
 **Security**
 
 -   [Using a secure server with Hub](#using-a-secure-server-with-hub)
--	[Restricting where WebSockets can connect from](#restricting-where-webSockets-can-connect-from)
+-   [Restricting where WebSockets can connect from](#restricting-where-webSockets-can-connect-from)
+-   [Kicking clients from the server](#kicking-clients-from-the-server)
+-   [Banning clients from the server](#banning-clients-from-the-server)
+-   [Adding / removing ban rules for clients](#adding-or-removing-ban-rules-for-clients)
 
 #### Getting started
 
@@ -507,16 +510,19 @@ will use `wss://` instead of `ws://`.
 
 #### Restricting where WebSockets can connect from
 
-You can restrict the urls where WebSocket connections can be established by 
+You can restrict the urls where WebSocket connections can be established by
 passing an array of url origins to the `allowedOrigins` property for a server:
 
 ```javascript
 const { Hub } = require('@anephenix/hub');
 
-const hub = await new Hub({port: 4000, allowedOrigins: ['landscape.anephenix.com'] });
+const hub = await new Hub({
+	port: 4000,
+	allowedOrigins: ['landscape.anephenix.com'],
+});
 ```
 
-This means that any attempted connections from websites not hosted on 
+This means that any attempted connections from websites not hosted on
 'landscape.anephenix.com' will be closed by the server.
 
 Alernatively, you can also restrict the IP Addresses that clients can make
@@ -525,9 +531,78 @@ WebSocket connections from:
 ```javascript
 const { Hub } = require('@anephenix/hub');
 
-const hub = await new Hub({port: 4000, allowedIpAddresses: ['76.76.21.21'] });
+const hub = await new Hub({ port: 4000, allowedIpAddresses: ['76.76.21.21'] });
 ```
 
+#### Kicking clients from the server
+
+There may be cases where a client is misbehaving, and you want to kick them off the server. You can do that with this code
+
+```javascript
+// Let's take the 1st client in the list of connected clients as an example
+const ws = Array.from(hub.wss.clients)[0];
+// Call kick
+await hub.kick({ ws });
+```
+
+This will disable the client's automatic WebSocket reconnection code, and close the websocket connection.
+
+However, if the person operating the client is versed in JavaScript, they can try and override the client code to reconnect again.
+
+#### Banning clients from the server
+
+You may want to ban a client from being able to reconnect again. You can do that by using this code:
+
+```javascript
+// Let's take the 1st client in the list of connected clients as an example
+const ws = Array.from(hub.wss.clients)[0];
+// Call kick
+await hub.kickAndBan({ ws });
+```
+
+If the client attempts to reconnect again, then they will be kicked off automatically.
+
+#### Adding or removing ban rules for clients
+
+Client kicking/banning works by using a list of ban rules to check clients against.
+
+A ban rule is a combination of a client's id, hostname and ip address.
+
+You can add ban rules to the system via this code:
+
+```javascript
+const banRule = {
+	clientId: 'da1441a8-691a-42db-bb45-c63c6b7bd7c7',
+	host: 'signal.anephenix.com',
+	ipAddress: '92.41.162.30',
+};
+
+await hub.dataStore.addBanRule(banRule);
+```
+
+To remove the ban rule, you can use this code:
+
+```javascript
+const banRule = {
+	clientId: 'da1441a8-691a-42db-bb45-c63c6b7bd7c7',
+	host: 'signal.anephenix.com',
+	ipAddress: '92.41.162.30',
+};
+
+await hub.dataStore.removeBanRule(banRule);
+```
+
+To get the list of ban rules, you can use this code:
+
+```javascript
+await hub.dataStore.getBanRules();
+```
+
+To clear all of the ban rules:
+
+```javascript
+await hub.dataStore.clearBanRules();
+```
 
 ### Running tests
 
