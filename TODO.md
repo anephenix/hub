@@ -17,10 +17,11 @@
 -   [x] clientCanPublish channel configuration option
 -   [x] Client url origin filtering
 -   [x] Client IP Address filtering
+-   [x] Kick clients and ban them if required
 
 ### Features to implement
 
--   [ ] Kick clients and ban them if required
+-   [ ] Be able to support banning at any combination of host, clientId, and ipAddress level (e.g. block all clients from a specific IP address, or clients connecting to a host with a specific clientId).
 
 -   [ ] Client input scanning
 -   [ ] Think about how to support message catchup for clients that disconnect and then reconnect.
