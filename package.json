@@ -4,7 +4,7 @@
 	"description": "A Node.js WebSocket server and client with added features",
 	"main": "index.js",
 	"scripts": {
-		"certs": "mkdir certs && cd certs && mkcert localhost 127.0.0.1 ::1",
+		"certs": "mkdir -p certs && cd certs && mkcert localhost 127.0.0.1 ::1",
 		"lint": "npx eslint .",
 		"cover": "npx jest --coverage --coverageReporters=text-lcov | coveralls",
 		"cucumber": "NODE_ENV=test npx cucumber-js --no-strict --exit",
@@ -29,13 +29,13 @@
 		"localStorage": "^1.0.4",
 		"redis": "^3.0.2",
 		"uuid": "^8.3.2",
-		"ws": "^7.4.1"
+		"ws": "^7.4.2"
 	},
 	"devDependencies": {
 		"@cucumber/cucumber": "^7.0.0",
 		"babel-eslint": "^10.1.0",
 		"coveralls": "^3.1.0",
-		"eslint": "^7.16.0",
+		"eslint": "^7.18.0",
 		"eslint-plugin-jest": "^24.1.3",
 		"gradient-string": "^1.2.0",
 		"http-shutdown": "^1.2.2",
