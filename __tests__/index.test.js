@@ -353,12 +353,14 @@ describe('Hub', () => {
 		it('should add the client to the ban list', async () => {
 			const { clientId, host, ipAddress } = ws;
 			assert(ws.clientId !== null);
-			const hasBeenBanned = await hub.dataStore.hasBanRule({
-				clientId,
-				host,
-				ipAddress,
+			await delayUntil( async () => {
+				const hasBeenBanned = await hub.dataStore.hasBanRule({
+					clientId,
+					host,
+					ipAddress,
+				});
+				return hasBeenBanned;
 			});
-			await delayUntil(() => {return hasBeenBanned;});
 		});
 
 		it('should then kick the client', () => {
