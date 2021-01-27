@@ -138,7 +138,7 @@ describe('Hub', () => {
 				called = true;
 			});
 			await hubClient.publish('news', 'rain is on the way');
-			assert(called);
+			await delayUntil(() => called);
 		});
 
 		it('should handle the server publishing a message to a channel', async () => {
@@ -358,7 +358,7 @@ describe('Hub', () => {
 				host,
 				ipAddress,
 			});
-			assert.strictEqual(hasBeenBanned, true);
+			await delayUntil(() => {return hasBeenBanned;});
 		});
 
 		it('should then kick the client', () => {
