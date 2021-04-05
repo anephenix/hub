@@ -195,6 +195,40 @@ describe('memory data store', () => {
 				assert.strictEqual(ruleExists, false);
 			});
 		});
+
+		describe('when given a ban rule with just one or two properties', () => {
+
+			const broaderBanRule = {
+				clientId: 'yyy',
+			};
+			const itemToCheck = {
+				clientId: 'yyy',
+				host: 'test.local',
+				ipAddress: '127.0.0.2',
+			};
+
+			const anotherItemToCheck = {
+				clientId: 'zzz',
+				host: 'test.local',
+				ipAddress: '127.0.0.2',
+			};
+
+			describe('and the ban rule is matched', () => {
+				it('should return true', async () => {
+					await memoryStore.addBanRule(broaderBanRule);
+					const ruleExists = await memoryStore.hasBanRule(itemToCheck);
+					assert.strictEqual(ruleExists, true);
+				});
+			});
+
+			describe('and the ban rule is not matched', () => {
+				it('should return false', async () => {
+					const ruleExists = await memoryStore.hasBanRule(anotherItemToCheck);
+					assert.strictEqual(ruleExists, false);
+				});
+			});
+
+		});
 	});
 
 	describe('#addBanRule', () => {
