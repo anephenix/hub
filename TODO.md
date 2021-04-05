@@ -10,7 +10,7 @@
 -   [x] Support the option to submit a RPC request without requiring a response (send only)
 -   [x] Support data persistence using Redis
 -   [x] Support publish message relay across multiple WebSocket servers (horizontal scaling)
--   [x] Simpy rpc action add by passing id, action, and type as defaults into the reply function, which can be overriden.
+-   [x] Simplify rpc action add by passing id, action, and type as defaults into the reply function, which can be overriden.
 -   [x] Think about how to handle unsubscribes so that they get handled appropriately.
 -   [x] Think about how to support channel subscriptions where the client needs some form of authentication/authorization
 -   [x] Wildcard channel configurations
@@ -18,11 +18,11 @@
 -   [x] Client url origin filtering
 -   [x] Client IP Address filtering
 -   [x] Kick clients and ban them if required
+-   [x] Be able to support banning at any combination of host, clientId, and ipAddress level (e.g. block all clients from a specific IP address, or clients connecting to a host with a specific clientId).
 
 ### Features to implement
 
--   [ ] Be able to support banning at any combination of host, clientId, and ipAddress level (e.g. block all clients from a specific IP address, or clients connecting to a host with a specific clientId).
-
+-   [ ] Be able to retrospectively apply new ban rules to connected clients
 -   [ ] Client input scanning
 -   [ ] Think about how to support message catchup for clients that disconnect and then reconnect.
 -   [ ] Think about how to publish to all clients, and whether that needs simple support (i.e. hub.pubsub.publishToAll and hubClient.addGlobalMessageHandler)
