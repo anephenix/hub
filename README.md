@@ -580,6 +580,16 @@ const banRule = {
 await hub.dataStore.addBanRule(banRule);
 ```
 
+A ban rule can consist of only one or two properties as well, say the ipAddress:
+
+```javascript
+const ipAddressBanRule = {
+	ipAddress: '92.41.162.30',
+};
+
+await hub.dataStore.addBanRule(ipAddressBanRule);
+```
+
 To remove the ban rule, you can use this code:
 
 ```javascript
