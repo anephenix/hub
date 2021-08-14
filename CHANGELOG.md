@@ -1,5 +1,10 @@
 # CHANGELOG
 
+### 0.0.21 - Saturday 14th August, 2021
+
+-   Added support for SessionStorage in server-side rendering context
+-   Updated dependencies
+
 ### 0.0.20 - Wendesday 30th December, 2020
 
 -   Added support for kicking a client off the server
