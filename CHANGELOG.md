@@ -1,5 +1,9 @@
 # CHANGELOG
 
+### 0.0.22 - Wednesday 29th September, 2021
+
+-   Updated dependencies
+
 ### 0.0.21 - Saturday 14th August, 2021
 
 -   Added support for SessionStorage in server-side rendering context
