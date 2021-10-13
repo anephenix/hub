@@ -32,11 +32,12 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
+    - run: apt install libnss3-tools
     - run: curl -sSL -o ./mkcert -O https://github.com/FiloSottile/mkcert/releases/download/v1.4.1/mkcert-v1.4.1-linux-amd64 && chmod +x ./mkcert
     - run: ./mkcert -install        
     - run: npm i
     - run: npm run lint
-    - run: npm run certs
+    - run: mkdir -p certs && cd certs && ./mkcert localhost 127.0.0.1 ::1
     - run: curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
     - run: chmod +x ./cc-test-reporter
     - run: ./cc-test-reporter before-build 
