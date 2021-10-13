@@ -2,8 +2,8 @@
 
 A Node.js WebSocket server and client with added features
 
-[![npm version](https://badge.fury.io/js/%40anephenix%2Fhub.svg)](https://badge.fury.io/js/%40anephenix%2Fhub) [![CircleCI](https://circleci.com/gh/anephenix/hub.svg?style=shield)](https://circleci.com/gh/anephenix/hub)
-[![Coverage Status](https://coveralls.io/repos/github/anephenix/hub/badge.svg?branch=master)](https://coveralls.io/github/anephenix/hub?branch=master) [![Maintainability](https://api.codeclimate.com/v1/badges/d8b19a24baca1d1b42f2/maintainability)](https://codeclimate.com/github/anephenix/hub/maintainability) [![Test Coverage](https://api.codeclimate.com/v1/badges/d8b19a24baca1d1b42f2/test_coverage)](https://codeclimate.com/github/anephenix/hub/test_coverage)
+[![npm version](https://badge.fury.io/js/%40anephenix%2Fhub.svg)](https://badge.fury.io/js/%40anephenix%2Fhub)
+[![Node.js CI](https://github.com/anephenix/hub/actions/workflows/node.js.yml/badge.svg)](https://github.com/anephenix/hub/actions/workflows/node.js.yml) [![Coverage Status](https://coveralls.io/repos/github/anephenix/hub/badge.svg?branch=master)](https://coveralls.io/github/anephenix/hub?branch=master) [![Maintainability](https://api.codeclimate.com/v1/badges/d8b19a24baca1d1b42f2/maintainability)](https://codeclimate.com/github/anephenix/hub/maintainability) [![Test Coverage](https://api.codeclimate.com/v1/badges/d8b19a24baca1d1b42f2/test_coverage)](https://codeclimate.com/github/anephenix/hub/test_coverage)
 
 ### Dependencies
 
@@ -626,4 +626,4 @@ npm run cucumber
 
 ### License and Credits
 
-&copy; 2020 Anephenix OÜ. All rights reserved. Hub is licensed under the MIT licence.
+&copy; 2021 Anephenix OÜ. All rights reserved. Hub is licensed under the MIT licence.
