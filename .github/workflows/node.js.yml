@@ -14,7 +14,6 @@ jobs:
 
     runs-on: ubuntu-latest
     env:
-      CI: true
       NODE_ENV: test
       COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
       CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
@@ -45,4 +44,4 @@ jobs:
     - run: npx jest --coverage --forceExit
     - run: ./cc-test-reporter after-build
     - run: npm run cucumber
-    - run: npx jest --coverage --forceExit --coverageReporters=text-lcov | coveralls
+    - run: npx jest --coverage --forceExit --coverageReporters=text-lcov | npx coveralls
