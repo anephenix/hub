@@ -1,5 +1,6 @@
 .cache
 coverage
 dist
+dump.rdb
 node_modules
 certs
