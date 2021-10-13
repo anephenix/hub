@@ -6,7 +6,7 @@ const scope = require('./scope');
 let headless = false;
 let slowMo = 5;
 let ignoreHTTPSErrors = false;
-const args = ['--disable-gpu', '--no-sandbox', '--disable-dev-shm-usage'];
+// const args = ['--disable-gpu', '--no-sandbox', '--disable-dev-shm-usage'];
 
 if (process.env.CI) {
 	headless = true;
@@ -19,7 +19,7 @@ const visitPage = async (pageUrl) => {
 			headless,
 			slowMo,
 			ignoreHTTPSErrors,
-			args,
+			// args,
 		});
 
 	// eslint-disable-next-line require-atomic-updates
