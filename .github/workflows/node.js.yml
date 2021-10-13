@@ -32,6 +32,8 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
+    - run: curl -sSL -o ./mkcert -O https://github.com/FiloSottile/mkcert/releases/download/v1.4.1/mkcert-v1.4.1-linux-amd64 && chmod +x ./mkcert
+    - run: ./mkcert -install        
     - run: npm i
     - run: npm run lint
     - run: npm run certs
