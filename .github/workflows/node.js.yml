@@ -37,7 +37,7 @@ jobs:
     - run: ./mkcert -install        
     - run: npm i
     - run: npm run lint
-    - run: mkdir -p certs && cd certs && ./mkcert localhost 127.0.0.1 ::1
+    - run: mkdir -p certs && cd certs && ../mkcert localhost 127.0.0.1 ::1
     - run: curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
     - run: chmod +x ./cc-test-reporter
     - run: ./cc-test-reporter before-build 
