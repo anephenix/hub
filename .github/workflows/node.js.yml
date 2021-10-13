@@ -32,7 +32,7 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
-    - run: apt install libnss3-tools
+    #- run: apt install libnss3-tools
     - run: curl -sSL -o ./mkcert -O https://github.com/FiloSottile/mkcert/releases/download/v1.4.1/mkcert-v1.4.1-linux-amd64 && chmod +x ./mkcert
     - run: ./mkcert -install        
     - run: npm i
