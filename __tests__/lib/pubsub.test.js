@@ -13,9 +13,9 @@ describe('pubsub', () => {
 	let server;
 
 	beforeAll(async () => {
-		hub = new Hub({ port: 5000 });
+		hub = new Hub({ port: 5050 });
 		server = httpShutdown(hub.server);
-		server.listen(5000);
+		server.listen(5050);
 	});
 
 	afterAll((done) => {
@@ -154,7 +154,7 @@ describe('pubsub', () => {
 	describe('#publish', () => {
 		it('should allow the client to publish a message to all of the channel subscribers, including themselves', async () => {
 			const messages = [];
-			const hubClient = new HubClient({ url: 'ws://localhost:5000' });
+			const hubClient = new HubClient({ url: 'ws://localhost:5050' });
 			hubClient.sarus.on('message', (event) => {
 				const message = JSON.parse(event.data);
 				messages.push(message);
@@ -194,7 +194,7 @@ describe('pubsub', () => {
 
 		it('should allow the client to publish a message to all of the channel subscribers, excluding themselves', async () => {
 			const messages = [];
-			const hubClient = new HubClient({ url: 'ws://localhost:5000' });
+			const hubClient = new HubClient({ url: 'ws://localhost:5050' });
 			hubClient.sarus.on('message', (event) => {
 				const message = JSON.parse(event.data);
 				messages.push(message);
@@ -235,7 +235,7 @@ describe('pubsub', () => {
 
 		it('should allow the server to publish a message to all of the channel subscribers', async () => {
 			const messages = [];
-			const hubClient = new HubClient({ url: 'ws://localhost:5000' });
+			const hubClient = new HubClient({ url: 'ws://localhost:5050' });
 			hubClient.sarus.on('message', (event) => {
 				const message = JSON.parse(event.data);
 				messages.push(message);
@@ -272,7 +272,7 @@ describe('pubsub', () => {
 		describe('when publishing from a client', () => {
 			it('should return an error response if the websocket client id is not present', async () => {
 				const messages = [];
-				const client = new WebSocket('ws://localhost:5000');
+				const client = new WebSocket('ws://localhost:5050');
 				client.on('message', (event) => {
 					const message = JSON.parse(event);
 					messages.push(message);
@@ -299,7 +299,7 @@ describe('pubsub', () => {
 			});
 			it('should return an error response if the channel is missing', async () => {
 				const messages = [];
-				const hubClient = new HubClient({ url: 'ws://localhost:5000' });
+				const hubClient = new HubClient({ url: 'ws://localhost:5050' });
 				hubClient.sarus.on('message', (event) => {
 					const message = JSON.parse(event.data);
 					messages.push(message);
@@ -331,7 +331,7 @@ describe('pubsub', () => {
 			});
 			it('should return an error response if the message is missing', async () => {
 				const messages = [];
-				const hubClient = new HubClient({ url: 'ws://localhost:5000' });
+				const hubClient = new HubClient({ url: 'ws://localhost:5050' });
 				hubClient.sarus.on('message', (event) => {
 					const message = JSON.parse(event.data);
 					messages.push(message);
@@ -363,7 +363,7 @@ describe('pubsub', () => {
 
 			it('should not allow a client to publish to a channel that they are not subscribed to', async () => {
 				const messages = [];
-				const hubClient = new HubClient({ url: 'ws://localhost:5000' });
+				const hubClient = new HubClient({ url: 'ws://localhost:5050' });
 				hubClient.sarus.on('message', (event) => {
 					const message = JSON.parse(event.data);
 					messages.push(message);
@@ -500,7 +500,7 @@ describe('pubsub', () => {
 	describe('#unsubscribe', () => {
 		it('should remove a client from a channel, and ensure that the client no longer receives messages for that channel', async () => {
 			const messages = [];
-			const config = { url: 'ws://localhost:5000' };
+			const config = { url: 'ws://localhost:5050' };
 			const hubClient = new HubClient(config);
 			hubClient.sarus.on('message', (event) => {
 				const message = JSON.parse(event.data);
@@ -552,7 +552,7 @@ describe('pubsub', () => {
 
 		it('should return an error response if the websocket client id is not present', async () => {
 			const messages = [];
-			const client = new WebSocket('ws://localhost:5000');
+			const client = new WebSocket('ws://localhost:5050');
 			client.on('message', (event) => {
 				const message = JSON.parse(event);
 				messages.push(message);
@@ -579,7 +579,7 @@ describe('pubsub', () => {
 		});
 		it('should return an error response if the channel is missing', async () => {
 			const messages = [];
-			const hubClient = new HubClient({ url: 'ws://localhost:5000' });
+			const hubClient = new HubClient({ url: 'ws://localhost:5050' });
 			hubClient.sarus.on('message', (event) => {
 				const message = JSON.parse(event.data);
 				messages.push(message);
@@ -709,16 +709,23 @@ describe('pubsub', () => {
 					callCount++;
 					return true;
 				};
-				hub.pubsub.addChannelConfiguration({ channel: wildcardChannel, authenticate });
+				hub.pubsub.addChannelConfiguration({
+					channel: wildcardChannel,
+					authenticate,
+				});
 				const otherWildcardChannel = 'dash_*';
 				let otherCallCount = 0;
 				const otherAuthenticate = () => {
 					otherCallCount++;
 					return true;
 				};
-				hub.pubsub.addChannelConfiguration({ channel: otherWildcardChannel, authenticate: otherAuthenticate });
+				hub.pubsub.addChannelConfiguration({
+					channel: otherWildcardChannel,
+					authenticate: otherAuthenticate,
+				});
 				assert.deepStrictEqual(
-					hub.pubsub.channelConfigurations[wildcardChannel].authenticate,
+					hub.pubsub.channelConfigurations[wildcardChannel]
+						.authenticate,
 					authenticate
 				);
 				const data = {
@@ -744,7 +751,7 @@ describe('pubsub', () => {
 					socket.clientId
 				);
 				assert(channelsTwo.indexOf('dashboard_29jd92j') !== -1);
-				assert.strictEqual(otherCallCount,0);
+				assert.strictEqual(otherCallCount, 0);
 			});
 
 			it('should prevent the developer from adding wildcard channels that might overlap in channel matches', async () => {
@@ -761,48 +768,81 @@ describe('pubsub', () => {
 				const authenticate = ({ data }) => {
 					return data.password === 'xyz';
 				};
-				hub.pubsub.addChannelConfiguration({ channel: wildcardChannelOne, authenticate });
+				hub.pubsub.addChannelConfiguration({
+					channel: wildcardChannelOne,
+					authenticate,
+				});
 				assert.deepStrictEqual(
-					hub.pubsub.channelConfigurations[wildcardChannelOne].authenticate,
+					hub.pubsub.channelConfigurations[wildcardChannelOne]
+						.authenticate,
 					authenticate
 				);
-				assert.throws(() => {
-					hub.pubsub.addChannelConfiguration({ channel: wildcardChannelTwo, authenticate });
-				}, {
-					message: `Wildcard channel name too ambiguous - will collide with "${wildcardChannelOne}"`
-				});
+				assert.throws(
+					() => {
+						hub.pubsub.addChannelConfiguration({
+							channel: wildcardChannelTwo,
+							authenticate,
+						});
+					},
+					{
+						message: `Wildcard channel name too ambiguous - will collide with "${wildcardChannelOne}"`,
+					}
+				);
 
-				hub.pubsub.addChannelConfiguration({ channel: wildcardChannelThree, authenticate });
+				hub.pubsub.addChannelConfiguration({
+					channel: wildcardChannelThree,
+					authenticate,
+				});
 				assert.deepStrictEqual(
-					hub.pubsub.channelConfigurations[wildcardChannelThree].authenticate,
+					hub.pubsub.channelConfigurations[wildcardChannelThree]
+						.authenticate,
 					authenticate
 				);
-				assert.throws(() => {
-					hub.pubsub.addChannelConfiguration({ channel: wildcardChannelFour, authenticate });
-				}, {
-					message: `Wildcard channel name too ambiguous - will collide with "${wildcardChannelThree}"`
-				});
-				assert.throws(() => {
-					hub.pubsub.addChannelConfiguration({ channel: normalChannelFive, authenticate });
-				}, {
-					message: `Wildcard channel name too ambiguous - will collide with "${wildcardChannelThree}"`
-				});
+				assert.throws(
+					() => {
+						hub.pubsub.addChannelConfiguration({
+							channel: wildcardChannelFour,
+							authenticate,
+						});
+					},
+					{
+						message: `Wildcard channel name too ambiguous - will collide with "${wildcardChannelThree}"`,
+					}
+				);
+				assert.throws(
+					() => {
+						hub.pubsub.addChannelConfiguration({
+							channel: normalChannelFive,
+							authenticate,
+						});
+					},
+					{
+						message: `Wildcard channel name too ambiguous - will collide with "${wildcardChannelThree}"`,
+					}
+				);
 			});
 		});
 
 		describe('when passed a clientCanPublish value', () => {
-
 			describe('and the value is true', () => {
 				it('should allow the client to publish to the channel', async () => {
 					const channelAllowed = 'birds';
 					let messageReceived;
-					hub.pubsub.addChannelConfiguration({ channel: channelAllowed, clientCanPublish: true });
-					const hubClient = new HubClient({ url: 'ws://localhost:5000' });
+					hub.pubsub.addChannelConfiguration({
+						channel: channelAllowed,
+						clientCanPublish: true,
+					});
+					const hubClient = new HubClient({
+						url: 'ws://localhost:5050',
+					});
 					await hubClient.isReady();
 					await hubClient.subscribe(channelAllowed);
-					hubClient.addChannelMessageHandler(channelAllowed, message => {
-						messageReceived = message;
-					});
+					hubClient.addChannelMessageHandler(
+						channelAllowed,
+						(message) => {
+							messageReceived = message;
+						}
+					);
 					await hubClient.publish(channelAllowed, 'hello everyone');
 					assert.strictEqual(messageReceived, 'hello everyone');
 				});
@@ -812,15 +852,29 @@ describe('pubsub', () => {
 				it('should not allow the client to publish to the channel', async () => {
 					let messageReceived;
 					const channelNotAllowed = 'crocadiles';
-					hub.pubsub.addChannelConfiguration({ channel: channelNotAllowed, clientCanPublish: false });
-					const hubClient = new HubClient({ url: 'ws://localhost:5000' });
+					hub.pubsub.addChannelConfiguration({
+						channel: channelNotAllowed,
+						clientCanPublish: false,
+					});
+					const hubClient = new HubClient({
+						url: 'ws://localhost:5050',
+					});
 					await hubClient.isReady();
 					await hubClient.subscribe(channelNotAllowed);
-					hubClient.addChannelMessageHandler(channelNotAllowed, message => {
-						messageReceived = message;
-					});
-					const response = await hubClient.publish(channelNotAllowed, 'hello everyone');
-					assert.strictEqual(response, 'Clients cannot publish to the channel');
+					hubClient.addChannelMessageHandler(
+						channelNotAllowed,
+						(message) => {
+							messageReceived = message;
+						}
+					);
+					const response = await hubClient.publish(
+						channelNotAllowed,
+						'hello everyone'
+					);
+					assert.strictEqual(
+						response,
+						'Clients cannot publish to the channel'
+					);
 					assert.notStrictEqual(messageReceived, 'hello everyone');
 				});
 			});
@@ -836,32 +890,40 @@ describe('pubsub', () => {
 						socketPassed = socket;
 						return true;
 					};
-					hub.pubsub.addChannelConfiguration({ channel: channelAllowed, clientCanPublish });
-					const hubClient = new HubClient({ url: 'ws://localhost:5000' });
+					hub.pubsub.addChannelConfiguration({
+						channel: channelAllowed,
+						clientCanPublish,
+					});
+					const hubClient = new HubClient({
+						url: 'ws://localhost:5050',
+					});
 					await hubClient.isReady();
 					await hubClient.subscribe(channelAllowed);
-					hubClient.addChannelMessageHandler(channelAllowed, message => {
-						messageReceived = message;
-					});
+					hubClient.addChannelMessageHandler(
+						channelAllowed,
+						(message) => {
+							messageReceived = message;
+						}
+					);
 					await hubClient.publish(channelAllowed, 'hello everyone');
 					assert.strictEqual(messageReceived, 'hello everyone');
 					assert.strictEqual(dataPassed.channel, channelAllowed);
 					assert.strictEqual(dataPassed.message, 'hello everyone');
-					assert.strictEqual(socketPassed.clientId, hubClient.getClientId());
+					assert.strictEqual(
+						socketPassed.clientId,
+						hubClient.getClientId()
+					);
 				});
 			});
-
 		});
 	});
 
 	describe('#removeChannelConfiguration', () => {
-
 		it('should remove the channel configuration', () => {
 			const channel = 'dogs';
 			assert(hub.pubsub.channelConfigurations[channel]);
 			hub.pubsub.removeChannelConfiguration(channel);
 			assert(!hub.pubsub.channelConfigurations[channel]);
 		});
-
 	});
 });

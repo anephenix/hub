@@ -1,6 +1,6 @@
 // Dependencies
 const { Hub } = require('../../index');
-const hub = new Hub({ port: 5000, dataStoreType: 'redis' });
+const hub = new Hub({ port: 5050, dataStoreType: 'redis' });
 
 // The message logger helper function
 const messageLogger = (hub) => {
@@ -32,4 +32,4 @@ const getPricesFunction = ({ data, reply }) => {
 
 hub.rpc.add('get-prices', getPricesFunction);
 
-hub.server.listen(5000);
+hub.server.listen(5050);

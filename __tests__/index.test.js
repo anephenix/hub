@@ -149,7 +149,7 @@ describe('Hub', () => {
 			await hub.pubsub.publish({
 				data: { channel: 'news', message: 'rain is on the way' },
 			});
-			await delayUntil(() => called, 5000);
+			await delayUntil(() => called, 5050);
 		});
 
 		it('should handle unsubscribing a client from a channel', async () => {
@@ -353,7 +353,7 @@ describe('Hub', () => {
 		it('should add the client to the ban list', async () => {
 			const { clientId, host, ipAddress } = ws;
 			assert(ws.clientId !== null);
-			await delayUntil( async () => {
+			await delayUntil(async () => {
 				const hasBeenBanned = await hub.dataStore.hasBanRule({
 					clientId,
 					host,
