@@ -4,9 +4,7 @@ const https = require('https');
 const { Hub, HubClient } = require('../index');
 const httpShutdown = require('http-shutdown');
 const WebSocket = require('ws');
-const { delayUntil } = require('../helpers/delay');
-const { RedisClient } = require('redis');
-const { delay } = require('bluebird');
+const { delay, delayUntil } = require('../helpers/delay');
 const { checkHasClientId } = require('../lib/clientId');
 const fs = require('fs');
 const path = require('path');
@@ -108,22 +106,23 @@ describe('Hub', () => {
 
 		afterAll(async () => {
 			const { redis, channelsKey, clientsKey } = hub.pubsub.dataStore;
-			await redis.delAsync(channelsKey);
-			await redis.delAsync(clientsKey);
+			await redis.del(channelsKey);
+			await redis.del(clientsKey);
 			hubClient.sarus.disconnect();
 			hub.server.close();
 			// We delay so that the client can be unsubscribed
 			await delay(100);
 			try {
-				await hub.pubsub.dataStore.internalRedis.quitAsync();
-				await hub.pubsub.dataStore.redis.quitAsync();
+				await hub.pubsub.dataStore.internalRedis.quit();
+				await hub.pubsub.dataStore.redis.quit();
 			} catch (err) {
 				console.error(err);
 			}
 		});
 
 		it('should have a redis client', () => {
-			assert(hub.pubsub.dataStore.redis instanceof RedisClient);
+			assert(hub.pubsub.dataStore.redis);
+			assert.strictEqual(hub.pubsub.dataStore.redis._eventsCount, 0);
 		});
 
 		it('should handle subscribing a client to a channel', async () => {

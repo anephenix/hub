@@ -5,7 +5,6 @@ const WebSocket = require('ws');
 const { v4: uuidv4 } = require('uuid');
 const { delay, delayUntil } = require('../../helpers/delay');
 const MemoryDataStore = require('../../lib/dataStores/memory');
-const RedisDataStore = require('../../lib/dataStores/redis');
 const httpShutdown = require('http-shutdown');
 
 describe('pubsub', () => {
@@ -450,10 +449,10 @@ describe('pubsub', () => {
 				firstHub.server.close();
 				secondHub.server.close();
 				await delay(100);
-				await firstHub.pubsub.dataStore.redis.quitAsync();
-				await secondHub.pubsub.dataStore.redis.quitAsync();
-				await firstHub.pubsub.dataStore.internalRedis.quitAsync();
-				await secondHub.pubsub.dataStore.internalRedis.quitAsync();
+				await firstHub.pubsub.dataStore.redis.quit();
+				await secondHub.pubsub.dataStore.redis.quit();
+				await firstHub.pubsub.dataStore.internalRedis.quit();
+				await secondHub.pubsub.dataStore.internalRedis.quit();
 			});
 
 			it('should relay the published message to all Hub server instances via Redis', async () => {
@@ -621,9 +620,11 @@ describe('pubsub', () => {
 						port: 6000,
 						dataStoreType: 'redis',
 					});
-					assert(redisHub.pubsub.dataStore instanceof RedisDataStore);
-					await redisHub.pubsub.dataStore.internalRedis.quitAsync();
-					await redisHub.pubsub.dataStore.redis.quitAsync();
+					assert(redisHub.pubsub.dataStore.redis);
+					assert.strictEqual(
+						redisHub.pubsub.dataStore.redis._eventsCount,
+						0
+					);
 				});
 			});
 

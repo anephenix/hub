@@ -2,10 +2,7 @@
 const assert = require('assert');
 const RedisDataStore = require('../../../lib/dataStores/redis');
 const { decode } = require('../../../lib/dataTransformer');
-const bluebird = require('bluebird');
 const redisLib = require('redis');
-bluebird.promisifyAll(redisLib.RedisClient.prototype);
-bluebird.promisifyAll(redisLib.Multi.prototype);
 const redisConfig = { db: 1 };
 let redis;
 
@@ -16,20 +13,22 @@ describe('redis data store', () => {
 	const value = 'xxx';
 	const anotherValue = 'yyy';
 
-	beforeAll(() => {
+	beforeAll(async () => {
 		redis = redisLib.createClient(redisConfig);
+		await redis.connect();
 	});
 
 	afterAll(async () => {
-		await redis.delAsync(dataStore.channelsKey);
-		await redis.delAsync(dataStore.clientsKey);
-		await redis.quitAsync();
-		await dataStore.internalRedis.quitAsync();
-		await dataStore.redis.quitAsync();
+		await redis.del(dataStore.channelsKey);
+		await redis.del(dataStore.clientsKey);
+		await redis.quit();
+		await dataStore.internalRedis.quit();
+		await dataStore.redis.quit();
 	});
 
 	it('should initialise with a redis client', () => {
-		assert(dataStore.redis instanceof redisLib.RedisClient);
+		assert(dataStore.redis);
+		assert.strictEqual(dataStore.redis._eventsCount, 0);
 	});
 
 	describe('#addItemToCollection', () => {
@@ -40,7 +39,7 @@ describe('redis data store', () => {
 					hash,
 					key,
 				});
-				const encodedValues = await redis.hgetAsync(hash, key);
+				const encodedValues = await redis.hGet(hash, key);
 				const values = decode(encodedValues);
 				assert.deepStrictEqual(values, [value]);
 			});
@@ -53,7 +52,7 @@ describe('redis data store', () => {
 					hash,
 					key,
 				});
-				const encodedValues = await redis.hgetAsync(hash, key);
+				const encodedValues = await redis.hGet(hash, key);
 				const values = decode(encodedValues);
 				assert.deepStrictEqual(values, [value, anotherValue]);
 			});
@@ -67,30 +66,30 @@ describe('redis data store', () => {
 				hash,
 				key,
 			});
-			const encodedValues = await redis.hgetAsync(hash, key);
+			const encodedValues = await redis.hGet(hash, key);
 			const values = decode(encodedValues);
 			assert.deepStrictEqual(values, [anotherValue]);
 		});
 
 		it('should do nothing if passed a hash and key that have no existing values', async () => {
-			const encodedValues = await redis.hgetAsync(hash, key);
+			const encodedValues = await redis.hGet(hash, key);
 			await dataStore.removeItemFromCollection({
 				value,
 				hash: 'foo',
 				key: 'bar',
 			});
-			const newEncodedValues = await redis.hgetAsync(hash, key);
+			const newEncodedValues = await redis.hGet(hash, key);
 			assert.strictEqual(encodedValues, newEncodedValues);
 		});
 
 		it('should do nothing if passed a hash and key that have no existing values', async () => {
-			const encodedValues = await redis.hgetAsync(hash, key);
+			const encodedValues = await redis.hGet(hash, key);
 			await dataStore.removeItemFromCollection({
 				value: 'baz',
 				hash,
 				key,
 			});
-			const newEncodedValues = await redis.hgetAsync(hash, key);
+			const newEncodedValues = await redis.hGet(hash, key);
 			assert.strictEqual(encodedValues, newEncodedValues);
 		});
 	});
@@ -103,7 +102,7 @@ describe('redis data store', () => {
 		});
 
 		it('should add the clientID value to the channel key in the channels hash', async () => {
-			const encodedValues = await redis.hgetAsync(
+			const encodedValues = await redis.hGet(
 				dataStore.channelsKey,
 				channel
 			);
@@ -112,7 +111,7 @@ describe('redis data store', () => {
 		});
 
 		it('should add the channel value to the clientId key in the clients hash', async () => {
-			const encodedValues = await redis.hgetAsync(
+			const encodedValues = await redis.hGet(
 				dataStore.clientsKey,
 				clientId
 			);
@@ -135,7 +134,7 @@ describe('redis data store', () => {
 		});
 
 		it('should remove the clientID value from the channel key in the channels hash', async () => {
-			const encodedValues = await redis.hgetAsync(
+			const encodedValues = await redis.hGet(
 				dataStore.channelsKey,
 				channel
 			);
@@ -143,7 +142,7 @@ describe('redis data store', () => {
 			assert.deepStrictEqual(values, [otherClientId]);
 		});
 		it('should remove the channel value from the clientId key in the clients hash', async () => {
-			const encodedValues = await redis.hgetAsync(
+			const encodedValues = await redis.hGet(
 				dataStore.clientsKey,
 				clientId
 			);
@@ -242,7 +241,6 @@ describe('redis data store', () => {
 		});
 
 		describe('when given a ban rule with just one or two properties', () => {
-
 			const broaderBanRule = {
 				clientId: 'yyy',
 			};
@@ -268,13 +266,13 @@ describe('redis data store', () => {
 
 			describe('and the ban rule is not matched', () => {
 				it('should return false', async () => {
-					const ruleExists = await dataStore.hasBanRule(anotherItemToCheck);
+					const ruleExists = await dataStore.hasBanRule(
+						anotherItemToCheck
+					);
 					assert.strictEqual(ruleExists, false);
 				});
 			});
-
 		});
-
 	});
 
 	describe('#addBanRule', () => {
