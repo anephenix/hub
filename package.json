@@ -26,28 +26,28 @@
 	"dependencies": {
 		"@anephenix/sarus": "^0.4.3",
 		"localStorage": "^1.0.4",
-		"npm-check-updates": "^12.0.5",
-		"redis": "^4.0.1",
+		"npm-check-updates": "^12.5.9",
+		"redis": "^4.0.6",
 		"uuid": "^8.3.2",
-		"ws": "^8.4.0"
+		"ws": "^8.5.0"
 	},
 	"devDependencies": {
-		"@babel/eslint-parser": "^7.16.5",
-		"@cucumber/cucumber": "^7.3.1",
+		"@babel/eslint-parser": "^7.17.0",
+		"@cucumber/cucumber": "^8.0.0",
 		"coveralls": "^3.1.1",
-		"eslint": "^8.5.0",
-		"eslint-plugin-jest": "^25.3.0",
+		"eslint": "^8.13.0",
+		"eslint-plugin-jest": "^26.1.4",
 		"git-changed-files": "^1.0.0",
 		"gradient-string": "^2.0.0",
 		"http-shutdown": "^1.2.2",
-		"jest": "^27.4.5",
-		"npm": "^8.3.0",
-		"npm-upgrade": "^3.0.0",
+		"jest": "^27.5.1",
+		"npm": "^8.7.0",
+		"npm-upgrade": "^3.1.0",
 		"parcel-bundler": "^1.12.5",
 		"pre-commit": "^1.2.2",
-		"prettier": "^2.5.1",
-		"puppeteer": "^13.0.1",
-		"simple-git": "^2.48.0",
-		"why-is-node-running": "^2.2.0"
+		"prettier": "^2.6.2",
+		"puppeteer": "^13.5.2",
+		"simple-git": "^3.6.0",
+		"why-is-node-running": "^2.2.1"
 	}
 }
