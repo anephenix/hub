@@ -46,7 +46,7 @@
 		"parcel-bundler": "^1.12.5",
 		"pre-commit": "^1.2.2",
 		"prettier": "^2.6.2",
-		"puppeteer": "^13.5.2",
+		"puppeteer": "^14.0.0",
 		"simple-git": "^3.7.1",
 		"why-is-node-running": "^2.2.2"
 	}
