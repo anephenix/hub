@@ -1,4 +1,4 @@
-.cache
+.parcel-cache
 coverage
 dist
 dump.rdb

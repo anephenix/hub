@@ -1,17 +1,20 @@
-const httpShutdown = require('http-shutdown');
-const Bundler = require('parcel-bundler');
-const bundler = new Bundler(['./features/support/client/index.html'], {
-	name: 'serve',
-	target: 'browser',
+const { Parcel } = require('@parcel/core');
+const bundler = new Parcel({
+	entries: './features/support/client/index.html',
+	serveOptions: {
+		port: 3000,
+	},
+	hmrOptions: {
+		port: 3000,
+	},
 });
 
 const main = async () => {
-	const server = await bundler.serve(3000, false, 'localhost');
-	return server;
+	return await bundler.watch();
 };
 
 const server = async () => {
 	const s = await main();
-	return httpShutdown(s);
+	return s;
 };
 module.exports = { main, server, bundler };

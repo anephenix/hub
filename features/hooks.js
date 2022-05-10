@@ -32,9 +32,6 @@ AfterAll({ timeout: 20000 }, async () => {
 		if (scope.otherClient) {
 			scope.otherClient.sarus.disconnect();
 		}
-		await web.bundler.stop();
-		await scope.web.close();
-		scope.web.shutdown(() => console.log('\nWeb is shut down'));
 		scope.api.shutdown(() => console.log('\nAPI is shut down'));
 		setTimeout(log, 20000);
 	} catch (err) {
