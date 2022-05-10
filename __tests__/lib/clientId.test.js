@@ -1,12 +1,9 @@
 const assert = require('assert');
 const { v4: uuidv4 } = require('uuid');
-const {
-	requestClientId, checkHasClientId,
-} = require('../../lib/clientId');
+const { requestClientId, checkHasClientId } = require('../../lib/clientId');
 const RPC = require('../../lib/rpc');
 
 describe('clientId', () => {
-
 	let rpc;
 	let requestId;
 	const messages = [];
@@ -15,7 +12,7 @@ describe('clientId', () => {
 	let nonClientWs;
 	let clientId;
 
-	beforeAll(() => {
+	before(() => {
 		rpc = new RPC();
 		ws = {
 			send: (message) => {
@@ -29,12 +26,12 @@ describe('clientId', () => {
 						type: 'response',
 						action: 'get-client-id',
 						data: {
-							clientId
-						}
+							clientId,
+						},
 					};
 					rpc.receive({ message: JSON.stringify(reply), ws });
 				}
-			}
+			},
 		};
 		nonClientWs = {
 			send: (message) => {
@@ -46,7 +43,7 @@ describe('clientId', () => {
 						id: requestId,
 						type: 'response',
 						action: 'get-client-id',
-						data: {}
+						data: {},
 					};
 					rpc.receive({ message: JSON.stringify(reply), ws });
 				} else {
@@ -56,18 +53,19 @@ describe('clientId', () => {
 						id: requestId,
 						type: 'response',
 						action: 'set-client-id',
-						data: { success: true}
+						data: { success: true },
 					};
-					rpc.receive({ message: JSON.stringify(reply), ws: nonClientWs });
+					rpc.receive({
+						message: JSON.stringify(reply),
+						ws: nonClientWs,
+					});
 				}
-			}
+			},
 		};
 	});
 
-
 	describe('requestClientId', () => {
-
-		beforeAll(async () => {
+		before(async () => {
 			await requestClientId({ ws, rpc });
 		});
 
@@ -90,7 +88,8 @@ describe('clientId', () => {
 				await requestClientId({ ws: nonClientWs, rpc });
 				const newClientId = nonClientWs.clientId;
 				assert(newClientId);
-				const lastMessage = nonClientMessages[nonClientMessages.length - 1];
+				const lastMessage =
+					nonClientMessages[nonClientMessages.length - 1];
 				const parsedMessage = JSON.parse(lastMessage);
 				assert.strictEqual(parsedMessage.action, 'set-client-id');
 				assert.strictEqual(parsedMessage.data.clientId, newClientId);
@@ -103,7 +102,7 @@ describe('clientId', () => {
 			it('should return true', async () => {
 				let dataReceived;
 				const socket = ws;
-				const reply = ({data}) => {
+				const reply = ({ data }) => {
 					dataReceived = data;
 				};
 				await checkHasClientId({ socket, reply });
@@ -115,7 +114,7 @@ describe('clientId', () => {
 			it('should return false', async () => {
 				let dataReceived;
 				const socket = {};
-				const reply = ({data}) => {
+				const reply = ({ data }) => {
 					dataReceived = data;
 				};
 				await checkHasClientId({ socket, reply });

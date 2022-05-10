@@ -75,7 +75,7 @@ describe('memory data store', () => {
 	describe('#addClientToChannel', () => {
 		const clientId = 'zzz';
 		const channel = 'business';
-		beforeAll(async () => {
+		before(async () => {
 			await memoryStore.addClientToChannel({ clientId, channel });
 		});
 
@@ -91,7 +91,7 @@ describe('memory data store', () => {
 		const clientId = 'aaa';
 		const otherClientId = 'bbb';
 		const channel = 'entertainment';
-		beforeAll(async () => {
+		before(async () => {
 			await memoryStore.addClientToChannel({ clientId, channel });
 			await memoryStore.addClientToChannel({
 				clientId: otherClientId,
@@ -127,7 +127,7 @@ describe('memory data store', () => {
 	});
 
 	describe('#getBanRules', () => {
-		afterAll(async () => {
+		after(async () => {
 			await memoryStore.clearBanRules();
 		});
 
@@ -169,7 +169,7 @@ describe('memory data store', () => {
 	});
 
 	describe('#hasBanRule', () => {
-		afterAll(async () => {
+		after(async () => {
 			await memoryStore.clearBanRules();
 		});
 		const banRule = {
@@ -197,7 +197,6 @@ describe('memory data store', () => {
 		});
 
 		describe('when given a ban rule with just one or two properties', () => {
-
 			const broaderBanRule = {
 				clientId: 'yyy',
 			};
@@ -216,18 +215,21 @@ describe('memory data store', () => {
 			describe('and the ban rule is matched', () => {
 				it('should return true', async () => {
 					await memoryStore.addBanRule(broaderBanRule);
-					const ruleExists = await memoryStore.hasBanRule(itemToCheck);
+					const ruleExists = await memoryStore.hasBanRule(
+						itemToCheck
+					);
 					assert.strictEqual(ruleExists, true);
 				});
 			});
 
 			describe('and the ban rule is not matched', () => {
 				it('should return false', async () => {
-					const ruleExists = await memoryStore.hasBanRule(anotherItemToCheck);
+					const ruleExists = await memoryStore.hasBanRule(
+						anotherItemToCheck
+					);
 					assert.strictEqual(ruleExists, false);
 				});
 			});
-
 		});
 	});
 

@@ -14,7 +14,7 @@ describe('rpc', () => {
 	let rpc;
 	let helloFunc;
 
-	beforeAll(() => {
+	before(() => {
 		server = http.createServer();
 		wss = new WebSocket.Server({ server });
 		rpc = new RPC({ wss });

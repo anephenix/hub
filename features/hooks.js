@@ -9,7 +9,7 @@ const scope = require('./support/scope');
 */
 const web = require('./support/client');
 
-BeforeAll({timeout: 20000}, async () => {
+BeforeAll({ timeout: 20000 }, async () => {
 	scope.web = await web.server();
 });
 
@@ -26,7 +26,7 @@ After(async () => {
 	}
 });
 
-AfterAll({timeout: 20000},async () => {
+AfterAll({ timeout: 20000 }, async () => {
 	try {
 		if (scope.browser) await scope.browser.close();
 		if (scope.otherClient) {

@@ -10,14 +10,14 @@ describe('Client library', () => {
 	let shutdownInstance;
 	let hubClient;
 
-	beforeAll(async () => {
+	before(async () => {
 		hub = new Hub({ port: 5001 });
 		shutdownInstance = httpShutdown(hub.listen());
 		hubClient = new HubClient({ url: 'ws://localhost:5001' });
 		await hubClient.isReady();
 	});
 
-	afterAll(() => {
+	after(() => {
 		shutdownInstance.shutdown();
 	});
 
@@ -126,7 +126,7 @@ describe('Client library', () => {
 		const anotherHandlerFunction = () => {};
 		function yetAnotherHandlerFunction() {}
 
-		beforeAll(() => {
+		before(() => {
 			hubClient.addChannelMessageHandler(
 				'weather',
 				anotherHandlerFunction
@@ -363,7 +363,7 @@ describe('Client library', () => {
 			newHubClient.sarus.on('message', (event) => {
 				messages.push(decode(event.data));
 			});
-			beforeAll(async () => {
+			before(async () => {
 				await newHubClient.isReady();
 				newHubClient.addChannel('dogs');
 				await newHubClient.resubscribeOnReconnect();
@@ -431,7 +431,7 @@ describe('Client library', () => {
 		const channelOne = 'baseball-game-x';
 		const channelTwo = 'baseball-game-y';
 
-		beforeAll(async () => {
+		before(async () => {
 			newHubClient = new HubClient({
 				url: 'ws://localhost:5001',
 				clientIdKey: 'yet-another-sarus-client-id',
@@ -493,7 +493,7 @@ describe('Client library', () => {
 			const otherMessages = [];
 			let otherHubClient;
 
-			beforeAll(async () => {
+			before(async () => {
 				otherHubClient = new HubClient({
 					url: 'ws://localhost:5001',
 					clientIdKey: 'other-sarus-client-id',

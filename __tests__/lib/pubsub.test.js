@@ -11,13 +11,13 @@ describe('pubsub', () => {
 	let hub;
 	let server;
 
-	beforeAll(async () => {
+	before(async () => {
 		hub = new Hub({ port: 5050 });
 		server = httpShutdown(hub.server);
 		server.listen(5050);
 	});
 
-	afterAll((done) => {
+	after((done) => {
 		server.shutdown(done);
 	});
 
@@ -163,7 +163,7 @@ describe('pubsub', () => {
 			await hubClient.subscribe('politics');
 			// Acknowledge the channel subscription
 			// eslint-disable-next-line no-undef
-			const clientId = window.localStorage.getItem('sarus-client-id');
+			const clientId = global.localStorage.getItem('sarus-client-id');
 			const latestMessage = messages[messages.length - 1];
 			if (!latestMessage) throw new Error('No messages intercepted');
 			assert.strictEqual(latestMessage.data.success, true);
@@ -203,7 +203,7 @@ describe('pubsub', () => {
 			await hubClient.subscribe('showbiz');
 			// Acknowledge the channel subscription
 			// eslint-disable-next-line no-undef
-			const clientId = window.localStorage.getItem('sarus-client-id');
+			const clientId = global.localStorage.getItem('sarus-client-id');
 			const latestMessage = messages[messages.length - 1];
 			if (!latestMessage) throw new Error('No messages intercepted');
 			assert.strictEqual(latestMessage.data.success, true);
@@ -244,7 +244,7 @@ describe('pubsub', () => {
 			await hubClient.subscribe('markets');
 			// Acknowledge the channel subscription
 			// eslint-disable-next-line no-undef
-			const clientId = window.localStorage.getItem('sarus-client-id');
+			const clientId = global.localStorage.getItem('sarus-client-id');
 			const latestMessage = messages[messages.length - 1];
 			if (!latestMessage) throw new Error('No messages intercepted');
 			assert.strictEqual(latestMessage.data.success, true);
@@ -308,7 +308,7 @@ describe('pubsub', () => {
 				await hubClient.subscribe('showbiz');
 				// Acknowledge the channel subscription
 				// eslint-disable-next-line no-undef
-				const clientId = window.localStorage.getItem('sarus-client-id');
+				const clientId = global.localStorage.getItem('sarus-client-id');
 				const latestMessage = messages[messages.length - 1];
 				if (!latestMessage) throw new Error('No messages intercepted');
 				assert.strictEqual(latestMessage.data.success, true);
@@ -340,7 +340,7 @@ describe('pubsub', () => {
 				await hubClient.subscribe('showbiz');
 				// Acknowledge the channel subscription
 				// eslint-disable-next-line no-undef
-				const clientId = window.localStorage.getItem('sarus-client-id');
+				const clientId = global.localStorage.getItem('sarus-client-id');
 				const latestMessage = messages[messages.length - 1];
 				if (!latestMessage) throw new Error('No messages intercepted');
 				assert.strictEqual(latestMessage.data.success, true);
@@ -429,7 +429,7 @@ describe('pubsub', () => {
 			let firstHubClient;
 			let secondHubClient;
 
-			beforeAll(async () => {
+			before(async () => {
 				firstHub = new Hub({ port: 4006, dataStoreType: 'redis' });
 				secondHub = new Hub({ port: 4007, dataStoreType: 'redis' });
 				firstHub.listen();
@@ -443,7 +443,7 @@ describe('pubsub', () => {
 				);
 			});
 
-			afterAll(async () => {
+			after(async () => {
 				firstHubClient.sarus.disconnect();
 				secondHubClient.sarus.disconnect();
 				firstHub.server.close();
@@ -510,7 +510,7 @@ describe('pubsub', () => {
 			await hubClient.subscribe('markets');
 			// Acknowledge the channel subscription
 			// eslint-disable-next-line no-undef
-			const clientId = window.localStorage.getItem('sarus-client-id');
+			const clientId = global.localStorage.getItem('sarus-client-id');
 			const latestMessage = messages[messages.length - 1];
 			if (!latestMessage) throw new Error('No messages intercepted');
 			assert.strictEqual(latestMessage.data.success, true);
@@ -588,7 +588,7 @@ describe('pubsub', () => {
 			await hubClient.subscribe('markets');
 			// Acknowledge the channel subscription
 			// eslint-disable-next-line no-undef
-			const clientId = window.localStorage.getItem('sarus-client-id');
+			const clientId = global.localStorage.getItem('sarus-client-id');
 			const latestMessage = messages[messages.length - 1];
 			if (!latestMessage) throw new Error('No messages intercepted');
 			assert.strictEqual(latestMessage.data.success, true);

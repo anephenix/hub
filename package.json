@@ -6,10 +6,10 @@
 	"scripts": {
 		"certs": "mkdir -p certs && cd certs && mkcert localhost 127.0.0.1 ::1",
 		"lint": "npx eslint .",
-		"cover": "npx jest --coverage --coverageReporters=text-lcov | coveralls",
+		"cover": "NODE_ENV=test npx nyc npm t && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage",
 		"cucumber": "NODE_ENV=test npx cucumber-js --no-strict --exit",
 		"cucumber-wip": "NODE_ENV=test npx cucumber-js --no-strict -t @wip",
-		"test": "NODE_ENV=test npx jest --coverage"
+		"test": "NODE_ENV=test npx mocha -r node-localstorage/register __tests__/* --test --exit"
 	},
 	"keywords": [
 		"websocket",
@@ -40,9 +40,12 @@
 		"git-changed-files": "^1.0.0",
 		"gradient-string": "^2.0.1",
 		"http-shutdown": "^1.2.2",
-		"jest": "^27.5.1",
+		"mocha": "^10.0.0",
+		"mocha-lcov-reporter": "^1.3.0",
+		"node-localstorage": "^2.2.1",
 		"npm": "^8.9.0",
 		"npm-upgrade": "^3.1.0",
+		"nyc": "^15.1.0",
 		"parcel-bundler": "^1.12.5",
 		"pre-commit": "^1.2.2",
 		"prettier": "^2.6.2",

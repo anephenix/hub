@@ -41,7 +41,7 @@ describe('Hub', () => {
 		describe('#listen', () => {
 			let runningServer = httpShutdown(hub.listen());
 
-			afterAll(() => {
+			after(() => {
 				runningServer.shutdown();
 			});
 
@@ -90,7 +90,7 @@ describe('Hub', () => {
 	describe('initialising with redis data store options', () => {
 		let hub;
 		let hubClient;
-		beforeAll(() => {
+		before(() => {
 			hub = new Hub({
 				port: 4005,
 				dataStoreType: 'redis',
@@ -104,7 +104,7 @@ describe('Hub', () => {
 			hubClient = new HubClient({ url: 'ws://localhost:4005' });
 		});
 
-		afterAll(async () => {
+		after(async () => {
 			const { redis, channelsKey, clientsKey } = hub.pubsub.dataStore;
 			await redis.del(channelsKey);
 			await redis.del(clientsKey);
@@ -268,7 +268,7 @@ describe('Hub', () => {
 	describe('setHostAndIp', () => {
 		let hub;
 		let hubClient;
-		beforeAll(() => {
+		before(() => {
 			hub = new Hub({
 				port: 4009,
 			});
@@ -276,7 +276,7 @@ describe('Hub', () => {
 			hubClient = new HubClient({ url: 'ws://localhost:4009' });
 		});
 
-		afterAll(async () => {
+		after(async () => {
 			hubClient.sarus.disconnect();
 			hub.server.close();
 			await delay(100);
@@ -295,7 +295,7 @@ describe('Hub', () => {
 		let hubClient;
 		const messages = [];
 
-		beforeAll(async () => {
+		before(async () => {
 			hub = new Hub({
 				port: 4010,
 			});
@@ -312,7 +312,7 @@ describe('Hub', () => {
 			await delay(100);
 		});
 
-		afterAll(async () => {
+		after(async () => {
 			hub.server.close();
 			await delay(25);
 		});
@@ -337,7 +337,7 @@ describe('Hub', () => {
 		let hubClient;
 		let ws;
 
-		beforeAll(async () => {
+		before(async () => {
 			hub = new Hub({
 				port: 4011,
 			});
@@ -372,7 +372,7 @@ describe('Hub', () => {
 		let hubClient;
 		let ws;
 
-		beforeAll(async () => {
+		before(async () => {
 			hub = new Hub({
 				port: 4012,
 			});

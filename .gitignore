@@ -4,3 +4,5 @@ dist
 dump.rdb
 node_modules
 certs
+.nyc_output
+scratch

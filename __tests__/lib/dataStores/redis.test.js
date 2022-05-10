@@ -13,12 +13,12 @@ describe('redis data store', () => {
 	const value = 'xxx';
 	const anotherValue = 'yyy';
 
-	beforeAll(async () => {
+	before(async () => {
 		redis = redisLib.createClient(redisConfig);
 		await redis.connect();
 	});
 
-	afterAll(async () => {
+	after(async () => {
 		await redis.del(dataStore.channelsKey);
 		await redis.del(dataStore.clientsKey);
 		await redis.quit();
@@ -97,7 +97,7 @@ describe('redis data store', () => {
 	describe('#addClientToChannel', () => {
 		const clientId = 'zzz';
 		const channel = 'business';
-		beforeAll(async () => {
+		before(async () => {
 			await dataStore.addClientToChannel({ clientId, channel });
 		});
 
@@ -124,7 +124,7 @@ describe('redis data store', () => {
 		const clientId = 'aaa';
 		const otherClientId = 'bbb';
 		const channel = 'entertainment';
-		beforeAll(async () => {
+		before(async () => {
 			await dataStore.addClientToChannel({ clientId, channel });
 			await dataStore.addClientToChannel({
 				clientId: otherClientId,
@@ -168,10 +168,10 @@ describe('redis data store', () => {
 	});
 
 	describe('#getBanRules', () => {
-		beforeAll(async () => {
+		before(async () => {
 			await dataStore.clearBanRules();
 		});
-		afterAll(async () => {
+		after(async () => {
 			await dataStore.clearBanRules();
 		});
 
@@ -213,7 +213,7 @@ describe('redis data store', () => {
 	});
 
 	describe('#hasBanRule', () => {
-		afterAll(async () => {
+		after(async () => {
 			await dataStore.clearBanRules();
 		});
 		const banRule = {
@@ -276,7 +276,7 @@ describe('redis data store', () => {
 	});
 
 	describe('#addBanRule', () => {
-		beforeAll(async () => {
+		before(async () => {
 			await dataStore.clearBanRules();
 		});
 
@@ -307,11 +307,11 @@ describe('redis data store', () => {
 	});
 
 	describe('#removeBanRule', () => {
-		beforeAll(async () => {
+		before(async () => {
 			await dataStore.clearBanRules();
 		});
 
-		afterAll(async () => {
+		after(async () => {
 			await dataStore.clearBanRules();
 		});
 
