@@ -44,4 +44,4 @@ jobs:
     - run: npm run cover
     - run: ./cc-test-reporter after-build
     - run: npm run cucumber
-    - run: npx jest --coverage --forceExit --coverageReporters=text-lcov | npx coveralls
+    - run: npm run cover | npx coveralls
