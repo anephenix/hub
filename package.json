@@ -6,7 +6,7 @@
 	"scripts": {
 		"certs": "mkdir -p certs && cd certs && mkcert localhost 127.0.0.1 ::1",
 		"lint": "npx eslint .",
-		"cover": "NODE_ENV=test npx nyc npm t",
+		"cover": "NODE_ENV=test npx nyc --reporter=lcov npm t",
 		"coveralls": "NODE_ENV=test npx nyc npm t && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage",
 		"cucumber": "NODE_ENV=test npx cucumber-js --no-strict --exit",
 		"cucumber-wip": "NODE_ENV=test npx cucumber-js --no-strict -t @wip",
