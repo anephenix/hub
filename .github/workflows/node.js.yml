@@ -44,4 +44,3 @@ jobs:
     - run: npm run cover
     - run: ./cc-test-reporter after-build
     - run: npm run cucumber
-    - run: npm run cover | npx coveralls
