@@ -9,7 +9,7 @@ const scope = require('./support/scope');
 */
 const web = require('./support/client');
 
-BeforeAll({ timeout: 20000 }, async () => {
+BeforeAll({ timeout: 60000 }, async () => {
 	scope.web = await web.server();
 });
 
