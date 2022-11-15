@@ -1,5 +1,9 @@
 # CHANGELOG
 
+### 0.0.23 - Tuesday 15th November, 2022
+
+-   Updated dependencies
+
 ### 0.0.22 - Wednesday 29th September, 2021
 
 -   Updated dependencies
