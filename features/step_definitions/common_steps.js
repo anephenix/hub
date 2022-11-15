@@ -41,9 +41,13 @@ const {
 
 Given('pending', () => 'pending');
 
-Given('a new client opens a connection to the server', async () => {
-	await visitPage('/');
-});
+Given(
+	'a new client opens a connection to the server',
+	{ timeout: 10000 },
+	async () => {
+		await visitPage('/');
+	}
+);
 
 Then('the server should request the client id from the client', async () => {
 	await clientIdRequested();
@@ -150,11 +154,12 @@ When(
 	}
 );
 
-When('the client unsubscribes from the channel {string}', async function (
-	channel
-) {
-	await clientUnsubscribesFromChannel(channel);
-});
+When(
+	'the client unsubscribes from the channel {string}',
+	async function (channel) {
+		await clientUnsubscribesFromChannel(channel);
+	}
+);
 
 Then(
 	'the server should receive a request to unsubscribe the client from the channel {string}',
