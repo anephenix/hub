@@ -4,43 +4,43 @@
 name: Node.js CI
 
 on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+    push:
+        branches: [master]
+    pull_request:
+        branches: [master]
 
 jobs:
-  build:
+    build:
+        runs-on: ubuntu-latest
+        env:
+            NODE_ENV: test
+            COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
+            CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
 
-    runs-on: ubuntu-latest
-    env:
-      NODE_ENV: test
-      COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
-      CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
+        strategy:
+            matrix:
+                node-version: [14.x]
+                # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
-    strategy:
-      matrix:
-        node-version: [14.x]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
-
-    steps:
-    - name: Set up Redis
-      uses: zhulik/redis-action@1.1.0
-    - uses: actions/checkout@v2
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v2
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'
-    #- run: apt install libnss3-tools
-    - run: curl -sSL -o ./mkcert -O https://github.com/FiloSottile/mkcert/releases/download/v1.4.1/mkcert-v1.4.1-linux-amd64 && chmod +x ./mkcert
-    - run: ./mkcert -install        
-    - run: npm i
-    - run: npm run lint
-    - run: mkdir -p certs && cd certs && ../mkcert localhost 127.0.0.1 ::1
-    - run: curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
-    - run: chmod +x ./cc-test-reporter
-    - run: ./cc-test-reporter before-build 
-    - run: npm run cover
-    - run: ./cc-test-reporter after-build
-    - run: npm run cucumber
+        steps:
+            - name: Set up Redis
+              uses: zhulik/redis-action@1.1.0
+            - uses: actions/checkout@v2
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v2
+              with:
+                  node-version: ${{ matrix.node-version }}
+                  cache: 'npm'
+            #- run: apt install libnss3-tools
+            - run: curl -sSL -o ./mkcert -O https://github.com/FiloSottile/mkcert/releases/download/v1.4.1/mkcert-v1.4.1-linux-amd64 && chmod +x ./mkcert
+            - run: ./mkcert -install
+            - run: npm i
+            - run: npm run lint
+            - run: mkdir -p certs && cd certs && ../mkcert localhost 127.0.0.1 ::1
+            - run: curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+            - run: chmod +x ./cc-test-reporter
+            - run: ./cc-test-reporter before-build
+            - run: npm run cover
+              if: github.event_name != 'pull_request'
+            - run: ./cc-test-reporter after-build
+            - run: npm run cucumber
