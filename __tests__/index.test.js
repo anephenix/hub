@@ -8,6 +8,9 @@ const { delay, delayUntil } = require('../helpers/delay');
 const { checkHasClientId } = require('../lib/clientId');
 const fs = require('fs');
 const path = require('path');
+const os = require('os');
+const localIpAddress = os.networkInterfaces().lo0.find((a) => a.scopeid === 0)
+	.address;
 
 describe('Hub', () => {
 	it('should return a class function', () => {
@@ -284,10 +287,9 @@ describe('Hub', () => {
 
 		it('should set the hostname and ip address on the websocket client', async () => {
 			await hubClient.isReady();
-			const ipAddress = '::1'; // '::ffff:127.0.0.1';
 			const ws = Array.from(hub.wss.clients)[0];
 			assert.strictEqual(ws.host, 'localhost:4009');
-			assert.strictEqual(ws.ipAddress, ipAddress);
+			assert.strictEqual(ws.ipAddress, localIpAddress);
 		});
 	});
 
