@@ -43,4 +43,5 @@ jobs:
             - run: npm run cover
               if: github.event_name != 'pull_request'
             - run: ./cc-test-reporter after-build
+              if: github.event_name != 'pull_request'
             - run: npm run cucumber
