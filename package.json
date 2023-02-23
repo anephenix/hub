@@ -26,6 +26,7 @@
 	"dependencies": {
 		"@anephenix/sarus": "^0.4.3",
 		"localStorage": "^1.0.4",
+		"node-ip": "^0.1.2",
 		"npm-check-updates": "^16.4.1",
 		"redis": "^4.5.0",
 		"uuid": "^9.0.0",

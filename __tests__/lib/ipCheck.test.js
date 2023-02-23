@@ -3,9 +3,6 @@ const assert = require('assert');
 const { Hub, HubClient } = require('../../index');
 const { delay } = require('../../helpers/delay');
 const httpShutdown = require('http-shutdown');
-const os = require('os');
-const localIpAddress = os.networkInterfaces().lo0.find((a) => a.scopeid === 0)
-	.address;
 
 describe('IP Address checking', () => {
 	describe('when allowedIPAddresses is an empty array', () => {
@@ -37,9 +34,10 @@ describe('IP Address checking', () => {
 		});
 
 		it('should only allow clients to connect if they have an allowed ip address', async () => {
+			const ipAddress = process.env.CI ? '::ffff:127.0.0.1' : '::1';
 			const hub = new Hub({
 				port: 8001,
-				allowedIpAddresses: [localIpAddress],
+				allowedIpAddresses: [ipAddress],
 			});
 			const server = httpShutdown(hub.server);
 			server.listen(8001);
