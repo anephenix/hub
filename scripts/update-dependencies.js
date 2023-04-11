@@ -82,12 +82,12 @@ const main = async () => {
 		await makeUpdates();
 		const hasChanges = await checkForChanges();
 		if (hasChanges) {
-			await bumpVersion();
 			await installUpdates();
 			await runTests();
 			await amendChangelogFile();
 			await addChangesToGit();
 			await commitToGit();
+			await bumpVersion();
 			await createGitTag();
 			// These may need shell input
 			await pushToGit('origin master');
