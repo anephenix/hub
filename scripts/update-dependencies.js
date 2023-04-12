@@ -9,26 +9,50 @@ const git = simpleGit({
 	binary: 'git',
 });
 const exec = util.promisify(require('child_process').exec);
-
 const readFile = util.promisify(fs.readFile);
+const writeFile = util.promisify(fs.writeFile);
+const { useRedisServer } = require('../helpers/redisServer');
+
+// Example usage:
 
 // Remember the principle of programmatic modules that can be run independently of being part of a cli
 
+const formatDate = (date) => {
+	const options = {
+		weekday: 'long',
+		day: 'numeric',
+		month: 'long',
+		year: 'numeric',
+	};
+	const formattedDate = date.toLocaleDateString('en-US', options);
+	const daySuffix = getDaySuffix(date.getDate());
+	return formattedDate.replace(/\d+(st|nd|rd|th)/, daySuffix);
+};
+
+const getDaySuffix = (day) => {
+	if (day >= 11 && day <= 13) {
+		return 'th';
+	}
+	switch (day % 10) {
+		case 1:
+			return 'st';
+		case 2:
+			return 'nd';
+		case 3:
+			return 'rd';
+		default:
+			return 'th';
+	}
+};
+
 const amendChangelogFile = async () => {
-	// find the changelog file
 	const filePath = path.join(process.cwd(), 'CHANGELOG.md');
-	// open it,
 	const content = await readFile(filePath, 'utf-8');
-	// read the contents
-	console.log({
-		content,
-		lines: content.split('/n').length,
-	});
-	// inject a line with the date, a changelog message, and then some spacing
-	const update = `# ${new Date().toISOString()} - Updated dependencies`;
-	const newContent = `${update}` + content;
-	console.log({ newContent });
-	// then save the file at the same file path
+	const lines = content.split('\n');
+	const title = lines[0];
+	const update = `### ${formatDate(new Date())} - Updated dependencies`;
+	const newContent = `${title}\n\n${update}\n\n${lines.slice(2).join('\n')}`;
+	await writeFile(filePath, newContent, 'utf-8');
 };
 
 const runTests = async () => {
@@ -78,25 +102,27 @@ const publishToNpm = async () => {
 
 const main = async () => {
 	try {
-		await runTests();
-		await makeUpdates();
-		const hasChanges = await checkForChanges();
-		if (hasChanges) {
-			await installUpdates();
+		await useRedisServer(async () => {
 			await runTests();
-			await amendChangelogFile();
-			await addChangesToGit();
-			await commitToGit();
-			await bumpVersion();
-			await createGitTag();
-			// These may need shell input
-			await pushToGit('origin master');
-			// These may need shell input
-			await pushToGit('origin --tags');
-			await publishToNpm();
-		} else {
-			console.log('No changes to commit');
-		}
+			await makeUpdates();
+			const hasChanges = await checkForChanges();
+			if (hasChanges) {
+				await installUpdates();
+				await runTests();
+				await amendChangelogFile();
+				await addChangesToGit();
+				await commitToGit();
+				await bumpVersion();
+				await createGitTag();
+				// These may need shell input
+				await pushToGit('origin master');
+				// These may need shell input
+				await pushToGit('origin --tags');
+				await publishToNpm();
+			} else {
+				console.log('No changes to commit');
+			}
+		});
 	} catch (err) {
 		console.log(err);
 	}

@@ -27,7 +27,7 @@
 		"@anephenix/sarus": "^0.4.4",
 		"localStorage": "^1.0.4",
 		"node-ip": "^0.1.2",
-		"npm-check-updates": "^16.10.7",
+		"npm-check-updates": "^16.10.8",
 		"redis": "^4.6.5",
 		"uuid": "^9.0.0",
 		"ws": "^8.13.0"

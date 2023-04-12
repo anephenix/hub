@@ -1,5 +1,15 @@
 # CHANGELOG
 
+### Wednesday, April 12, 2023 - Updated dependencies
+
+### Wednesday, April 12, 2023 - Updated dependencies
+
+### Wednesday, April 12, 2023 - Updated dependencies
+
+### 0.0.25 - Tuesday 11th April, 2023
+
+-   Updated dependencies
+
 ### 0.0.23 - Tuesday 15th November, 2022
 
 -   Updated dependencies
