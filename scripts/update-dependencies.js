@@ -50,7 +50,7 @@ const amendChangelogFile = async () => {
 	const content = await readFile(filePath, 'utf-8');
 	const lines = content.split('\n');
 	const title = lines[0];
-	const update = `### ${formatDate(new Date())} - Updated dependencies`;
+	const update = `### ${formatDate(new Date())}\n\n - Updated dependencies`;
 	const newContent = `${title}\n\n${update}\n\n${lines.slice(2).join('\n')}`;
 	await writeFile(filePath, newContent, 'utf-8');
 };
