@@ -9,7 +9,7 @@ let ignoreHTTPSErrors = false;
 // const args = ['--disable-gpu', '--no-sandbox', '--disable-dev-shm-usage'];
 
 if (process.env.CI) {
-	headless = true;
+	headless = 'new';
 }
 
 const visitPage = async (pageUrl) => {
