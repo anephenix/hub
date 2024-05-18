@@ -4,10 +4,11 @@
 	"description": "A Node.js WebSocket server and client with added features",
 	"main": "index.js",
 	"scripts": {
+		"build-cucumber-support-files": "npx esbuild support/client/main.js --bundle --minify --sourcemap --outdir=support/client/dist",
 		"certs": "mkdir -p certs && cd certs && mkcert localhost 127.0.0.1 ::1",
 		"lint": "npx eslint .",
 		"cover": "NODE_ENV=test npx nyc --reporter=lcov npm t",
-		"cucumber": "NODE_ENV=test npx cucumber-js --no-strict --exit",
+		"cucumber": "NODE_ENV=test npx cucumber-js --no-strict",
 		"cucumber-wip": "NODE_ENV=test npx cucumber-js --no-strict -t @wip",
 		"test": "NODE_ENV=test npx mocha -r node-localstorage/register __tests__/* --test --exit"
 	},
@@ -35,6 +36,7 @@
 	"devDependencies": {
 		"@babel/eslint-parser": "^7.24.5",
 		"@cucumber/cucumber": "^10.7.0",
+		"esbuild": "^0.21.3",
 		"eslint": "^8.38.0",
 		"eslint-plugin-jest": "^28.5.0",
 		"git-changed-files": "^1.0.0",
@@ -45,7 +47,6 @@
 		"node-localstorage": "^3.0.5",
 		"npm": "^10.7.0",
 		"nyc": "^15.1.0",
-		"parcel": "^2.12.0",
 		"pre-commit": "^1.2.2",
 		"prettier": "^2.8.7",
 		"puppeteer": "^22.8.0",

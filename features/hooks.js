@@ -1,16 +1,16 @@
 // Dependencies
 const { BeforeAll, After, AfterAll } = require('@cucumber/cucumber');
-const log = require('why-is-node-running');
+// const log = require('why-is-node-running');
 
 const scope = require('./support/scope');
 /*
 	The web client is loaded here because it relies
 	on async which the world.js file can't support
 */
-const web = require('./support/client');
+const { startServer, stopServer } = require('./support/client');
 
 BeforeAll({ timeout: 60000 }, async () => {
-	scope.web = await web.server();
+	await startServer();
 });
 
 After(async () => {
@@ -33,7 +33,8 @@ AfterAll({ timeout: 20000 }, async () => {
 			scope.otherClient.sarus.disconnect();
 		}
 		scope.api.shutdown(() => console.log('\nAPI is shut down'));
-		setTimeout(log, 20000);
+		await stopServer();
+		// setTimeout(log, 20000);
 	} catch (err) {
 		console.log({ err });
 	}

@@ -1,7 +1,8 @@
 // // This is the client-side code that is loaded for the web site
-require('regenerator-runtime/runtime');
+// require('regenerator-runtime/runtime');
 
-if (global.window) {
+// eslint-disable-next-line no-undef
+if (window) {
 	// These bits of code are used to debug
 	// what messages are sent to the server
 	const HubClient = require('../../../lib/client/index');
