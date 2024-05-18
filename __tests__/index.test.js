@@ -126,8 +126,12 @@ describe('Hub', () => {
 		});
 
 		it('should handle subscribing a client to a channel', async () => {
+			await hubClient.isReady();
 			await delayUntil(() => hubClient.getClientId() !== null);
 			const response = await hubClient.subscribe('news');
+			if (!response.success) {
+				console.error(response);
+			}
 			assert(response.success);
 		});
 
