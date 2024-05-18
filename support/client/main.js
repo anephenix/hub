@@ -5,7 +5,7 @@
 if (window) {
 	// These bits of code are used to debug
 	// what messages are sent to the server
-	const HubClient = require('../../../lib/client/index');
+	const HubClient = require('../../lib/client/index');
 	// eslint-disable-next-line no-undef
 	window.sarusMessages = [];
 	const storeMessage = (message) => {
