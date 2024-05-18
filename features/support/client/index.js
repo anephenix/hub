@@ -8,13 +8,21 @@ const port = 3000;
 
 // Function to serve static files
 function serveStaticFile(req, res) {
-  const filePath = path.join(directory, req.url === '/' ? 'index.html' : req.url);
+  let filePath = path.join(directory, req.url === '/' ? 'index.html' : req.url);
   const extname = String(path.extname(filePath)).toLowerCase();
   const mimeTypes = {
     '.html': 'text/html',
     '.js': 'application/javascript',
     '.css': 'text/css',
   };
+
+  // Security to prevent directory traversal for malicious requests
+  filePath = fs.realpathSync(path.resolve(directory, filePath));
+  if (!filePath.startsWith(directory)) {
+    res.statusCode = 403;
+    res.end();
+    return;
+  }
 
   const contentType = mimeTypes[extname] || 'application/octet-stream';
 
