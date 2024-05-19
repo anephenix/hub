@@ -39,7 +39,7 @@ describe('Hub', () => {
 			assert.strictEqual(hub.wss._eventsCount, 5);
 		});
 		describe('#listen', () => {
-			let runningServer = httpShutdown(hub.listen());
+			const runningServer = httpShutdown(hub.listen());
 
 			after(() => {
 				runningServer.shutdown();

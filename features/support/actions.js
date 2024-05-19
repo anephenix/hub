@@ -4,8 +4,8 @@ const { HubClient } = require('../../index');
 const scope = require('./scope');
 
 let headless = false;
-let slowMo = 5;
-let ignoreHTTPSErrors = false;
+const slowMo = 5;
+const ignoreHTTPSErrors = false;
 // const args = ['--disable-gpu', '--no-sandbox', '--disable-dev-shm-usage'];
 
 if (process.env.CI) {
@@ -14,7 +14,7 @@ if (process.env.CI) {
 
 const visitPage = async (pageUrl) => {
 	if (!scope.browser)
-		// eslint-disable-next-line require-atomic-updates
+		 
 		scope.browser = await scope.driver.launch({
 			headless,
 			slowMo,
@@ -22,11 +22,10 @@ const visitPage = async (pageUrl) => {
 			// args,
 		});
 
-	// eslint-disable-next-line require-atomic-updates
+	 
 	scope.context.currentPage = await scope.browser.newPage();
 	// Cater for admin urls
-	let url;
-	url = scope.host + pageUrl;
+	const url = scope.host + pageUrl;
 	const visit = await scope.context.currentPage.goto(url, {
 		waitUntil: 'networkidle2',
 	});
@@ -40,9 +39,9 @@ const closePage = async () => {
 const clientIdRequested = async () => {
 	const { currentPage } = scope.context;
 	const messages = await currentPage.evaluate(() => {
-		// eslint-disable-next-line no-undef
+		 
 		if (globalThis.sarusMessages.length === 0) return false;
-		// eslint-disable-next-line no-undef
+		 
 		return globalThis.sarusMessages;
 	});
 	assert(JSON.parse(messages[0]).action === 'get-client-id');
@@ -79,9 +78,9 @@ const serverSetsClientIdOnConnection = async () => {
 const serverSendsClientIdToClient = async () => {
 	const { currentPage } = scope.context;
 	const messages = await currentPage.evaluate(() => {
-		// eslint-disable-next-line no-undef
+		 
 		if (sarusMessages.length === 0) return false;
-		// eslint-disable-next-line no-undef
+		 
 		return sarusMessages;
 	});
 	const { action, type, data } = JSON.parse(messages[messages.length - 1]);
@@ -95,7 +94,7 @@ const clientSubscribesToChannel = async (channel) => {
 	const { currentPage } = scope.context;
 	// We need to make a request from the client to the server to subscribe to a channel
 	await currentPage.evaluate(async (channel) => {
-		// eslint-disable-next-line no-undef
+		 
 		await hubClient.subscribe(channel);
 	}, channel);
 };
@@ -118,7 +117,7 @@ const getClientId = async () => {
 	const { currentPage } = scope.context;
 	// We need to make a request from the client to the server to subscribe to a channel
 	const clientId = await currentPage.evaluate(() => {
-		// eslint-disable-next-line no-undef
+		 
 		return localStorage.getItem('sarus-client-id');
 	});
 	return clientId;
@@ -146,9 +145,9 @@ const serverUnsubscribesClientFromChannel = ({ clientId, channel }) => {
 const clientReceivesSubscribeSuccessReponse = async ({ clientId, channel }) => {
 	const { currentPage } = scope.context;
 	const messages = await currentPage.evaluate(() => {
-		// eslint-disable-next-line no-undef
+		 
 		if (sarusMessages.length === 0) return false;
-		// eslint-disable-next-line no-undef
+		 
 		return sarusMessages;
 	});
 	const { data } = JSON.parse(messages[messages.length - 1]);
@@ -174,7 +173,7 @@ const publishMessageToChannel = async ({
 		scope.clientPublishedMessage = true;
 		await currentPage.evaluate(
 			async (channel, message, excludeSender) => {
-				// eslint-disable-next-line no-undef
+				 
 				await hubClient.publish(channel, message, excludeSender);
 			},
 			channel,
@@ -187,9 +186,9 @@ const publishMessageToChannel = async ({
 const clientReceivesMessageForChannel = async ({ message, channel }) => {
 	const { currentPage } = scope.context;
 	const messages = await currentPage.evaluate(() => {
-		// eslint-disable-next-line no-undef
+		 
 		if (sarusMessages.length === 0) return false;
-		// eslint-disable-next-line no-undef
+		 
 		return sarusMessages;
 	});
 	// Has to be 2 back if the client publishes the message themselves, or 1 if someone else (i.e. the server)
@@ -203,9 +202,9 @@ const clientReceivesMessageForChannel = async ({ message, channel }) => {
 const clientDoesNotReceiveMessageForChannel = async ({ message, channel }) => {
 	const { currentPage } = scope.context;
 	const messages = await currentPage.evaluate(() => {
-		// eslint-disable-next-line no-undef
+		 
 		if (sarusMessages.length === 0) return false;
-		// eslint-disable-next-line no-undef
+		 
 		return sarusMessages;
 	});
 	const { action, data } = JSON.parse(messages[messages.length - 1]);
@@ -219,7 +218,7 @@ const clientUnsubscribesFromChannel = async (channel) => {
 	const { currentPage } = scope.context;
 	// We need to make a request from the client to the server to subscribe to a channel
 	await currentPage.evaluate(async (channel) => {
-		// eslint-disable-next-line no-undef
+		 
 		await hubClient.unsubscribe(channel);
 	}, channel);
 };
@@ -230,9 +229,9 @@ const clientReceivesUnsubscribeSuccessReponse = async ({
 }) => {
 	const { currentPage } = scope.context;
 	const messages = await currentPage.evaluate(() => {
-		// eslint-disable-next-line no-undef
+		 
 		if (sarusMessages.length === 0) return false;
-		// eslint-disable-next-line no-undef
+		 
 		return sarusMessages;
 	});
 	const { data } = JSON.parse(messages[messages.length - 1]);
@@ -276,7 +275,7 @@ const clientMakesHelloRPCRequest = async () => {
 		const request = {
 			action: 'hello',
 		};
-		// eslint-disable-next-line no-undef
+		 
 		await hubClient.rpc.send(request);
 	});
 };
@@ -284,9 +283,9 @@ const clientMakesHelloRPCRequest = async () => {
 const clientReceivesHelloRPCReply = async () => {
 	const { currentPage } = scope.context;
 	const messages = await currentPage.evaluate(() => {
-		// eslint-disable-next-line no-undef
+		 
 		if (sarusMessages.length === 0) return false;
-		// eslint-disable-next-line no-undef
+		 
 		return sarusMessages;
 	});
 	const { action, type, data } = JSON.parse(messages[messages.length - 1]);
@@ -303,7 +302,7 @@ const clientMakesIncorrecRPCRequest = async () => {
 			action: 'hi',
 		};
 		try {
-			// eslint-disable-next-line no-undef
+			 
 			await hubClient.rpc.send(request);
 		} catch (err) {
 			// Do nothing
@@ -314,9 +313,9 @@ const clientMakesIncorrecRPCRequest = async () => {
 const clientReceivesIncorrectRPCReply = async () => {
 	const { currentPage } = scope.context;
 	const messages = await currentPage.evaluate(() => {
-		// eslint-disable-next-line no-undef
+		 
 		if (sarusMessages.length === 0) return false;
-		// eslint-disable-next-line no-undef
+		 
 		return sarusMessages;
 	});
 	const { action, type, error } = JSON.parse(messages[messages.length - 1]);
@@ -328,9 +327,9 @@ const clientReceivesIncorrectRPCReply = async () => {
 const rpcActionExistsOnClient = async () => {
 	const { currentPage } = scope.context;
 	await currentPage.evaluate(async () => {
-		// eslint-disable-next-line no-undef
+		 
 		if (hubClient.rpc.list('time')) return;
-		// eslint-disable-next-line no-undef
+		 
 		hubClient.rpc.add('time', ({ reply }) => {
 			reply({ data: 'The time is now' });
 		});
@@ -390,7 +389,7 @@ const clientSubscribesToChannelWithPassword = async (channel, password) => {
 	// We need to make a request from the client to the server to subscribe to a channel
 	await currentPage.evaluate(
 		async (channel, password) => {
-			// eslint-disable-next-line no-undef
+			 
 			await hubClient.subscribe(channel, { password });
 		},
 		channel,
@@ -412,9 +411,9 @@ const serverReceivesSubscriptionRequestWithPassword = async (
 const serverMakesRequiresAuthenticationReply = async () => {
 	const { currentPage } = scope.context;
 	const messages = await currentPage.evaluate(() => {
-		// eslint-disable-next-line no-undef
+		 
 		if (sarusMessages.length === 0) return false;
-		// eslint-disable-next-line no-undef
+		 
 		return sarusMessages;
 	});
 	const { action, type, error } = JSON.parse(messages[messages.length - 1]);
@@ -427,7 +426,7 @@ const clientShouldNotBeSubscribedToChannel = async (channel) => {
 	const { currentPage } = scope.context;
 	// We need to make a request from the client to the server to subscribe to a channel
 	const clientId = await currentPage.evaluate(async () => {
-		// eslint-disable-next-line no-undef
+		 
 		await hubClient.getClientId();
 	});
 	const clients = await scope.hub.pubsub.dataStore.getClientIdsForChannel(

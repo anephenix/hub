@@ -1,5 +1,0 @@
-// .eslintignore
-node_modules
-coverage
-dist
-.cache

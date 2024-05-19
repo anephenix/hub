@@ -3,9 +3,8 @@ const delay = (duration) =>
 
 const delayUntil = (condition, timeout) => {
 	return new Promise((resolve, reject) => {
-		let interval;
 		const timeAtStart = new Date().getTime();
-		interval = setInterval(() => {
+		const interval = setInterval(() => {
 			if (condition()) {
 				resolve(true);
 				clearInterval(interval);

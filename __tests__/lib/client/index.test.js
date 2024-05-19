@@ -176,7 +176,6 @@ describe('Client library', () => {
 			// Subscribe the client to a channel
 			const subscribe = await hubClient.subscribe('business');
 			assert(subscribe.success);
-			// eslint-disable-next-line no-undef
 			const clientId = window.localStorage.getItem('sarus-client-id');
 			// assert that the hub server has that client noted as a subscriber to that channel
 			assert(
@@ -207,7 +206,6 @@ describe('Client library', () => {
 			// Subscribe the client to a channel
 			const subscribe = await hubClient.subscribe('markets');
 			assert(subscribe.success);
-			// eslint-disable-next-line no-undef
 			const clientId = window.localStorage.getItem('sarus-client-id');
 			// assert that the hub server has that client noted as a subscriber to that channel
 			assert(

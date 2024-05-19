@@ -26,7 +26,7 @@ setInterval(() => {
 }, 1000);
 
 const getPricesFunction = ({ data, reply }) => {
-	let stock = stocks[data.stock];
+	const stock = stocks[data.stock];
 	reply({ data: { stock } });
 };
 

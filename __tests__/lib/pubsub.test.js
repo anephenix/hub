@@ -162,7 +162,6 @@ describe('pubsub', () => {
 			// Subscribe the client to the channel
 			await hubClient.subscribe('politics');
 			// Acknowledge the channel subscription
-			// eslint-disable-next-line no-undef
 			const clientId = global.localStorage.getItem('sarus-client-id');
 			const latestMessage = messages[messages.length - 1];
 			if (!latestMessage) throw new Error('No messages intercepted');
@@ -202,7 +201,6 @@ describe('pubsub', () => {
 			// Subscribe the client to the channel
 			await hubClient.subscribe('showbiz');
 			// Acknowledge the channel subscription
-			// eslint-disable-next-line no-undef
 			const clientId = global.localStorage.getItem('sarus-client-id');
 			const latestMessage = messages[messages.length - 1];
 			if (!latestMessage) throw new Error('No messages intercepted');
@@ -243,7 +241,6 @@ describe('pubsub', () => {
 			// Subscribe the client to the channel
 			await hubClient.subscribe('markets');
 			// Acknowledge the channel subscription
-			// eslint-disable-next-line no-undef
 			const clientId = global.localStorage.getItem('sarus-client-id');
 			const latestMessage = messages[messages.length - 1];
 			if (!latestMessage) throw new Error('No messages intercepted');
@@ -307,7 +304,6 @@ describe('pubsub', () => {
 				// Subscribe the client to the channel
 				await hubClient.subscribe('showbiz');
 				// Acknowledge the channel subscription
-				// eslint-disable-next-line no-undef
 				const clientId = global.localStorage.getItem('sarus-client-id');
 				const latestMessage = messages[messages.length - 1];
 				if (!latestMessage) throw new Error('No messages intercepted');
@@ -339,7 +335,6 @@ describe('pubsub', () => {
 				// Subscribe the client to the channel
 				await hubClient.subscribe('showbiz');
 				// Acknowledge the channel subscription
-				// eslint-disable-next-line no-undef
 				const clientId = global.localStorage.getItem('sarus-client-id');
 				const latestMessage = messages[messages.length - 1];
 				if (!latestMessage) throw new Error('No messages intercepted');
@@ -368,7 +363,6 @@ describe('pubsub', () => {
 					messages.push(message);
 				});
 				await hubClient.isReady();
-				// eslint-disable-next-line no-undef
 				const latestMessage = messages[messages.length - 1];
 				if (!latestMessage) throw new Error('No messages intercepted');
 				// Get the client to publish a message to the channel
@@ -509,7 +503,6 @@ describe('pubsub', () => {
 			// Subscribe the client to the channel
 			await hubClient.subscribe('markets');
 			// Acknowledge the channel subscription
-			// eslint-disable-next-line no-undef
 			const clientId = global.localStorage.getItem('sarus-client-id');
 			const latestMessage = messages[messages.length - 1];
 			if (!latestMessage) throw new Error('No messages intercepted');
@@ -587,7 +580,6 @@ describe('pubsub', () => {
 			// Subscribe the client to the channel
 			await hubClient.subscribe('markets');
 			// Acknowledge the channel subscription
-			// eslint-disable-next-line no-undef
 			const clientId = global.localStorage.getItem('sarus-client-id');
 			const latestMessage = messages[messages.length - 1];
 			if (!latestMessage) throw new Error('No messages intercepted');

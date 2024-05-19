@@ -20,7 +20,7 @@ After(async () => {
 			await scope.context.currentPage.deleteCookie(...cookies);
 		}
 		await scope.context.currentPage.close();
-		// eslint-disable-next-line require-atomic-updates
+		 
 		scope.context.currentPage = null;
 		scope.clientPublishedMessage = null;
 	}
