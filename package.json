@@ -50,7 +50,6 @@
 		"pre-commit": "^1.2.2",
 		"prettier": "^3.2.5",
 		"puppeteer": "^23.2.1",
-		"simple-git": "^3.24.0",
 		"why-is-node-running": "^3.2.0"
 	},
 	"browserslist": "> 0.5%, last 2 versions, not dead"
