@@ -24,6 +24,26 @@ jobs:
                 # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
         steps:
+            - name: Install Chromium dependencies
+              run: |
+                sudo apt-get update
+                sudo apt-get install -y \
+                  libnss3 \
+                  libx11-xcb1 \
+                  libxcomposite1 \
+                  libxcursor1 \
+                  libxdamage1 \
+                  libxi6 \
+                  libxtst6 \
+                  libpangocairo-1.0-0 \
+                  libxrandr2 \
+                  libasound2 \
+                  libatk1.0-0 \
+                  libatk-bridge2.0-0 \
+                  libx11-6 \
+                  libxss1 \
+                  libglib2.0-0 \
+                  libgbm1        
             - name: Set up Redis
               uses: zhulik/redis-action@1.1.0
             - uses: actions/checkout@v2
