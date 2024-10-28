@@ -30,7 +30,7 @@
 		"node-ip": "^0.1.2",
 		"npm-check-updates": "^17.1.1",
 		"redis": "^4.6.14",
-		"uuid": "^10.0.0",
+		"uuid": "^11.0.1",
 		"ws": "^8.17.0"
 	},
 	"devDependencies": {
