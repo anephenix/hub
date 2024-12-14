@@ -37,7 +37,6 @@ jobs:
                   libxtst6 \
                   libpangocairo-1.0-0 \
                   libxrandr2 \
-                  liboss4-salsa-asound2 \
                   libasound2t64 \
                   libatk1.0-0 \
                   libatk-bridge2.0-0 \
