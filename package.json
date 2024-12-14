@@ -43,7 +43,7 @@
 		"gradient-string": "^3.0.0",
 		"http-shutdown": "^1.2.2",
 		"husky": "^9.1.5",
-		"mocha": "^10.4.0",
+		"mocha": "^11.0.1",
 		"mocha-lcov-reporter": "^1.3.0",
 		"node-emoji": "^2.1.3",
 		"node-localstorage": "^3.0.5",
