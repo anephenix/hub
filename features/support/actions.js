@@ -19,7 +19,7 @@ const visitPage = async (pageUrl) => {
 			headless,
 			slowMo,
 			ignoreHTTPSErrors,
-			// args,
+			args: ['--no-sandbox', '--disable-setuid-sandbox'],
 		});
 
 	 
