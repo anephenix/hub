@@ -47,7 +47,7 @@
 		"mocha-lcov-reporter": "^1.3.0",
 		"node-emoji": "^2.1.3",
 		"node-localstorage": "^3.0.5",
-		"npm": "^10.7.0",
+		"npm": "^11.0.0",
 		"nyc": "^17.0.0",
 		"prettier": "^3.2.5",
 		"puppeteer": "^23.2.1",
