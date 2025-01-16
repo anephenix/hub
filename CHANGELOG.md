@@ -1,5 +1,9 @@
 # CHANGELOG
 
+### 0.0.29 - Thursday 16th January, 2025
+
+- Amendments to the publish action step
+
 ### 0.0.28 - Thursday 16th January, 2025
 
 - Added code to automate publishing of package updates
