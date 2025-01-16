@@ -10,7 +10,10 @@
 		"cover": "NODE_ENV=test npx nyc --reporter=lcov npm t",
 		"cucumber": "NODE_ENV=test npx cucumber-js --no-strict",
 		"cucumber-wip": "NODE_ENV=test npx cucumber-js --no-strict -t @wip",
-		"test": "NODE_ENV=test npx mocha -r node-localstorage/register __tests__/* --test --exit"
+		"prepare-patch-release": "npm run update-changelog && git add CHANGELOG.md && git commit -m \"Updated changelog\" && npm version patch",
+		"publish-patch-release": "npm run prepare-patch-release && git push origin master && git push --tags",
+		"test": "NODE_ENV=test npx mocha -r node-localstorage/register __tests__/* --test --exit",
+		"update-changelog": "node scripts/update-changelog.js"
 	},
 	"keywords": [
 		"websocket",
