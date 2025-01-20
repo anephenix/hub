@@ -53,7 +53,7 @@
 		"npm": "^11.0.0",
 		"nyc": "^17.0.0",
 		"prettier": "^3.2.5",
-		"puppeteer": "^23.2.1",
+		"puppeteer": "^24.1.0",
 		"terminal-kit": "^3.1.1",
 		"why-is-node-running": "^3.2.0"
 	},
