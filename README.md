@@ -3,7 +3,7 @@
 A Node.js WebSocket server and client with added features
 
 [![npm version](https://badge.fury.io/js/%40anephenix%2Fhub.svg)](https://badge.fury.io/js/%40anephenix%2Fhub)
-[![Node.js CI](https://github.com/anephenix/hub/actions/workflows/node.js.yml/badge.svg)](https://github.com/anephenix/hub/actions/workflows/node.js.yml) [![Maintainability](https://api.codeclimate.com/v1/badges/d8b19a24baca1d1b42f2/maintainability)](https://codeclimate.com/github/anephenix/hub/maintainability) [![Test Coverage](https://api.codeclimate.com/v1/badges/d8b19a24baca1d1b42f2/test_coverage)](https://codeclimate.com/github/anephenix/hub/test_coverage)
+[![Node.js CI](https://github.com/anephenix/hub/actions/workflows/node.js.yml/badge.svg)](https://github.com/anephenix/hub/actions/workflows/node.js.yml) [![Maintainability](https://api.codeclimate.com/v1/badges/d8b19a24baca1d1b42f2/maintainability)](https://codeclimate.com/github/anephenix/hub/maintainability) [![Test Coverage](https://api.codeclimate.com/v1/badges/d8b19a24baca1d1b42f2/test_coverage)](https://codeclimate.com/github/anephenix/hub/test_coverage) [![Socket Badge](https://socket.dev/api/badge/npm/package/@anephenix/hub)](https://socket.dev/npm/package/@anephenix/hub)
 
 ### Dependencies
 
