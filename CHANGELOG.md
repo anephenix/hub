@@ -1,5 +1,19 @@
 # CHANGELOG
 
+### 0.0.30 - Saturday 25th January, 2025
+
+- Update Badges
+- Merge pull request #173 from anephenix/dependabot/npm_and_yarn/eslint-plugin-jest-28.11.0
+- Merge pull request #172 from anephenix/dependabot/npm_and_yarn/eslint-9.18.0
+- Merge pull request #171 from anephenix/dependabot/npm_and_yarn/npm-check-updates-17.1.14
+- Merge pull request #170 from anephenix/dependabot/npm_and_yarn/anephenix/sarus-0.6.10
+- Merge pull request #169 from anephenix/dependabot/npm_and_yarn/puppeteer-24.1.0
+- Bump eslint-plugin-jest from 28.10.0 to 28.11.0
+- Bump eslint from 9.17.0 to 9.18.0
+- Bump npm-check-updates from 17.1.13 to 17.1.14
+- Bump @anephenix/sarus from 0.6.8 to 0.6.10
+- Bump puppeteer from 23.11.1 to 24.1.0
+
 ### 0.0.29 - Thursday 16th January, 2025
 
 - Amendments to the publish action step
