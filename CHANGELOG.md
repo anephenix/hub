@@ -1,5 +1,30 @@
 # CHANGELOG
 
+### 0.0.31 - Saturday 15th February, 2025
+
+- Merge pull request #182 from anephenix/dependabot/npm_and_yarn/babel/eslint-parser-7.26.8
+- Merge pull request #180 from anephenix/dependabot/npm_and_yarn/eslint-9.20.0
+- Merge pull request #181 from anephenix/dependabot/npm_and_yarn/puppeteer-24.2.0
+- Merge pull request #183 from anephenix/dependabot/npm_and_yarn/esbuild-0.25.0
+- Merge pull request #184 from anephenix/dependabot/npm_and_yarn/prettier-3.5.0
+- Bump prettier from 3.4.2 to 3.5.0
+- Bump esbuild from 0.24.2 to 0.25.0
+- Bump @babel/eslint-parser from 7.26.5 to 7.26.8
+- Bump puppeteer from 24.1.1 to 24.2.0
+- Bump eslint from 9.19.0 to 9.20.0
+- Merge pull request #179 from anephenix/dependabot/npm_and_yarn/npm-11.1.0
+- Bump npm from 11.0.0 to 11.1.0
+- Merge pull request #178 from anephenix/dependabot/npm_and_yarn/puppeteer-24.1.1
+- Bump puppeteer from 24.1.0 to 24.1.1
+- Merge pull request #177 from anephenix/dependabot/npm_and_yarn/anephenix/sarus-0.6.11
+- Merge pull request #176 from anephenix/dependabot/npm_and_yarn/mocha-11.1.0
+- Merge pull request #175 from anephenix/dependabot/npm_and_yarn/uuid-11.0.5
+- Merge pull request #174 from anephenix/dependabot/npm_and_yarn/eslint-9.19.0
+- Bump @anephenix/sarus from 0.6.10 to 0.6.11
+- Bump mocha from 11.0.1 to 11.1.0
+- Bump uuid from 11.0.4 to 11.0.5
+- Bump eslint from 9.18.0 to 9.19.0
+
 ### 0.0.30 - Saturday 25th January, 2025
 
 - Update Badges
