@@ -1,6 +1,6 @@
 {
 	"name": "@anephenix/hub",
-	"version": "0.0.31",
+	"version": "0.0.32",
 	"description": "A Node.js WebSocket server and client with added features",
 	"main": "index.js",
 	"scripts": {
