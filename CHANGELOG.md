@@ -1,5 +1,26 @@
 # CHANGELOG
 
+### 0.0.32 - Monday 24th February, 2025
+
+- Merge pull request #189 from anephenix/dependabot/npm_and_yarn/eslint-9.21.0
+- Merge pull request #191 from anephenix/dependabot/npm_and_yarn/npm-check-updates-17.1.15
+- Merge pull request #190 from anephenix/dependabot/npm_and_yarn/ws-8.18.1
+- Merge pull request #192 from anephenix/dependabot/npm_and_yarn/prettier-3.5.2
+- Merge pull request #193 from anephenix/dependabot/npm_and_yarn/uuid-11.1.0
+- Bump uuid from 11.0.5 to 11.1.0
+- Bump prettier from 3.5.1 to 3.5.2
+- Bump npm-check-updates from 17.1.14 to 17.1.15
+- Bump ws from 8.18.0 to 8.18.1
+- Bump eslint from 9.20.1 to 9.21.0
+- Merge pull request #188 from anephenix/dependabot/npm_and_yarn/eslint-9.20.1
+- Merge pull request #187 from anephenix/dependabot/npm_and_yarn/prettier-3.5.1
+- Merge pull request #186 from anephenix/dependabot/npm_and_yarn/anephenix/sarus-0.6.12
+- Merge pull request #185 from anephenix/dependabot/npm_and_yarn/puppeteer-24.2.1
+- Bump eslint from 9.20.0 to 9.20.1
+- Bump prettier from 3.5.0 to 3.5.1
+- Bump @anephenix/sarus from 0.6.11 to 0.6.12
+- Bump puppeteer from 24.2.0 to 24.2.1
+
 ### 0.0.31 - Saturday 15th February, 2025
 
 - Merge pull request #182 from anephenix/dependabot/npm_and_yarn/babel/eslint-parser-7.26.8
