@@ -1,5 +1,22 @@
 # CHANGELOG
 
+### 0.0.33 - Monday 10th March, 2025
+
+- Merge pull request #199 from anephenix/dependabot/npm_and_yarn/puppeteer-24.4.0
+- Merge pull request #198 from anephenix/dependabot/npm_and_yarn/npm-11.2.0
+- Merge pull request #200 from anephenix/dependabot/npm_and_yarn/esbuild-0.25.1
+- Merge pull request #197 from anephenix/dependabot/npm_and_yarn/eslint-9.22.0
+- Bump esbuild from 0.25.0 to 0.25.1
+- Bump puppeteer from 24.3.0 to 24.4.0
+- Bump npm from 11.1.0 to 11.2.0
+- Bump eslint from 9.21.0 to 9.22.0
+- Merge pull request #196 from anephenix/dependabot/npm_and_yarn/anephenix/sarus-0.6.13
+- Merge pull request #195 from anephenix/dependabot/npm_and_yarn/prettier-3.5.3
+- Merge pull request #194 from anephenix/dependabot/npm_and_yarn/puppeteer-24.3.0
+- Bump @anephenix/sarus from 0.6.12 to 0.6.13
+- Bump prettier from 3.5.2 to 3.5.3
+- Bump puppeteer from 24.2.1 to 24.3.0
+
 ### 0.0.32 - Monday 24th February, 2025
 
 - Merge pull request #189 from anephenix/dependabot/npm_and_yarn/eslint-9.21.0
