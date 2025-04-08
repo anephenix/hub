@@ -288,7 +288,7 @@ describe('Hub', () => {
 
 		it('should set the hostname and ip address on the websocket client', async () => {
 			await hubClient.isReady();
-			const ipAddress = '::1';
+			const ipAddress = '::ffff:127.0.0.1'; // NOTE - old value was '::1' - might still remain that on build system
 			const ws = Array.from(hub.wss.clients)[0];
 			assert.strictEqual(ws.host, 'localhost:4009');
 			assert.strictEqual(ws.ipAddress, ipAddress);

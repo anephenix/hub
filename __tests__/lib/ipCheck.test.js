@@ -34,7 +34,7 @@ describe('IP Address checking', () => {
 		});
 
 		it('should only allow clients to connect if they have an allowed ip address', async () => {
-			const ipAddress = '::1';
+			const ipAddress = '::ffff:127.0.0.1'; // NOTE - old value was '::1' - might still remain that on build system
 			const hub = new Hub({
 				port: 8001,
 				allowedIpAddresses: [ipAddress],
