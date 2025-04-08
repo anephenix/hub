@@ -1,5 +1,27 @@
 # CHANGELOG
 
+### 0.0.34 - Tuesday 8th April, 2025
+
+- Temporary networking issue for ip address checking in tests
+- Updated dependencies
+- Merge branch 'master' of github.com:anephenix/hub
+- Merge pull request #208 from anephenix/dependabot/npm_and_yarn/eslint-9.24.0
+- Merge pull request #207 from anephenix/dependabot/npm_and_yarn/puppeteer-24.6.0
+- Bump eslint from 9.23.0 to 9.24.0
+- Bump puppeteer from 24.4.0 to 24.6.0
+- Merge pull request #206 from anephenix/dependabot/npm_and_yarn/esbuild-0.25.2
+- Merge pull request #205 from anephenix/dependabot/npm_and_yarn/babel/eslint-parser-7.27.0
+- Bump esbuild from 0.25.1 to 0.25.2
+- Bump @babel/eslint-parser from 7.26.10 to 7.27.0
+- Merge pull request #204 from anephenix/dependabot/npm_and_yarn/eslint-9.23.0
+- Merge pull request #203 from anephenix/dependabot/npm_and_yarn/npm-check-updates-17.1.16
+- Bump eslint from 9.22.0 to 9.23.0
+- Bump npm-check-updates from 17.1.15 to 17.1.16
+- Merge pull request #202 from anephenix/dependabot/npm_and_yarn/babel/eslint-parser-7.26.10
+- Merge pull request #201 from anephenix/dependabot/npm_and_yarn/anephenix/sarus-0.6.14
+- Bump @babel/eslint-parser from 7.26.8 to 7.26.10
+- Bump @anephenix/sarus from 0.6.13 to 0.6.14
+
 ### 0.0.33 - Monday 10th March, 2025
 
 - Merge pull request #199 from anephenix/dependabot/npm_and_yarn/puppeteer-24.4.0
