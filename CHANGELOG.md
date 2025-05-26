@@ -1,5 +1,61 @@
 # CHANGELOG
 
+### 0.0.35 - Monday 26th May, 2025
+
+- Merge pull request #234 from anephenix/dependabot/npm_and_yarn/mocha-11.5.0
+- Merge pull request #233 from anephenix/dependabot/npm_and_yarn/puppeteer-24.9.0
+- Merge pull request #232 from anephenix/dependabot/npm_and_yarn/redis-5.1.0
+- Merge pull request #231 from anephenix/dependabot/npm_and_yarn/anephenix/sarus-0.6.17
+- Merge pull request #230 from anephenix/dependabot/npm_and_yarn/npm-11.4.1
+- Bump mocha from 11.3.0 to 11.5.0
+- Bump puppeteer from 24.8.2 to 24.9.0
+- Bump redis from 5.0.1 to 5.1.0
+- Bump @anephenix/sarus from 0.6.15 to 0.6.17
+- Bump npm from 11.4.0 to 11.4.1
+- Merge pull request #229 from anephenix/dependabot/npm_and_yarn/npm-11.4.0
+- Merge pull request #228 from anephenix/dependabot/npm_and_yarn/mocha-11.3.0
+- Merge pull request #227 from anephenix/dependabot/npm_and_yarn/eslint-9.27.0
+- Merge pull request #226 from anephenix/dependabot/npm_and_yarn/cucumber/cucumber-11.3.0
+- Bump npm from 11.3.0 to 11.4.0
+- Bump mocha from 11.2.2 to 11.3.0
+- Bump eslint from 9.26.0 to 9.27.0
+- Bump @cucumber/cucumber from 11.2.0 to 11.3.0
+- Merge pull request #225 from anephenix/dependabot/npm_and_yarn/redis-5.0.1
+- Bump redis from 5.0.0 to 5.0.1
+- Merge pull request #224 from anephenix/dependabot/npm_and_yarn/puppeteer-24.8.2
+- Merge pull request #223 from anephenix/dependabot/npm_and_yarn/esbuild-0.25.4
+- Merge pull request #222 from anephenix/dependabot/npm_and_yarn/mocha-11.2.2
+- Bump puppeteer from 24.8.0 to 24.8.2
+- Bump esbuild from 0.25.3 to 0.25.4
+- Bump mocha from 11.1.0 to 11.2.2
+- Merge pull request #218 from anephenix/dependabot/npm_and_yarn/eslint-9.26.0
+- Bump eslint from 9.25.1 to 9.26.0
+- Merge pull request #220 from anephenix/dependabot/npm_and_yarn/babel/eslint-parser-7.27.1
+- Merge pull request #219 from anephenix/dependabot/npm_and_yarn/puppeteer-24.8.0
+- Merge pull request #221 from anephenix/dependabot/npm_and_yarn/redis-5.0.0
+- Merge pull request #217 from anephenix/dependabot/npm_and_yarn/ws-8.18.2
+- Bump redis from 4.7.0 to 5.0.0
+- Bump @babel/eslint-parser from 7.27.0 to 7.27.1
+- Bump puppeteer from 24.7.2 to 24.8.0
+- Bump ws from 8.18.1 to 8.18.2
+- Merge pull request #216 from anephenix/dependabot/npm_and_yarn/puppeteer-24.7.2
+- Merge pull request #215 from anephenix/dependabot/npm_and_yarn/esbuild-0.25.3
+- Merge pull request #214 from anephenix/dependabot/npm_and_yarn/npm-check-updates-18.0.1
+- Bump puppeteer from 24.6.1 to 24.7.2
+- Bump esbuild from 0.25.2 to 0.25.3
+- Bump npm-check-updates from 17.1.18 to 18.0.1
+- Merge pull request #213 from anephenix/dependabot/npm_and_yarn/eslint-9.25.0
+- Bump eslint from 9.24.0 to 9.25.0
+- Upgrade GitHub action to use v4 of setup-nodejs
+- Merge pull request #209 from anephenix/dependabot/npm_and_yarn/puppeteer-24.6.1
+- Merge pull request #210 from anephenix/dependabot/npm_and_yarn/npm-11.3.0
+- Bump npm from 11.2.0 to 11.3.0
+- Merge pull request #211 from anephenix/dependabot/npm_and_yarn/npm-check-updates-17.1.18
+- Merge pull request #212 from anephenix/dependabot/npm_and_yarn/anephenix/sarus-0.6.15
+- Bump @anephenix/sarus from 0.6.14 to 0.6.15
+- Bump npm-check-updates from 17.1.16 to 17.1.18
+- Bump puppeteer from 24.6.0 to 24.6.1
+
 ### 0.0.34 - Tuesday 8th April, 2025
 
 - Temporary networking issue for ip address checking in tests
