@@ -34,7 +34,6 @@ jobs:
         runs-on: ubuntu-latest
         permissions:
             contents: read # Needed to read repository content
-            packages: write # Needed to publish the package to npm
             id-token: write # Optional, for OIDC-based authentication
 
         steps:
