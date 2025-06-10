@@ -1,5 +1,26 @@
 # CHANGELOG
 
+### 0.0.36 - Tuesday 10th June, 2025
+
+- Merge branch 'master' of github.com:anephenix/hub
+- Merge pull request #242 from anephenix/dependabot/npm_and_yarn/eslint-plugin-jest-28.13.0
+- Merge pull request #241 from anephenix/dependabot/npm_and_yarn/redis-5.5.6
+- Merge pull request #240 from anephenix/dependabot/npm_and_yarn/puppeteer-24.10.0
+- Merge pull request #239 from anephenix/dependabot/npm_and_yarn/babel/eslint-parser-7.27.5
+- Bump eslint-plugin-jest from 28.12.0 to 28.13.0
+- Bump redis from 5.1.1 to 5.5.6
+- Bump puppeteer from 24.9.0 to 24.10.0
+- Bump @babel/eslint-parser from 7.27.1 to 7.27.5
+- Modified GitHub workflow permissions
+- Merge pull request #238 from anephenix/dependabot/npm_and_yarn/esbuild-0.25.5
+- Merge pull request #237 from anephenix/dependabot/npm_and_yarn/redis-5.1.1
+- Merge pull request #236 from anephenix/dependabot/npm_and_yarn/eslint-plugin-jest-28.12.0
+- Merge pull request #235 from anephenix/dependabot/npm_and_yarn/eslint-9.28.0
+- Bump esbuild from 0.25.4 to 0.25.5
+- Bump redis from 5.1.0 to 5.1.1
+- Bump eslint-plugin-jest from 28.11.0 to 28.12.0
+- Bump eslint from 9.27.0 to 9.28.0
+
 ### 0.0.35 - Monday 26th May, 2025
 
 - Merge pull request #234 from anephenix/dependabot/npm_and_yarn/mocha-11.5.0
