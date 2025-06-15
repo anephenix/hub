@@ -502,7 +502,7 @@ const serverOptions = {
 	cert: fs.readFileSync('PATH_TO_SSL_CERTIFICATE_FILE');
 };
 
-const hub = await new Hub({port: 4000, server: 'https', serverOptions });
+const hub = await new Hub({port: 4000, serverType: 'https', serverOptions });
 ```
 
 When you use a https server with Hub, the url for connecting to the server

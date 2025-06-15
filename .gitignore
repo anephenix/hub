@@ -7,3 +7,5 @@ node_modules
 certs
 .nyc_output
 scratch
+localStorage
+sessionStorage

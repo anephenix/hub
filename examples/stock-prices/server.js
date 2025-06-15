@@ -32,4 +32,4 @@ const getPricesFunction = ({ data, reply }) => {
 
 hub.rpc.add('get-prices', getPricesFunction);
 
-hub.server.listen(5050);
+hub.server.listen(5050).on('error', (err) => { throw err;});
