@@ -3,7 +3,9 @@
 	"version": "0.0.36",
 	"description": "A Node.js WebSocket server and client with added features",
 	"main": "index.js",
+	"type": "module",
 	"scripts": {
+		"build": "tsc --build tsconfig.json",
 		"build-cucumber-support-files": "npx esbuild support/client/main.js --bundle --minify --sourcemap --outdir=support/client/dist",
 		"certs": "mkdir -p certs && cd certs && mkcert localhost 127.0.0.1 ::1",
 		"format": "npx @biomejs/biome format --write src/**/* test/**/*",

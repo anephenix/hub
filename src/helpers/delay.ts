@@ -8,13 +8,17 @@ const delay = (duration: number): Promise<void> =>
 	Used to delay execution until a condition is met or a timeout occurs.
 */
 const delayUntil = (
-	condition: () => boolean,
+	condition: () => boolean | Promise<boolean>,
 	timeout?: number,
 ): Promise<boolean> => {
 	return new Promise((resolve, reject) => {
 		const timeAtStart = Date.now();
-		const interval = setInterval(() => {
-			if (condition()) {
+		const interval = setInterval(async () => {
+			let result = condition();
+			if (result instanceof Promise) {
+				result = await result;
+			}
+			if (result) {
 				resolve(true);
 				clearInterval(interval);
 			} else {

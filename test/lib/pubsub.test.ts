@@ -2,7 +2,7 @@
 import assert from "node:assert";
 import { Hub, HubClient } from "../../src/index";
 import { v4 as uuidv4 } from "uuid";
-import { delay, delayUntil } from "../../helpers/delay";
+import { delay, delayUntil } from "../../src/helpers/delay";
 import MemoryDataStore from "../../src/lib/dataStores/memory";
 import { createHttpTerminator, type HttpTerminator } from "http-terminator";
 import { describe, it, beforeAll, afterAll } from "vitest";

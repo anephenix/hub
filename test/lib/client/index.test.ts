@@ -2,7 +2,7 @@
 import assert from "node:assert";
 import { Hub, HubClient } from "../../../src/index";
 import { createHttpTerminator } from "http-terminator";
-import { delay, delayUntil } from "../../../helpers/delay";
+import { delay, delayUntil } from "../../../src/helpers/delay";
 import { decode } from "../../../src/lib/dataTransformer";
 import { describe, it, beforeAll, afterAll } from "vitest";
 

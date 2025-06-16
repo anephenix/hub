@@ -6,7 +6,7 @@ import https, {
 } from "node:https";
 import { Hub, HubClient } from "../src/index";
 import type { WebSocketServer, MessageEvent } from "ws";
-import { delay, delayUntil } from "../helpers/delay";
+import { delay, delayUntil } from "../src/helpers/delay";
 import { checkHasClientId } from "../src/lib/clientId";
 import fs from "node:fs";
 import path from "node:path";

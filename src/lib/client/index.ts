@@ -1,36 +1,44 @@
 // Dependencies
-import RPC from "../rpc";
-import Sarus from "@anephenix/sarus";
-import { delay, delayUntil } from "../../helpers/delay";
-import { isNode } from "../utils";
+import RPC from '../rpc';
+import Sarus from '@anephenix/sarus';
+import { delay, delayUntil } from '../../helpers/delay';
+import { isNode } from '../utils'
 import type {
 	DataType,
 	StorageType,
 	ChannelHandler,
 	ChannelOptions,
 	HubClientOptions,
-	RPCFunctionArgs,
-} from "../types";
+	RPCFunctionArgs
+} from '../types';
+
+/* Types and interfaces */
+type SetClientIdData = { clientId: string };
+type MessageData = {
+	channel: string;
+	message: DataType;
+};
 
 if (isNode()) {
 	/*
-		Node.js added support for WebSockets in v22 without a flag, but it does 
-		not work with Sarus to establish a WebSocket connection, so we need to
-		import the ws package to use WebSockets in Node.js for the time being.
+		Although Node.js 22 has built-in support for WebSocket clients, the 
+		underling implementation has issues with the WS module's WebSocket 
+		server.
+		
+		Therefore for now we use the WS module for WebSocket support in 
+		Node.js.
 	*/
-	import("ws").then((wsModule) => {
+	import('ws').then((wsModule) => {
 		global.WebSocket = wsModule.WebSocket;
 	});
-	import("node-localstorage").then((localStorageModule) => {
-		global.localStorage = new localStorageModule.LocalStorage("./localStorage");
-		global.sessionStorage = new localStorageModule.LocalStorage(
-			"./sessionStorage",
-		);
-	});
+	import('node-localstorage').then((localStorageModule) => {		
+		global.localStorage = new localStorageModule.LocalStorage('./localStorage');
+		global.sessionStorage = new localStorageModule.LocalStorage('./sessionStorage');
+	});	
 }
 
 class HubClient {
-	context: (Window & typeof globalThis) | typeof global;
+	context: Window & typeof globalThis | typeof global;
 	sarus: Sarus;
 	rpc: RPC;
 	clientIdKey: string;
@@ -39,20 +47,15 @@ class HubClient {
 	channels: string[];
 	channelOptions: Record<string, ChannelOptions | null>;
 
-	constructor({
-		url,
-		sarusConfig,
-		clientIdKey,
-		storageType,
-	}: HubClientOptions) {
+	constructor({ url, sarusConfig, clientIdKey, storageType }: HubClientOptions) {
 		if (!sarusConfig) sarusConfig = { url };
 		if (!sarusConfig.url) sarusConfig.url = url;
 
 		this.context = isNode() === true ? global : window;
 		this.sarus = new Sarus(sarusConfig);
 		this.rpc = new RPC({ sarus: this.sarus });
-		this.clientIdKey = clientIdKey || "sarus-client-id";
-		this.storageType = storageType || "localStorage";
+		this.clientIdKey = clientIdKey || 'sarus-client-id';
+		this.storageType = storageType || 'localStorage';
 		this.enableClientIdentifcation();
 		this.subscribe = this.subscribe.bind(this);
 		this.unsubscribe = this.unsubscribe.bind(this);
@@ -62,7 +65,7 @@ class HubClient {
 		this.channelMessageHandlers = {};
 		this.channels = [];
 		this.channelOptions = {};
-		this.sarus.on("open", this.resubscribeOnReconnect);
+		this.sarus.on('open', this.resubscribeOnReconnect);
 	}
 
 	/*
@@ -83,9 +86,10 @@ class HubClient {
 		await delayUntil(this.isConnected);
 		await delayUntil(async () => {
 			await delay(50);
-			const { hasClientId } = await this.rpc.send({
-				action: "has-client-id",
+			const response = await this.rpc.send({
+				action: 'has-client-id',
 			});
+			const { hasClientId } = response as { hasClientId: boolean };
 			return hasClientId;
 		});
 		for await (const channel of this.channels) {
@@ -121,10 +125,7 @@ class HubClient {
 		This function removes a channel message handler by either its function reference
 		or its name. If the handler is not found, it throws an error.
 	*/
-	removeChannelMessageHandler(
-		channel: string,
-		handlerFuncOrName: ChannelHandler | string,
-	) {
+	removeChannelMessageHandler(channel: string, handlerFuncOrName: ChannelHandler | string) {
 		const existingFunc = this.findFunction(channel, handlerFuncOrName);
 		if (existingFunc) {
 			const index = this.channelMessageHandlers[channel].indexOf(existingFunc);
@@ -138,11 +139,8 @@ class HubClient {
 		This function finds a channel message handler by either its function reference
 		or its name. It returns the handler if found, otherwise returns undefined.
 	*/
-	findFunction(
-		channel: string,
-		handlerFuncOrName: ChannelHandler | string,
-	): ChannelHandler | undefined {
-		if (typeof handlerFuncOrName === "string") {
+	findFunction(channel: string, handlerFuncOrName: ChannelHandler | string): ChannelHandler | undefined {
+		if (typeof handlerFuncOrName === 'string') {
 			const byName = (f: ChannelHandler) => f.name === handlerFuncOrName;
 			return this.channelMessageHandlers[channel]?.find(byName);
 		}
@@ -165,38 +163,41 @@ class HubClient {
 	*/
 	enableClientIdentifcation() {
 		const { storageType, clientIdKey, rpc, sarus } = this;
-		rpc.add("get-client-id", ({ reply }: RPCFunctionArgs) => {
+		rpc.add('get-client-id', ({ reply }: RPCFunctionArgs) => {
 			try {
 				const clientId = this.context[storageType].getItem(clientIdKey);
 				reply?.({ data: { clientId } });
+	
 			} catch (err) {
-				console.error("Error retrieving client ID:", err);
+				console.error('Error retrieving client ID:', err);
 				reply?.({
-					type: "error",
-					error: "Failed to retrieve client ID",
+					type: 'error',
+					error: 'Failed to retrieve client ID',
 				});
 			}
 		});
 
-		rpc.add("set-client-id", ({ data, reply }: RPCFunctionArgs) => {
-			this.context[storageType].setItem(clientIdKey, data.clientId);
-			reply?.({
-				data: { success: true },
-			});
+		rpc.add('set-client-id', ({ data, reply }: RPCFunctionArgs) => {
+			const { clientId } = data as SetClientIdData;
+			this.context[storageType].setItem(clientIdKey, clientId);
+			reply?.({ data: { success: true } });
 		});
 
-		rpc.add("message", ({ type, action, data }: RPCFunctionArgs) => {
-			if (type === "event" && action === "message") {
-				const handlers = this.channelMessageHandlers[data.channel];
+		rpc.add('message', ({ type, action, data }: RPCFunctionArgs) => {
+			if (type === 'event' && action === 'message') {
+
+				const { channel, message } = data as MessageData;
+
+				const handlers = this.channelMessageHandlers[channel];
 				if (handlers) {
 					for (const func of handlers as ChannelHandler[]) {
-						func(data.message);
+						func(message);
 					}
 				}
 			}
 		});
 
-		rpc.add("kick", () => {
+		rpc.add('kick', () => {
 			sarus.reconnectAutomatically = false;
 		});
 	}
@@ -231,7 +232,7 @@ class HubClient {
 	async subscribe(channel: string, opts?: ChannelOptions) {
 		try {
 			const request = {
-				action: "subscribe",
+				action: 'subscribe',
 				data: { channel, ...(opts || {}) },
 			};
 			const response = await this.rpc.send(request);
@@ -248,7 +249,7 @@ class HubClient {
 	async unsubscribe(channel: string) {
 		try {
 			const request = {
-				action: "unsubscribe",
+				action: 'unsubscribe',
 				data: { channel },
 			};
 			const response = await this.rpc.send(request);
@@ -265,7 +266,7 @@ class HubClient {
 	async publish(channel: string, message: DataType, excludeSender = false) {
 		try {
 			const request = {
-				action: "publish",
+				action: 'publish',
 				data: { channel, message, excludeSender },
 			};
 			return await this.rpc.send(request);
@@ -282,9 +283,9 @@ class HubClient {
 		const { storageType, clientIdKey } = this;
 		try {
 			const clientId = this.context[storageType].getItem(clientIdKey);
-			return clientId || null;
+			return clientId || null;	
 		} catch (err) {
-			console.error("Error retrieving client ID:", err);
+			console.error('Error retrieving client ID:', err);
 			return null;
 		}
 	}

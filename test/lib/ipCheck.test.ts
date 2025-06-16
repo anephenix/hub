@@ -1,7 +1,7 @@
 // Dependencies
 import assert from "node:assert";
 import { Hub, HubClient } from "../../src/index";
-import { delay } from "../../helpers/delay";
+import { delay } from "../../src/helpers/delay";
 import { createHttpTerminator } from "http-terminator";
 import { describe, it } from "vitest";
 
@@ -24,14 +24,14 @@ describe("IP Address checking", () => {
 	describe("when ip address checking is enabled", () => {
 		it("should disconnect any clients that attempt to connect from an ip address that is not in the allowed ip addresses list", async () => {
 			const hub = new Hub({
-				port: 7001,
+				port: 6050,
 				allowedIpAddresses: ["151.101.0.81"],
 			});
-			hub.server.listen(7001).on("error", (err) => {
+			hub.server.listen(6050).on("error", (err) => {
 				throw err;
 			});
 			const terminator = createHttpTerminator({ server: hub.server });
-			const hubClient = new HubClient({ url: "ws://localhost:7001" });
+			const hubClient = new HubClient({ url: "ws://localhost:6050" });
 			await delay(100);
 			assert.strictEqual(Array.from(hub.wss.clients).length, 0);
 			assert.strictEqual(hubClient.sarus.ws?.readyState, 3);

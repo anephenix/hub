@@ -1,7 +1,7 @@
 // Dependencies
 import assert from "node:assert";
 import { Hub, HubClient } from "../../src/index";
-import { delayUntil } from "../../helpers/delay";
+import { delayUntil } from "../../src/helpers/delay";
 import { createHttpTerminator } from "http-terminator";
 import { describe, it } from "vitest";
 
