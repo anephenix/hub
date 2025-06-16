@@ -1,3 +1,16 @@
+/*
+	This is the client for Hub. It can run in both the 
+	web browser and in Node.js.
+
+	It can be used to do the following:
+	
+	- Connect to a Hub server
+	- Setup RPC function calls
+	- Subscribe to channels
+	- Unsubscribe from channels
+	- Publish messages to channels,
+*/
+
 // Dependencies
 import RPC from '../rpc';
 import Sarus from '@anephenix/sarus';
@@ -29,6 +42,7 @@ if (isNode()) {
 		Node.js.
 	*/
 	import('ws').then((wsModule) => {
+		// @ts-ignore Using the WS module's WebSocket class as an override
 		global.WebSocket = wsModule.WebSocket;
 	});
 	import('node-localstorage').then((localStorageModule) => {		

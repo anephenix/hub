@@ -1,7 +1,16 @@
+/*
+	This is the Redis data store for Hub, which uses Redis to store the data.
+
+	We recommend using this data store in production environments, as it 
+	supports persistence across restarts and can be clustered for scaling.
+*/
+
 // Dependencies
 import type { DataType } from "../types";
 import { encode, decode } from "../dataTransformer";
 import { createClient, type RedisClientType } from "redis";
+
+// Types and Interfaces
 
 interface RedisDataStoreConfig {
 	channelsKey?: string;
@@ -16,6 +25,8 @@ interface CollectionActionParams {
 	key: string;
 }
 
+// NOTE - some of these types might also be used in the memory data store, 
+// so we can consider moving them to a shared file in the future if needed.
 interface ClientChannelActionParams {
 	action: "addItemToCollection" | "removeItemFromCollection";
 	clientId: string;
@@ -26,11 +37,12 @@ interface BanRule {
 	clientId?: string;
 	host?: string;
 	ipAddress?: string;
-	[key: string]: any;
+	[key: string]: unknown;
 }
 
 type OnMessageFunc = (message: DataType) => Promise<void>;
 
+// The RedisDataStore Class
 class RedisDataStore {
 	redis: RedisClientType;
 	internalRedis: RedisClientType;
@@ -84,7 +96,8 @@ class RedisDataStore {
 			await this.redis.hSet(hash, key, encode([value]));
 		} else {
 			const encodedValues = await this.redis.hGet(hash, key);
-			const values: string[] = decode(encodedValues);
+			if (!encodedValues) return;
+			const values: string[] = decode(encodedValues) as string[];
 			if (values.indexOf(value) === -1) {
 				values.push(value);
 				await this.redis.hSet(hash, key, encode(values));
@@ -96,7 +109,8 @@ class RedisDataStore {
 		const keyExists = await this.redis.hExists(hash, key);
 		if (keyExists) {
 			const encodedValues = await this.redis.hGet(hash, key);
-			const values: string[] = decode(encodedValues);
+			if (!encodedValues) return;
+			const values: string[] = decode(encodedValues) as string[];
 			const valueIndex = values.indexOf(value);
 			if (valueIndex > -1) {
 				values.splice(valueIndex, 1);
@@ -148,17 +162,20 @@ class RedisDataStore {
 
 	async getClientIdsForChannel(channel: string): Promise<string[]> {
 		const encodedValues = await this.redis.hGet(this.channelsKey, channel);
-		return decode(encodedValues);
+		if (!encodedValues) return [];
+		return decode(encodedValues) as string[];
 	}
 
 	async getChannelsForClientId(clientId: string): Promise<string[]> {
 		const encodedValues = await this.redis.hGet(this.clientsKey, clientId);
-		return decode(encodedValues);
+		if (!encodedValues) return [];
+		return decode(encodedValues) as string[];
 	}
 
 	async getBanRules(): Promise<BanRule[]> {
 		const list = await this.redis.lRange(this.banRulesKey, 0, -1);
-		return list.map((l) => decode(l));
+		if (!list || list.length === 0) return [] as BanRule[];
+		return list.map((l) => decode(l) as BanRule) as BanRule[];
 	}
 
 	async clearBanRules() {

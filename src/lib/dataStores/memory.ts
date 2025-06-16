@@ -1,8 +1,17 @@
-type CollectionHash = { [key: string]: any[] };
+/*
+	This is the in-memory data store for Hub.
+
+	It is used for testing purposes and is not suitable for production use, as
+	it does not persist data across restarts or support clustering.
+*/
+
+// Types and Interfaces
+
+type CollectionHash = { [key: string]: unknown[] };
 type BanRule = { clientId?: string; host?: string; ipAddress?: string };
 
 type AddRemoveCollectionParams = {
-	value: any;
+	value: unknown;
 	hash: CollectionHash;
 	key: string;
 };
@@ -24,25 +33,36 @@ type BanRuleParams = {
 	ipAddress?: string;
 };
 
-type OnPushFunc = (item: any) => void;
+type OnPushFunc = (item: unknown) => void;
 
 class MemoryDataStore {
 	clients: CollectionHash;
 	channels: CollectionHash;
 	banRules: BanRule[];
-	messageQueue: any[] & { onPush?: OnPushFunc };
+	messageQueue: unknown[] & { onPush?: OnPushFunc };
 
 	constructor() {
 		this.clients = {};
 		this.channels = {};
 		this.banRules = [];
-		this.messageQueue = [] as any[];
-		// Monkey-patch push to call onPush
-		this.messageQueue.push = function (item: any) {
+		this.messageQueue = [] as unknown[];
+		/*
+			We monkey-patch the push function on the messageQueue array 
+			so that it will call the onPush function on the class, 
+			to act as a hook or event emitter for when a message is 
+			added to the queue.
+
+			In my opinion, we probably want to use an event emitter 
+			in the future to replace the monkey-patching of the
+			push function.
+		*/
+		this.messageQueue.push = function (item: unknown) {
 			Array.prototype.push.call(this, item);
+			// If onPush is defined, we call it with the item
 			if (typeof this.onPush === "function") {
 				this.onPush(item);
 			}
+			return this.length;
 		};
 	}
 
@@ -50,7 +70,7 @@ class MemoryDataStore {
 		this.messageQueue.onPush = func;
 	}
 
-	async putMessageOnQueue(message: any) {
+	async putMessageOnQueue(message: unknown) {
 		this.messageQueue.push(message);
 	}
 
@@ -117,12 +137,12 @@ class MemoryDataStore {
 		});
 	}
 
-	async getClientIdsForChannel(channel: string): Promise<any[] | undefined> {
+	async getClientIdsForChannel(channel: string): Promise<unknown[] | undefined> {
 		const { channels } = this;
 		return channels[channel];
 	}
 
-	async getChannelsForClientId(clientId: string): Promise<any[] | undefined> {
+	async getChannelsForClientId(clientId: string): Promise<unknown[] | undefined> {
 		const { clients } = this;
 		return clients[clientId];
 	}
@@ -132,7 +152,8 @@ class MemoryDataStore {
 	}
 
 	async clearBanRules(): Promise<BanRule[]> {
-		return (this.banRules = []);
+		this.banRules = [];
+		return [];
 	}
 
 	async hasBanRule(item: BanRule): Promise<boolean> {
