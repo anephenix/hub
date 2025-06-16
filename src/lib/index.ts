@@ -15,10 +15,7 @@ import type {
 	Server as HttpsServer,
 	ServerOptions as HttpsServerOptions,
 } from "node:https";
-// This bit needs tidying up - 3 lines for the same npm package
-import { WebSocketServer } from "ws";
-import type WebSocket from "ws";
-import type { WebSocket as WSWebSocket } from "ws";
+import { WebSocketServer, type WebSocket, type Data, type CloseEvent } from "ws";
 import { requestClientId, checkHasClientId } from "./clientId";
 import dataStores from "./dataStores";
 import PubSub from "./pubsub";
@@ -30,19 +27,21 @@ import {
 	auditServerEventListeners,
 	auditConnectionEventListeners,
 } from "./validators";
-
-type DataStoreType = keyof typeof dataStores;
-type DataStoreInstance = InstanceType<
-	(typeof dataStores)[keyof typeof dataStores]
->;
+import type {
+	DataStoreType,
+	DataStoreInstance,
+	RedisDataStoreConfig,
+	RPCFunction,
+	WebSocketWithClientId
+} from "./types";
 
 interface HubOptions {
 	port: number;
 	serverType?: "http" | "https";
 	server?: HttpServer | HttpsServer;
 	serverOptions?: HttpServerOptions | HttpsServerOptions | null;
-	serverEventListeners?: Partial<ServerEventListeners>;
-	connectionEventListeners?: Partial<ConnectionEventListeners>;
+	serverEventListeners?: ServerEventListeners;
+	connectionEventListeners?: ConnectionEventListeners;
 	dataStoreType?: DataStoreType;
 	dataStoreOptions?: Record<string, unknown>;
 	allowedOrigins?: string[];
@@ -50,39 +49,34 @@ interface HubOptions {
 }
 
 interface ConnectionEventListeners {
-	message: Array<(args: { message: WebSocket.Data; ws: WSWebSocket }) => void>;
+	message: Array<(args: { message: Data; ws: WebSocket }) => void>;
 	close: Array<
-		(args: { event: WebSocket.CloseEvent; ws: WSWebSocket }) => void
+		(args: { event: CloseEvent; ws: WebSocket }) => void
 	>;
-	error: Array<(args: { error: Error; ws: WSWebSocket }) => void>;
+	error: Array<(args: { error: Error; ws: WebSocket }) => void>;
 }
 
 interface ServerEventListeners {
-	connection: Array<(ws: WSWebSocket, req: http.IncomingMessage) => void>;
+	connection: Array<(ws: WebSocketWithClientId, req: http.IncomingMessage) => void>;
 	error: Array<(event: Error) => void>;
 	listening: Array<(event: unknown) => void>;
 	headers: Array<(event: unknown) => void>;
 	close: Array<(event: unknown) => void>;
 }
 
-interface AttachConnectionEventListenersArgs {
-	ws: WSWebSocket & { [key: string]: () => void };
-	req: http.IncomingMessage;
-}
-
 class Hub {
 	port: number;
-	server: HttpServer | HttpsServer;
+	server!: HttpServer | HttpsServer;
 	wss: WebSocketServer;
-	protocol: "ws" | "wss";
+	protocol!: "ws" | "wss";
 	allowedOrigins: string[];
 	allowedIpAddresses: string[];
 	rpc: RPC;
-	dataStore: DataStoreInstance;
+	dataStore!: DataStoreInstance;
 	pubsub: PubSub;
 	security: Security;
-	connectionEventListeners: ConnectionEventListeners;
-	serverEventListeners: ServerEventListeners;
+	connectionEventListeners!: ConnectionEventListeners;
+	serverEventListeners!: ServerEventListeners;
 
 	constructor({
 		port,
@@ -123,12 +117,12 @@ class Hub {
 		dataStoreOptions,
 	}: {
 		dataStoreType?: DataStoreType;
-		dataStoreOptions?: Record<string, unknown>;
+		dataStoreOptions?: Record<string, unknown> | RedisDataStoreConfig;
 	}) {
 		const DataStore = dataStores[dataStoreType || "memory"];
 		if (!DataStore)
 			throw new Error(`dataStoreType "${dataStoreType}" is not a valid option`);
-		this.dataStore = new DataStore(dataStoreOptions);
+		this.dataStore = new DataStore(dataStoreOptions || {});
 	}
 
 	attachEventListeners({
@@ -184,7 +178,7 @@ class Hub {
 	}) {
 		if (!serverType && !server) {
 			this.protocol = "ws";
-			this.server = http.createServer(serverOptions || undefined);
+			this.server = serverOptions ? http.createServer(serverOptions): http.createServer();
 			return;
 		}
 		if (server) {
@@ -197,20 +191,19 @@ class Hub {
 				this.protocol = "ws";
 				this.server = server;
 				return;
-			} else {
-				throw new Error("Invalid option passed for server");
 			}
+			throw new Error("Invalid option passed for server");
 		}
 		if (serverType === "http" || serverType === "https") {
 			if (serverType === "http") {
 				this.protocol = "ws";
-				this.server = http.createServer(serverOptions || undefined);
-				return;
-			} else if (serverType === "https") {
-				this.protocol = "wss";
-				this.server = https.createServer(serverOptions || undefined);
+				this.server = serverOptions ? http.createServer(serverOptions): http.createServer();
 				return;
 			}
+			// Would be https at this point
+				this.protocol = "wss";
+				this.server = serverOptions ? https.createServer(serverOptions): https.createServer();
+				return;
 		}
 		throw new Error("Invalid option passed for server");
 	}
@@ -219,14 +212,14 @@ class Hub {
 		ws,
 		req,
 	}: {
-		ws: WSWebSocket & { [key: string]: unknown };
+		ws: WebSocket & { [key: string]: unknown };
 		req: http.IncomingMessage;
 	}) {
 		ws.host = req.headers.host;
 		ws.ipAddress = req.socket.remoteAddress;
 	}
 
-	async kickIfBanned({ ws }: { ws: WSWebSocket & { [key: string]: unknown } }) {
+	async kickIfBanned({ ws }: { ws: WebSocket & { [key: string]: unknown } }) {
 		const { clientId, host, ipAddress } = ws;
 		const isBanned = await this.dataStore.hasBanRule({
 			clientId,
@@ -236,13 +229,13 @@ class Hub {
 		if (isBanned) return await this.kick({ ws });
 	}
 
-	async kickAndBan({ ws }: { ws: WSWebSocket & { [key: string]: unknown } }) {
+	async kickAndBan({ ws }: { ws: WebSocket & { [key: string]: unknown } }) {
 		const { clientId, host, ipAddress } = ws;
 		await this.security.ban({ clientId, host, ipAddress });
 		await this.kick({ ws });
 	}
 
-	async kick({ ws }: { ws: WSWebSocket & { [key: string]: unknown } }) {
+	async kick({ ws }: { ws: WebSocket & { [key: string]: unknown } }) {
 		const action = "kick";
 		const data = "Server has kicked the client";
 		const noReply = true;
@@ -251,17 +244,17 @@ class Hub {
 	}
 
 	async attachConnectionEventListeners(
-		ws: WSWebSocket & { [key: string]: unknown },
+		ws: WebSocket & { [key: string]: unknown },
 		req: http.IncomingMessage,
 	) {
 		const { connectionEventListeners, setHostAndIp } = this;
-		ws.on("message", (message: WebSocket.Data) => {
+		ws.on("message", (message: Data) => {
 			for (const func of connectionEventListeners.message) {
 				func({ message, ws });
 			}
 		});
 
-		ws.on("close", (event: WebSocket.CloseEvent) => {
+		ws.on("close", (event: CloseEvent) => {
 			for (const func of connectionEventListeners.close) {
 				func({ event, ws });
 			}
@@ -279,9 +272,9 @@ class Hub {
 	}
 
 	attachBindings() {
-		this.rpc.add("has-client-id", checkHasClientId);
+		this.rpc.add("has-client-id", checkHasClientId as RPCFunction);
 
-		this.wss.on("connection", (ws: WSWebSocket, req: http.IncomingMessage) => {
+		this.wss.on("connection", (ws: WebSocket, req: http.IncomingMessage) => {
 			for (const func of this.serverEventListeners.connection) {
 				func(ws, req);
 			}

@@ -1,12 +1,8 @@
 // Types and Interfaces
 
-interface DataStore {
-	addBanRule(params: {
-		clientId: string;
-		host: string;
-		ipAddress: string;
-	}): Promise<void>;
-}
+import type {
+	DataStoreInstance,
+} from "./types";
 
 interface BanParams {
 	clientId: string;
@@ -19,9 +15,9 @@ interface BanParams {
 	from connecting to the WebSocket server.
 */
 export class Security {
-	dataStore: DataStore;
+	dataStore: DataStoreInstance;
 
-	constructor({ dataStore }: { dataStore: DataStore }) {
+	constructor({ dataStore }: { dataStore: DataStoreInstance }) {
 		this.dataStore = dataStore;
 	}
 

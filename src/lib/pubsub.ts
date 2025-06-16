@@ -1,5 +1,8 @@
 // Dependencies
 import { encode } from "./dataTransformer";
+import type {
+	DataStoreInstance,
+} from "./types";
 
 const noClientIdError = "No client id was found on the WebSocket";
 const noChannelError = "No channel was passed in the data";
@@ -36,26 +39,6 @@ type ChannelConfiguration = {
 		| ((params: { data: unknown; socket: Socket }) => boolean);
 };
 
-type DataStore = {
-	addClientToChannel: (params: {
-		clientId: string;
-		channel: string;
-	}) => Promise<void>;
-	removeClientFromChannel: (params: {
-		clientId: string;
-		channel: string;
-	}) => Promise<void>;
-	getChannelsForClientId: (clientId: string) => Promise<string[]>;
-	getClientIdsForChannel: (channel: string) => Promise<string[]>;
-	putMessageOnQueue: (params: {
-		channel: string;
-		message: unknown;
-		clientId?: string;
-		excludeSender?: boolean;
-	}) => Promise<void>;
-	bindOnPublish: (fn: (params: unknown) => void) => void;
-};
-
 type RPC = {
 	add: (
 		name: string,
@@ -74,14 +57,14 @@ type WSS = {
 interface PubSubConstructorParams {
 	wss: WSS;
 	rpc: RPC;
-	dataStore: DataStore;
+	dataStore: DataStoreInstance;
 }
 
 class PubSub {
 	wss: WSS;
 	rpc: RPC;
 	channelConfigurations: Record<string, ChannelConfiguration>;
-	dataStore: DataStore;
+	dataStore: DataStoreInstance;
 
 	constructor({ wss, rpc, dataStore }: PubSubConstructorParams) {
 		this.wss = wss;
@@ -147,7 +130,7 @@ class PubSub {
 		method: "addClientToChannel" | "removeClientFromChannel";
 		message: string;
 	}) {
-		await (this.dataStore as any)[method]({ clientId, channel });
+		await (this.dataStore as DataStoreInstance)[method]({ clientId, channel });
 		return {
 			success: true,
 			message: `Client "${clientId}" ${message} channel "${channel}"`,

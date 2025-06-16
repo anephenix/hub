@@ -70,8 +70,13 @@ const auditServerEventListeners = (
 };
 
 // Ensures that the connection event listeners passed are properly filled in with functions
+/*
+	NOTE - I remember Sarus had something similar to this, but then the 
+	conversion to TypeScript removed the need for it as the type helped to 
+	raise errors if the wrong parameter was passed.
+*/
 const auditConnectionEventListeners = (
-	connectionEventListeners?: ConnectionEventListeners | null,
+	connectionEventListeners?: ConnectionEventListeners,
 ): ConnectionEventListeners | null => {
 	if (!connectionEventListeners) return null;
 	if (isNotAnObject(connectionEventListeners)) {

@@ -27,6 +27,7 @@ import type {
 
 /* Types and interfaces */
 type SetClientIdData = { clientId: string };
+
 type MessageData = {
 	channel: string;
 	message: DataType;

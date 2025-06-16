@@ -15,9 +15,13 @@
 
 // Dependencies
 import { v4 as uuidv4 } from "uuid";
+import type { RPCFunction, WebSocketWithClientId } from "./types";
 
-// Types
-interface WebSocketWithClientId extends WebSocket {
+// Types and Interfaces
+
+// NOTE - this is similar to the SetClientIdData type, might be worth
+// merging them in the future if they are used in the same context.
+type GetClientIdData = {
 	clientId?: string;
 }
 
@@ -108,7 +112,7 @@ async function requestClientId({
 		const { clientId } = await rpc.send({
 			ws,
 			action: "get-client-id",
-		});
+		}) as GetClientIdData;
 		await processReply({ clientId, ws, rpc });
 	} catch (err) {
 		console.error(err);

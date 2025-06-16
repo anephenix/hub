@@ -6,18 +6,12 @@
 */
 
 // Dependencies
-import type { DataType } from "../types";
+import type { DataType, RedisDataStoreConfig } from "../types";
 import { encode, decode } from "../dataTransformer";
 import { createClient, type RedisClientType } from "redis";
 
 // Types and Interfaces
 
-interface RedisDataStoreConfig {
-	channelsKey?: string;
-	clientsKey?: string;
-	banRulesKey?: string;
-	redisConfig?: object;
-}
 
 interface CollectionActionParams {
 	value: string;

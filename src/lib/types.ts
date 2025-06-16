@@ -3,6 +3,7 @@
 // Dependencies
 import type { SarusClassParams } from "@anephenix/sarus";
 import type Sarus from "@anephenix/sarus";
+import type dataStores from "./dataStores";
 
 /* DataTransformer */
 
@@ -38,7 +39,7 @@ type RPCFunctionArgs = {
 	action: string;
 	type: string;
 	data?: unknown;
-	socket?: WebSocket;
+	socket?: WebSocketWithClientId;
 	reply?: (response: Partial<RPCPayload>) => unknown;
 };
 
@@ -77,6 +78,25 @@ type ConnectionEventListeners = {
 	[key: string]: ListenerFunction[] | undefined;
 };
 
+// DataStore types 
+type DataStoreType = keyof typeof dataStores;
+type DataStoreInstance = InstanceType<
+	(typeof dataStores)[keyof typeof dataStores]
+>;
+
+interface RedisDataStoreConfig {
+	channelsKey?: string;
+	clientsKey?: string;
+	banRulesKey?: string;
+	redisConfig?: object;
+}
+
+// ClientId
+
+interface WebSocketWithClientId extends WebSocket {
+	clientId?: string;
+}
+
 export type {
 	DataType,
 	StorageType,
@@ -91,4 +111,8 @@ export type {
 	ServerEventListeners,
 	ConnectionEventListeners,
 	ListenerFunction,
+	DataStoreType,
+	DataStoreInstance,
+	RedisDataStoreConfig,
+	WebSocketWithClientId
 };
