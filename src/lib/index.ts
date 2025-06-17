@@ -15,7 +15,7 @@ import type {
 	Server as HttpsServer,
 	ServerOptions as HttpsServerOptions,
 } from "node:https";
-import { WebSocketServer, type WebSocket, type Data, type CloseEvent } from "ws";
+import { WebSocketServer, type Data, type CloseEvent } from "ws";
 import { requestClientId, checkHasClientId } from "./clientId";
 import dataStores from "./dataStores";
 import PubSub from "./pubsub";
@@ -23,16 +23,15 @@ import RPC from "./rpc";
 import { Security } from "./security";
 import { handleOriginCheck } from "./originCheck";
 import { handleIpAddressCheck } from "./ipCheck";
-import {
-	auditServerEventListeners,
-	auditConnectionEventListeners,
-} from "./validators";
+
 import type {
 	DataStoreType,
 	DataStoreInstance,
 	RedisDataStoreConfig,
 	RPCFunction,
-	WebSocketWithClientId
+	WebSocketWithClientId,
+	ServerEventListeners,
+	ConnectionEventListeners
 } from "./types";
 
 interface HubOptions {
@@ -46,22 +45,6 @@ interface HubOptions {
 	dataStoreOptions?: Record<string, unknown>;
 	allowedOrigins?: string[];
 	allowedIpAddresses?: string[];
-}
-
-interface ConnectionEventListeners {
-	message: Array<(args: { message: Data; ws: WebSocket }) => void>;
-	close: Array<
-		(args: { event: CloseEvent; ws: WebSocket }) => void
-	>;
-	error: Array<(args: { error: Error; ws: WebSocket }) => void>;
-}
-
-interface ServerEventListeners {
-	connection: Array<(ws: WebSocketWithClientId, req: http.IncomingMessage) => void>;
-	error: Array<(event: Error) => void>;
-	listening: Array<(event: unknown) => void>;
-	headers: Array<(event: unknown) => void>;
-	close: Array<(event: unknown) => void>;
 }
 
 class Hub {
@@ -129,16 +112,11 @@ class Hub {
 		connectionEventListeners,
 		serverEventListeners,
 	}: {
-		connectionEventListeners?: Partial<ConnectionEventListeners>;
-		serverEventListeners?: Partial<ServerEventListeners>;
+		connectionEventListeners?: ConnectionEventListeners;
+		serverEventListeners?: ServerEventListeners;
 	}) {
-		this.connectionEventListeners =
-			auditConnectionEventListeners(connectionEventListeners) ||
-			this.loadDefaultConnectionEventListeners();
-
-		this.serverEventListeners =
-			auditServerEventListeners(serverEventListeners) ||
-			this.loadDefaultServerEventListeners();
+		this.connectionEventListeners = connectionEventListeners || this.loadDefaultConnectionEventListeners();
+		this.serverEventListeners = serverEventListeners || this.loadDefaultServerEventListeners();
 	}
 
 	loadDefaultConnectionEventListeners(): ConnectionEventListeners {
@@ -212,14 +190,14 @@ class Hub {
 		ws,
 		req,
 	}: {
-		ws: WebSocket & { [key: string]: unknown };
+		ws: WebSocketWithClientId;
 		req: http.IncomingMessage;
 	}) {
 		ws.host = req.headers.host;
 		ws.ipAddress = req.socket.remoteAddress;
 	}
 
-	async kickIfBanned({ ws }: { ws: WebSocket & { [key: string]: string } }) {
+	async kickIfBanned({ ws }: { ws: WebSocketWithClientId }) {
 		const { clientId, host, ipAddress } = ws;
 		const isBanned = await this.dataStore.hasBanRule({
 			clientId,
@@ -246,7 +224,7 @@ class Hub {
 	}
 
 	async attachConnectionEventListeners(
-		ws: WebSocket & { [key: string]: string },
+		ws: WebSocketWithClientId,
 		req: http.IncomingMessage,
 	) {
 		const { connectionEventListeners, setHostAndIp } = this;
@@ -276,7 +254,7 @@ class Hub {
 	attachBindings() {
 		this.rpc.add("has-client-id", checkHasClientId as RPCFunction);
 
-		this.wss.on("connection", (ws: WebSocket, req: http.IncomingMessage) => {
+		this.wss.on("connection", (ws: WebSocketWithClientId, req: http.IncomingMessage) => {
 			for (const func of this.serverEventListeners.connection) {
 				func(ws, req);
 			}

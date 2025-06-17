@@ -13,18 +13,8 @@
 */
 
 // Types and Interfaces
-
-type Socket = {
-	close: () => void;
-};
-
-type Request = {
-	headers: {
-		host?: string;
-	};
-};
-
-type NextFunction = (socket: Socket, req: Request) => void;
+import type { IncomingMessage } from "node:http";
+import type { WebSocketWithClientId, NextFunction } from "./types";
 
 /* Check if the origin is allowed */
 export function checkOrigin(
@@ -43,7 +33,7 @@ export function handleOriginCheck(
 	origins: string[] | undefined,
 	next: NextFunction,
 ) {
-	return (socket: Socket, req: Request) => {
+	return (socket:  WebSocketWithClientId, req: IncomingMessage) => {
 		const host = req.headers.host || "";
 		if (!checkOrigin(origins, host)) {
 			socket.close();

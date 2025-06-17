@@ -11,9 +11,13 @@
 	their ip address is allowed, normal operations continue. But if their ip 
 	address is not allowed, then they are immediately disconnected.
 */
+// Dependencies
+import type { IncomingMessage } from "node:http";
+import type { WebSocketWithClientId, NextFunction } from "./types";
+
 
 export function checkIpAddress(
-	ipAddresses: RegExp[] | undefined,
+	ipAddresses: string[] | undefined,
 	ipAddress: string,
 ): boolean {
 	if (!ipAddresses || ipAddresses.length === 0) return true;
@@ -23,23 +27,11 @@ export function checkIpAddress(
 	return false;
 }
 
-type Socket = {
-	close: () => void;
-};
-
-type Request = {
-	socket: {
-		remoteAddress?: string;
-	};
-};
-
-type NextFunction = (socket: Socket, req: Request) => void;
-
 export function handleIpAddressCheck(
-	ipAddresses: RegExp[] | undefined,
+	ipAddresses: string[] | undefined,
 	next: NextFunction,
 ) {
-	return (socket: Socket, req: Request) => {
+	return (socket: WebSocketWithClientId, req: IncomingMessage) => {
 		const remoteAddress = req.socket.remoteAddress || "";
 		if (!checkIpAddress(ipAddresses, remoteAddress)) {
 			socket.close();

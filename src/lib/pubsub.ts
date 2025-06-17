@@ -4,7 +4,9 @@ import type {
 	DataType,
 	DataStoreInstance,
 	PublishMessageReceivedParams,
+	WebSocketWithClientId,
 } from "./types";
+import type { WebSocketServer } from "ws";
 
 const noClientIdError = "No client id was found on the WebSocket";
 const noChannelError = "No channel was passed in the data";
@@ -26,19 +28,13 @@ Set.prototype.filter = function filter<T>(f: (v: T) => boolean): Set<T> {
 	return newSet;
 };
 
-type Socket = {
-	clientId?: string;
-	send: (payload: string) => void;
-	[key: string]: unknown;
-};
-
 type ChannelConfiguration = {
-	authenticate?: (params: { socket: Socket; data: unknown }) =>
+	authenticate?: (params: { socket: WebSocketWithClientId; data: unknown }) =>
 		| Promise<boolean>
 		| boolean;
 	clientCanPublish?:
 		| boolean
-		| ((params: { data: unknown; socket: Socket }) => boolean);
+		| ((params: { data: unknown; socket: WebSocketWithClientId }) => boolean);
 };
 
 type RPC = {
@@ -46,24 +42,20 @@ type RPC = {
 		name: string,
 		fn: (params: {
 			data: unknown;
-			socket: Socket;
+			socket: WebSocketWithClientId;
 			reply: (response: unknown) => void;
 		}) => void,
 	) => void;
 };
 
-type WSS = {
-	clients: Set<Socket>;
-};
-
 interface PubSubConstructorParams {
-	wss: WSS;
+	wss: WebSocketServer;
 	rpc: RPC;
 	dataStore: DataStoreInstance;
 }
 
 class PubSub {
-	wss: WSS;
+	wss: WebSocketServer;
 	rpc: RPC;
 	channelConfigurations: Record<string, ChannelConfiguration>;
 	dataStore: DataStoreInstance;
@@ -91,13 +83,13 @@ class PubSub {
 			reply,
 		}: {
 			data: unknown;
-			socket: Socket;
+			socket: WebSocketWithClientId;
 			reply: (response: unknown) => void;
 		}) => {
 			try {
 				const pubSubMethod = this[pubSubName] as (params: {
 					data: unknown;
-					socket: Socket;
+					socket: WebSocketWithClientId;
 				}) => Promise<unknown>;
 				const response = await pubSubMethod({ data, socket });
 				reply({
@@ -170,7 +162,7 @@ class PubSub {
 		});
 	}
 
-	async unsubscribeClientFromAllChannels({ ws }: { ws: Socket }) {
+	async unsubscribeClientFromAllChannels({ ws }: { ws: WebSocketWithClientId }) {
 		const { clientId } = ws;
 		if (!clientId) return;
 		const channels = await this.dataStore.getChannelsForClientId(clientId);
@@ -209,7 +201,7 @@ class PubSub {
 		channel,
 		socket,
 		data,
-	}: { channel: string; socket: Socket; data: unknown }) {
+	}: { channel: string; socket: WebSocketWithClientId; data: unknown }) {
 		const channelConfiguration = this.getChannelConfiguration(channel);
 		if (channelConfiguration?.authenticate) {
 			const authenticated = await channelConfiguration.authenticate({
@@ -220,7 +212,7 @@ class PubSub {
 		}
 	}
 
-	async subscribe({ data, socket }: { data: unknown; socket: Socket }) {
+	async subscribe({ data, socket }: { data: unknown; socket: WebSocketWithClientId }) {
 		const { clientId } = socket;
 		const { channel } = data as { channel: string };
 		if (!clientId) throw new Error(noClientIdError);
@@ -236,7 +228,7 @@ class PubSub {
 	}: {
 		channelConfiguration?: ChannelConfiguration;
 		data: unknown;
-		socket: Socket;
+		socket: WebSocketWithClientId;
 	}) {
 		if (channelConfiguration?.clientCanPublish === false) {
 			throw new Error(clientsCannotPublishToChannelError);
@@ -260,7 +252,7 @@ class PubSub {
 		}
 	}
 
-	async publish({ data, socket }: { data: { channel: string, message: DataType, excludeSender?: boolean}; socket: Socket }) {
+	async publish({ data, socket }: { data: { channel: string, message: DataType, excludeSender?: boolean}; socket: WebSocketWithClientId }) {
 		const clientId = socket?.clientId;
 		const { channel, message, excludeSender } = data;
 		const channelConfiguration = this.getChannelConfiguration(channel);
@@ -300,7 +292,7 @@ class PubSub {
 		});
 
 		if (subscribers && subscribers.length > 0) {
-			const subscribersOnly = (client: Socket) => {
+			const subscribersOnly = (client: WebSocketWithClientId) => {
 				return subscribers.indexOf(client.clientId) !== -1;
 			};
 
@@ -314,14 +306,14 @@ class PubSub {
 					client.send(payload);
 					continue;
 				}
-				if (client.clientId !== clientId) {
+				if ((client as WebSocketWithClientId).clientId !== clientId) {
 					client.send(payload);
 				}
 			}
 		}
 	}
 
-	async unsubscribe({ data, socket }: { data: unknown; socket: Socket }) {
+	async unsubscribe({ data, socket }: { data: unknown; socket: WebSocketWithClientId }) {
 		const { clientId } = socket;
 		const { channel } = data as { channel: string};
 		if (!clientId) throw new Error(noClientIdError);
