@@ -6,7 +6,7 @@
 */
 
 // Dependencies
-import type { DataType, RedisDataStoreConfig } from "../types";
+import type { DataType, RedisDataStoreConfig, OnMessageFunc, PublishMessageReceivedParams } from "../types";
 import { encode, decode } from "../dataTransformer";
 import { createClient, type RedisClientType } from "redis";
 
@@ -33,8 +33,6 @@ interface BanRule {
 	ipAddress?: string;
 	[key: string]: unknown;
 }
-
-type OnMessageFunc = (message: DataType) => Promise<void>;
 
 // The RedisDataStore Class
 class RedisDataStore {
@@ -70,7 +68,7 @@ class RedisDataStore {
 			this.messageQueueChannel,
 			async (message: string, channel: string) => {
 				if (channel === messageQueueChannel) {
-					await this.onMessage(decode(message));
+					await this.onMessage(decode(message) as PublishMessageReceivedParams);
 				}
 			},
 		);

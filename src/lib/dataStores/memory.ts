@@ -4,6 +4,7 @@
 	It is used for testing purposes and is not suitable for production use, as
 	it does not persist data across restarts or support clustering.
 */
+import type { DataType, OnMessageFunc, PublishMessageReceivedParams } from "../types";
 
 // Types and Interfaces
 
@@ -33,13 +34,11 @@ type BanRuleParams = {
 	ipAddress?: string;
 };
 
-type OnPushFunc = (item: unknown) => void;
-
 class MemoryDataStore {
 	clients: CollectionHash;
 	channels: CollectionHash;
 	banRules: BanRule[];
-	messageQueue: unknown[] & { onPush?: OnPushFunc };
+	messageQueue: unknown[] & { onPush?: OnMessageFunc };
 
 	constructor() {
 		this.clients = {};
@@ -56,7 +55,7 @@ class MemoryDataStore {
 			in the future to replace the monkey-patching of the
 			push function.
 		*/
-		this.messageQueue.push = function (item: unknown) {
+		this.messageQueue.push = function (item: PublishMessageReceivedParams) {
 			Array.prototype.push.call(this, item);
 			// If onPush is defined, we call it with the item
 			if (typeof this.onPush === "function") {
@@ -66,11 +65,11 @@ class MemoryDataStore {
 		};
 	}
 
-	bindOnPublish(func: OnPushFunc) {
+	bindOnPublish(func: OnMessageFunc) {
 		this.messageQueue.onPush = func;
 	}
 
-	async putMessageOnQueue(message: unknown) {
+	async putMessageOnQueue(message: PublishMessageReceivedParams) {
 		this.messageQueue.push(message);
 	}
 

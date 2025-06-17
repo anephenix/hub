@@ -219,7 +219,7 @@ class Hub {
 		ws.ipAddress = req.socket.remoteAddress;
 	}
 
-	async kickIfBanned({ ws }: { ws: WebSocket & { [key: string]: unknown } }) {
+	async kickIfBanned({ ws }: { ws: WebSocket & { [key: string]: string } }) {
 		const { clientId, host, ipAddress } = ws;
 		const isBanned = await this.dataStore.hasBanRule({
 			clientId,
@@ -229,13 +229,15 @@ class Hub {
 		if (isBanned) return await this.kick({ ws });
 	}
 
-	async kickAndBan({ ws }: { ws: WebSocket & { [key: string]: unknown } }) {
+	async kickAndBan({ ws }: { ws: WebSocketWithClientId }) {
 		const { clientId, host, ipAddress } = ws;
+		if (clientId && host && ipAddress) {
 		await this.security.ban({ clientId, host, ipAddress });
 		await this.kick({ ws });
+		}
 	}
 
-	async kick({ ws }: { ws: WebSocket & { [key: string]: unknown } }) {
+	async kick({ ws }: { ws: WebSocketWithClientId }) {
 		const action = "kick";
 		const data = "Server has kicked the client";
 		const noReply = true;
@@ -244,7 +246,7 @@ class Hub {
 	}
 
 	async attachConnectionEventListeners(
-		ws: WebSocket & { [key: string]: unknown },
+		ws: WebSocket & { [key: string]: string },
 		req: http.IncomingMessage,
 	) {
 		const { connectionEventListeners, setHostAndIp } = this;

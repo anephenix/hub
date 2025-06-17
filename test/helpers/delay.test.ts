@@ -8,7 +8,7 @@ describe("delay helpers", () => {
 			try {
 				await delayUntil(() => {
 					return false;
-				}, 1000);
+				}, 200);
 				assert(false, "Should not reach this point");
 			} catch (err: unknown) {
 				assert.strictEqual(
@@ -20,21 +20,25 @@ describe("delay helpers", () => {
 
 		it("should have support for the condition function to be a standard function", async () => {
 			const condition = () => true;
-			const result = await delayUntil(condition, 500);
+			const result = await delayUntil(condition);
 			assert.strictEqual(result, true);
 		});
 
 		it("should have support for the condition function to be async", async () => {
 			let count = 0;
+			const timeout = 50;
+			const totalWait = 200;
+			const expectedCount = Math.floor(totalWait / timeout) - 1;
+
 			const condition = async () => {
-				await new Promise((resolve) => setTimeout(resolve, 100));
+				await new Promise((resolve) => setTimeout(resolve, timeout));
 				count++;
-				return count >= 3;
+				return count >= expectedCount;
 			};
 
-			const result = await delayUntil(condition, 500);
+			const result = await delayUntil(condition, totalWait);
 			assert.strictEqual(result, true);
-			assert.strictEqual(count, 3);
+			assert.strictEqual(count, expectedCount);
 		});
 
 	});

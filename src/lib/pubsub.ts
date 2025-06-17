@@ -1,7 +1,9 @@
 // Dependencies
 import { encode } from "./dataTransformer";
 import type {
+	DataType,
 	DataStoreInstance,
+	PublishMessageReceivedParams,
 } from "./types";
 
 const noClientIdError = "No client id was found on the WebSocket";
@@ -103,10 +105,17 @@ class PubSub {
 					data: response,
 				});
 			} catch (error: unknown) {
-				reply({
-					type: "error",
-					error: error.message,
-				});
+				if (error instanceof Error) {
+					reply({
+						type: "error",
+						error: error.message,
+					});
+				} else {
+					reply({
+						type: "error",
+						error: String(error),
+					});
+				}
 			}
 		};
 		this.rpc.add(pubSubName, pubSubFunction);
@@ -163,7 +172,8 @@ class PubSub {
 
 	async unsubscribeClientFromAllChannels({ ws }: { ws: Socket }) {
 		const { clientId } = ws;
-		const channels = await this.dataStore.getChannelsForClientId(clientId!);
+		if (!clientId) return;
+		const channels = await this.dataStore.getChannelsForClientId(clientId);
 		if (!channels) return;
 		for await (const channel of channels) {
 			await this.unsubscribe({ socket: ws, data: { channel } });
@@ -187,10 +197,10 @@ class PubSub {
 		return channelConfiguration;
 	}
 
-	getChannelConfiguration(channel: string): ChannelConfiguration | undefined {
+	getChannelConfiguration(channel: string): ChannelConfiguration {
 		let channelConfiguration = this.channelConfigurations[channel];
 		if (!channelConfiguration) {
-			channelConfiguration = this.getWildcardChannelConfiguration(channel);
+			channelConfiguration = this.getWildcardChannelConfiguration(channel) || {};
 		}
 		return channelConfiguration;
 	}
@@ -212,7 +222,7 @@ class PubSub {
 
 	async subscribe({ data, socket }: { data: unknown; socket: Socket }) {
 		const { clientId } = socket;
-		const { channel } = data;
+		const { channel } = data as { channel: string };
 		if (!clientId) throw new Error(noClientIdError);
 		if (!channel) throw new Error(noChannelError);
 		await this.handleChannelConfiguration({ channel, socket, data });
@@ -250,7 +260,7 @@ class PubSub {
 		}
 	}
 
-	async publish({ data, socket }: { data: any; socket: Socket }) {
+	async publish({ data, socket }: { data: { channel: string, message: DataType, excludeSender?: boolean}; socket: Socket }) {
 		const clientId = socket?.clientId;
 		const { channel, message, excludeSender } = data;
 		const channelConfiguration = this.getChannelConfiguration(channel);
@@ -281,12 +291,7 @@ class PubSub {
 		message,
 		clientId,
 		excludeSender,
-	}: {
-		channel: string;
-		message: any;
-		clientId?: string;
-		excludeSender?: boolean;
-	}) {
+	}: PublishMessageReceivedParams) {
 		const subscribers = await this.dataStore.getClientIdsForChannel(channel);
 		const payload = encode({
 			action: "message",
@@ -294,9 +299,9 @@ class PubSub {
 			data: { channel, message },
 		});
 
-		if (subscribers?.length > 0) {
+		if (subscribers && subscribers.length > 0) {
 			const subscribersOnly = (client: Socket) => {
-				return subscribers.indexOf(client.clientId!) !== -1;
+				return subscribers.indexOf(client.clientId) !== -1;
 			};
 
 			for (const client of this.wss.clients) {
@@ -318,7 +323,7 @@ class PubSub {
 
 	async unsubscribe({ data, socket }: { data: unknown; socket: Socket }) {
 		const { clientId } = socket;
-		const { channel } = data;
+		const { channel } = data as { channel: string};
 		if (!clientId) throw new Error(noClientIdError);
 		if (!channel) throw new Error(noChannelError);
 		return await this.removeClientFromChannel({

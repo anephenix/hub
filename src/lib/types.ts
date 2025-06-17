@@ -39,7 +39,7 @@ type RPCFunctionArgs = {
 	action: string;
 	type: string;
 	data?: unknown;
-	socket?: WebSocketWithClientId;
+	socket?: Sarus | WebSocketWithClientId | undefined;
 	reply?: (response: Partial<RPCPayload>) => unknown;
 };
 
@@ -83,6 +83,7 @@ type DataStoreType = keyof typeof dataStores;
 type DataStoreInstance = InstanceType<
 	(typeof dataStores)[keyof typeof dataStores]
 >;
+type OnMessageFunc = (message: PublishMessageReceivedParams) => Promise<void>;
 
 interface RedisDataStoreConfig {
 	channelsKey?: string;
@@ -95,7 +96,27 @@ interface RedisDataStoreConfig {
 
 interface WebSocketWithClientId extends WebSocket {
 	clientId?: string;
+	host?: string;
+	ipAddress?: string;
 }
+
+// Client
+
+type SetClientIdData = { clientId: string };
+
+type MessageData = {
+	channel: string;
+	message: DataType;
+};
+
+// PubSub
+
+type PublishMessageReceivedParams = {
+	channel: string;
+	message: DataType;
+	clientId?: string;
+	excludeSender?: boolean;
+};
 
 export type {
 	DataType,
@@ -113,6 +134,10 @@ export type {
 	ListenerFunction,
 	DataStoreType,
 	DataStoreInstance,
+	OnMessageFunc,
 	RedisDataStoreConfig,
-	WebSocketWithClientId
+	WebSocketWithClientId,
+	SetClientIdData,
+	MessageData,
+	PublishMessageReceivedParams
 };

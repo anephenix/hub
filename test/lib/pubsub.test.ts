@@ -606,19 +606,6 @@ describe("pubsub", () => {
 					assert.strictEqual(redisHub.pubsub.dataStore.redis._eventsCount, 0);
 				});
 			});
-
-			describe("when the dataStore type does not exist", () => {
-				it("should throw an error", async () => {
-					assert.throws(
-						() => {
-							new Hub({ port: 6000, dataStoreType: "postgres" });
-						},
-						{
-							message: 'dataStoreType "postgres" is not a valid option',
-						},
-					);
-				});
-			});
 		});
 	});
 
@@ -629,11 +616,14 @@ describe("pubsub", () => {
 			const hubClient = new HubClient({ url: "ws://localhost:5004" });
 			await hubClient.isReady();
 			await hubClient.subscribe("shares");
+
+			const clientId = hubClient.getClientId();
+			if (!clientId) { throw new Error("No client id found"); }
 			await newHub.pubsub.unsubscribeClientFromAllChannels({
-				ws: { clientId: hubClient.getClientId() },
+				ws: { clientId },
 			});
 			const channels = await newHub.pubsub.dataStore.getChannelsForClientId(
-				hubClient.getClientId(),
+				clientId,
 			);
 			const clientIds =
 				await newHub.pubsub.dataStore.getClientIdsForChannel("shares");

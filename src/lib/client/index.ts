@@ -22,16 +22,10 @@ import type {
 	ChannelHandler,
 	ChannelOptions,
 	HubClientOptions,
-	RPCFunctionArgs
+	RPCFunctionArgs,
+	SetClientIdData,
+	MessageData
 } from '../types';
-
-/* Types and interfaces */
-type SetClientIdData = { clientId: string };
-
-type MessageData = {
-	channel: string;
-	message: DataType;
-};
 
 if (isNode()) {
 	/*
@@ -312,8 +306,7 @@ class HubClient {
 		- The client ID is set
 	*/
 	async isReady() {
-		await delayUntil(() => this.isConnected());
-		await delayUntil(() => this.getClientId() !== null);
+		await delayUntil(() => this.isConnected() && this.getClientId() !== null);
 		return;
 	}
 }

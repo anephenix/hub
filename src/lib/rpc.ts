@@ -16,7 +16,7 @@ import { v4 as uuidv4 } from "uuid";
 import { encode, decode } from "./dataTransformer";
 import type Sarus from "@anephenix/sarus";
 
-import type { RPCPayload, RPCFunction, RPCArgs, SendArgs } from "./types";
+import type { RPCPayload, RPCFunction, RPCArgs, SendArgs, WebSocketWithClientId } from "./types";
 
 class RPC {
 	sarus?: Sarus;
@@ -68,16 +68,16 @@ class RPC {
 		});
 	}
 
-	setMessageAndSocket({ params, sarus }: { params: unknown; sarus?: Sarus }) {
+	setMessageAndSocket({ params, sarus }: { params: {data: unknown, message: string, ws: WebSocket | undefined}; sarus?: Sarus }) {
 		let message: unknown;
 		let ws: WebSocket | undefined;
 		if (sarus) {
-			message = params.data;
+			message = params.data as string;
 		} else {
-			message = params.message;
+			message = params.message as string;
 			ws = params.ws;
 		}
-		return { message, ws };
+		return { message, ws } as { message: string; ws: WebSocket | undefined };
 	}
 
 	setupReply({
@@ -88,7 +88,7 @@ class RPC {
 	}: {
 		id: string;
 		action: string;
-		socket: unknown;
+		socket: Sarus | WebSocketWithClientId | undefined;
 		noReply?: boolean;
 	}) {
 		const reply = (response: Partial<RPCPayload>) => {
@@ -100,7 +100,7 @@ class RPC {
 				data: response.data,
 				error: response.error,
 			};
-			return socket.send(encode(responsePayload));
+			return socket?.send(encode(responsePayload));
 		};
 		return reply;
 	}
@@ -122,7 +122,7 @@ class RPC {
 		id: string;
 		reply: (response: Partial<RPCPayload>) => unknown;
 		data: unknown;
-		socket: unknown;
+		socket?: Sarus | WebSocketWithClientId | undefined;
 	}) {
 		const existingFunctions = this.actions[action];
 		if (action && type) {
@@ -153,13 +153,13 @@ class RPC {
 		}
 	}
 
-	receive(params: unknown) {
+	receive(params: { data: unknown; message: string; ws: WebSocket }) {
 		const { requests, responses } = this;
 		const sarus = this.sarus;
 		const { message, ws } = this.setMessageAndSocket({ sarus, params });
 		const socket = sarus || ws;
 		try {
-			const payload: RPCPayload = decode(message);
+			const payload = decode(message) as RPCPayload;
 			this.checkIfResponsePayload({ requests, responses, payload });
 			const { id, action, type, data, noReply } = payload;
 			const reply = this.setupReply({ id, action, socket, noReply });

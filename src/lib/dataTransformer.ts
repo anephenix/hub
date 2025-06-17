@@ -7,19 +7,19 @@
 	support other formats like ProtoBuffers and MessagePack in the future.
 */
 
-import type { DataType } from "./types";
+import type { DataType, PublishMessageReceivedParams } from "./types";
 
 /*
 	Encodes the data for transmission over WebSocket
 */
-function encode(data: DataType): string {
+function encode(data: DataType | PublishMessageReceivedParams): string {
 	return JSON.stringify(data);
 }
 
 /*
 	Decodes the data that was received over the WebSocket
 */
-function decode(data: string): DataType {
+function decode(data: string): DataType | PublishMessageReceivedParams {
 	return JSON.parse(data);
 }
 
