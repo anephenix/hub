@@ -5,6 +5,8 @@ import { createHttpTerminator } from "http-terminator";
 import { delay, delayUntil } from "../../../src/helpers/delay";
 import { decode } from "../../../src/lib/dataTransformer";
 import { describe, it, beforeAll, afterAll } from "vitest";
+import type MemoryDataStore from "../../../src/lib/dataStores/memory";
+import type { RPCFunctionArgs, ChannelHandler} from "../../../src/lib/types";
 
 describe("Client library", () => {
 	let hub: InstanceType<typeof Hub>;
@@ -158,7 +160,7 @@ describe("Client library", () => {
 			assert(subscribe.success);
 			const clientId = global.localStorage.getItem("sarus-client-id");
 			// assert that the hub server has that client noted as a subscriber to that channel
-			assert(hub.pubsub.dataStore.channels.business.indexOf(clientId) !== -1);
+			assert((hub.pubsub.dataStore as MemoryDataStore).channels.business.indexOf(clientId) !== -1);
 		});
 
 		it("should add the channel to the list of channels", () => {
@@ -167,12 +169,12 @@ describe("Client library", () => {
 
 		describe("when options are passed", () => {
 			it("should pass those options into the data payload for the rpc request", async () => {
-				const messages: any[] = [];
-				hub.rpc.add("subscribe", ({ data }: { data: any }) => {
+				const messages: unknown[] = [];
+				hub.rpc.add("subscribe", ({ data }: RPCFunctionArgs) => {
 					messages.push(data);
 				});
 				await hubClient.subscribe("cats", { password: "tuna" });
-				const lastMessage = messages[messages.length - 1];
+				const lastMessage = messages[messages.length - 1] as { password: string };
 				assert.strictEqual(lastMessage.password, "tuna");
 				await hubClient.unsubscribe("cats");
 			});
@@ -186,10 +188,10 @@ describe("Client library", () => {
 			assert(subscribe.success);
 			const clientId = global.localStorage.getItem("sarus-client-id");
 			// assert that the hub server has that client noted as a subscriber to that channel
-			assert(hub.pubsub.dataStore.channels.markets.indexOf(clientId) !== -1);
+			assert((hub.pubsub.dataStore as MemoryDataStore).channels.markets.indexOf(clientId) !== -1);
 			const unsubscribe = await hubClient.unsubscribe("markets");
 			assert(unsubscribe.success);
-			assert(hub.pubsub.dataStore.channels.markets.indexOf(clientId) === -1);
+			assert((hub.pubsub.dataStore as MemoryDataStore).channels.markets.indexOf(clientId) === -1);
 		});
 
 		it("should remove the channel from the list of channels", () => {
@@ -200,22 +202,20 @@ describe("Client library", () => {
 	describe("#publish", () => {
 		it("should publish a message to a channel", async () => {
 			await hubClient.subscribe("culture");
-			let handlerFunctionCalled = false;
-			let messageReceived: any = null;
-			const handlerFunction = (message: any) => {
-				messageReceived = message;
-				handlerFunctionCalled = true;
+			let messageReceived: { title: string } | unknown = null;
+			const handlerFunction: ChannelHandler = (message: unknown) => {
+				messageReceived = message as { title: string };
 			};
 			hubClient.addChannelMessageHandler("culture", handlerFunction);
 			await hubClient.publish("culture", { title: "Dune film delayed" });
-			await delayUntil(() => handlerFunctionCalled);
-			assert.strictEqual(messageReceived.title, "Dune film delayed");
+			assert((messageReceived as { title: string }).title);
+			assert.strictEqual((messageReceived as { title: string }).title, "Dune film delayed");
 		});
 		it("should publish a message to a channel, but exclude the sender if they are also a subscribe but wish to not receive the message themselves", async () => {
 			await hubClient.subscribe("arts");
 			let handlerFunctionCalled = false;
-			let messageReceived: any = null;
-			const handlerFunction = (message: any) => {
+			let messageReceived: unknown = null;
+			const handlerFunction = (message: unknown) => {
 				messageReceived = message;
 				handlerFunctionCalled = true;
 			};
@@ -309,30 +309,30 @@ describe("Client library", () => {
 	describe("#resubscribeOnReconnect", () => {
 		describe("when the client has no channel subscriptions", () => {
 			it("should not ask the server if the websocket connection has a client id set", async () => {
-				const messages: any[] = [];
+				const messages: unknown[] = [];
 				const newHubClient = new HubClient({
 					url: "ws://localhost:5001",
 				});
-				newHubClient.sarus.on("message", (event: any) => {
+				newHubClient.sarus.on("message", (event: MessageEvent) => {
 					messages.push(decode(event.data));
 				});
 				newHubClient.sarus.disconnect();
 				await delay(100);
 				await newHubClient.resubscribeOnReconnect();
 				assert.strictEqual(
-					messages.map((m: any) => m.action).indexOf("has-client-id"),
+					messages.map((m: unknown) => (m as {action:string}).action).indexOf("has-client-id"),
 					-1,
 				);
 			});
 		});
 
 		describe("when the client has channel subscriptions", () => {
-			const messages: any[] = [];
+			const messages: unknown[] = [];
 			const newHubClient = new HubClient({
 				url: "ws://localhost:5001",
 				clientIdKey: "another-sarus-client-id",
 			});
-			newHubClient.sarus.on("message", (event: any) => {
+			newHubClient.sarus.on("message", (event: MessageEvent) => {
 				messages.push(decode(event.data));
 			});
 			beforeAll(async () => {
@@ -344,12 +344,15 @@ describe("Client library", () => {
 			it("should ask the server if the websocket connection has a client id set", async () => {
 				await delayUntil(() => {
 					return (
-						messages.map((m: any) => m.action).indexOf("has-client-id") !== -1
+						messages.map((m: unknown) => (m as {action:string}).action).indexOf("has-client-id") !== -1
 					);
 				});
 			});
 			it("should resubscribe to all of the client channels", async () => {
 				const clientId = newHubClient.getClientId();
+				if (!clientId) {
+					throw new Error("Client ID is not set");
+				}
 				const channels =
 					await hub.pubsub.dataStore.getChannelsForClientId(clientId);
 				assert.deepStrictEqual(channels, ["dogs"]);
@@ -359,8 +362,8 @@ describe("Client library", () => {
 		describe("when the client has channel subscriptions that require authentication", () => {
 			it("should resubscribe to those channels too", async () => {
 				const channel = "cheeses";
-				const authenticate = ({ data }: { data: any }) => {
-					return data.password === "brie";
+				const authenticate = ({ data }: { data: unknown }) => {
+					return (data as {password:string}).password === "brie";
 				};
 				hub.pubsub.addChannelConfiguration({ channel, authenticate });
 				const anotherHubClient = new HubClient({
@@ -370,8 +373,12 @@ describe("Client library", () => {
 				await anotherHubClient.isReady();
 				await anotherHubClient.subscribe(channel, { password: "brie" });
 				await delay(100);
+				const clientId = anotherHubClient.getClientId();
+				if (!clientId) {
+					throw new Error("Client ID is not set");
+				}
 				const channels = await hub.pubsub.dataStore.getChannelsForClientId(
-					anotherHubClient.getClientId(),
+					clientId,
 				);
 				assert(channels?.indexOf(channel) !== -1);
 				anotherHubClient.sarus.disconnect();
@@ -379,7 +386,7 @@ describe("Client library", () => {
 				anotherHubClient.sarus.reconnect();
 				await delay(1200);
 				const freshChannels = await hub.pubsub.dataStore.getChannelsForClientId(
-					anotherHubClient.getClientId(),
+					clientId,
 				);
 				assert(freshChannels?.indexOf(channel) !== -1);
 				await anotherHubClient.unsubscribe(channel);
@@ -388,7 +395,7 @@ describe("Client library", () => {
 	});
 
 	describe("when the client reconnects to the server", () => {
-		const messages: any[] = [];
+		const messages: unknown[] = [];
 		let newHubClient: InstanceType<typeof HubClient>;
 		const channelOne = "baseball-game-x";
 		const channelTwo = "baseball-game-y";
@@ -398,15 +405,19 @@ describe("Client library", () => {
 				url: "ws://localhost:5001",
 				clientIdKey: "yet-another-sarus-client-id",
 			});
-			newHubClient.sarus.on("message", (event: any) => {
+			newHubClient.sarus.on("message", (event: MessageEvent) => {
 				messages.push(decode(event.data));
 			});
 			await newHubClient.isReady();
 			await newHubClient.subscribe(channelOne);
 			await newHubClient.subscribe(channelTwo);
 			assert.deepStrictEqual(newHubClient.channels, [channelOne, channelTwo]);
+			const clientId = newHubClient.getClientId();
+			if (!clientId) {
+				throw new Error("Client ID is not set");
+			}
 			const channels = await hub.pubsub.dataStore.getChannelsForClientId(
-				newHubClient.getClientId(),
+				clientId
 			);
 			assert.deepStrictEqual(channels, [channelOne, channelTwo]);
 			newHubClient.sarus.disconnect();
@@ -414,7 +425,7 @@ describe("Client library", () => {
 			newHubClient.sarus.reconnect();
 			await delayUntil(() => {
 				return (
-					messages.map((m: any) => m.action).indexOf("has-client-id") !== -1
+					messages.map((m: unknown) => (m as {action:string}).action).indexOf("has-client-id") !== -1
 				);
 			});
 		});
@@ -423,19 +434,26 @@ describe("Client library", () => {
 			it("should check that the server has a clientId set for the webSocket", async () => {
 				await delayUntil(() => {
 					return (
-						messages.map((m: any) => m.action).indexOf("has-client-id") !== -1
+						messages.map((m: unknown) => (m as {action:string}).action).indexOf("has-client-id") !== -1
 					);
 				});
 			});
 			it("should then resubscribe the client to their channels", async () => {
 				const clientId = newHubClient.getClientId();
+				if (!clientId) {
+					throw new Error("Client ID is not set");
+				}
+				let channels: unknown[] | undefined;
 				await delayUntil(async () => {
-					const channels =
-						await hub.pubsub.dataStore.getChannelsForClientId(clientId);
+					channels = await hub.pubsub.dataStore.getChannelsForClientId(clientId);
+					if (!channels) {
+						throw new Error("No channels found for client ID when expecting some");
+					}
 					return channels.length === 2;
 				});
-				const channels =
-					await hub.pubsub.dataStore.getChannelsForClientId(clientId);
+				if (!channels) {
+					throw new Error("No channels found for client ID when expecting some");
+				}
 				assert.strictEqual(channels.length, 2);
 				assert(channels.indexOf(channelOne) > -1);
 				assert(channels.indexOf(channelTwo) > -1);
@@ -443,7 +461,7 @@ describe("Client library", () => {
 		});
 
 		describe("and the client does not have subscriptions", () => {
-			const otherMessages: any[] = [];
+			const otherMessages: unknown[] = [];
 			let otherHubClient: InstanceType<typeof HubClient>;
 
 			beforeAll(async () => {
@@ -451,7 +469,7 @@ describe("Client library", () => {
 					url: "ws://localhost:5001",
 					clientIdKey: "other-sarus-client-id",
 				});
-				otherHubClient.sarus.on("message", (event: any) => {
+				otherHubClient.sarus.on("message", (event: MessageEvent) => {
 					otherMessages.push(decode(event.data));
 				});
 				await otherHubClient.isReady();
@@ -463,7 +481,7 @@ describe("Client library", () => {
 			it("should not check that the server has a clientId set for the webSocket", async () => {
 				await delay(1100);
 				assert(
-					otherMessages.map((m: any) => m.action).indexOf("has-client-id") ===
+					otherMessages.map((m: unknown) => (m as {action:string}).action).indexOf("has-client-id") ===
 						-1,
 				);
 			});
