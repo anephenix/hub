@@ -113,7 +113,7 @@ describe("Hub", () => {
 		});
 
 		afterAll(async () => {
-			const { redis, channelsKey, clientsKey } = hub.pubsub.dataStore;
+			const { redis, channelsKey, clientsKey } = (hub.pubsub.dataStore as RedisDataStore);
 			await redis.del(channelsKey);
 			await redis.del(clientsKey);
 			hubClient.sarus.disconnect();
@@ -297,13 +297,13 @@ describe("Hub", () => {
 			});
 			hub.listen();
 			hubClient = new HubClient({ url: "ws://localhost:4010" });
-			hubClient.sarus.on("message", (event: any) => {
+			hubClient.sarus.on("message", (event: {data: string}) => {
 				const message = JSON.parse(event.data);
 				messages.push(message);
 			});
 
 			await hubClient.isReady();
-			const ws = Array.from(hub.wss.clients)[0] as any;
+			const ws = Array.from(hub.wss.clients)[0] as WebSocketWithClientId;
 			await hub.kick({ ws });
 			await delay(100);
 		});
@@ -314,7 +314,7 @@ describe("Hub", () => {
 		});
 
 		it("should send a RPC action to the client to stop them from automatically reconnecting", async () => {
-			const lastMessage = messages[messages.length - 1];
+			const lastMessage = messages[messages.length - 1] as { type: string, action: string, data: string};
 			assert.strictEqual(lastMessage.type, "request");
 			assert.strictEqual(lastMessage.action, "kick");
 			assert.strictEqual(lastMessage.data, "Server has kicked the client");

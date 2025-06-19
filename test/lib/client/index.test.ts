@@ -29,8 +29,8 @@ describe("Client library", () => {
 		it("should add a function to call when a message is received for a channel", async () => {
 			await hubClient.subscribe("news");
 			let handlerFunctionCalled = false;
-			let messageReceived: any = null;
-			const handlerFunction = (message: any) => {
+			let messageReceived: unknown = null;
+			const handlerFunction = (message: unknown) => {
 				messageReceived = message;
 				handlerFunctionCalled = true;
 			};
@@ -47,11 +47,11 @@ describe("Client library", () => {
 			});
 			await delayUntil(() => handlerFunctionCalled);
 			assert.strictEqual(
-				messageReceived.title,
+				(messageReceived as {title:string, url:string}).title,
 				"Sadio Mane: Liverpool forward isolating after positive coronavirus test",
 			);
 			assert.strictEqual(
-				messageReceived.url,
+				(messageReceived as {title:string, url:string}).url,
 				"http://bbc.co.uk/sport/football/54396525",
 			);
 		});

@@ -241,7 +241,7 @@ class PubSub {
 		}
 	}
 
-	async publish({ data, socket }: { data: { channel: string, message: DataType, excludeSender?: boolean}; socket: WebSocketWithClientId }) {
+	async publish({ data, socket }: { data: { channel: string, message: DataType, excludeSender?: boolean}; socket?: WebSocketWithClientId }) {
 		const clientId = socket?.clientId;
 		const { channel, message, excludeSender } = data;
 		const channelConfiguration = this.getChannelConfiguration(channel);
