@@ -4,7 +4,7 @@
 import type { SarusClassParams } from "@anephenix/sarus";
 import type Sarus from "@anephenix/sarus";
 import type dataStores from "./dataStores";
-import type { WebSocket, Data } from 'ws';
+import type { WebSocket, Data, CloseEvent } from 'ws';
 import type { IncomingMessage } from "node:http";
 
 /* DataTransformer */
