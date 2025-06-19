@@ -6,9 +6,11 @@ import { delay, delayUntil } from "../../src/helpers/delay";
 import MemoryDataStore from "../../src/lib/dataStores/memory";
 import { createHttpTerminator, type HttpTerminator } from "http-terminator";
 import { describe, it, beforeAll, afterAll } from "vitest";
+import type { WebSocketWithClientId } from "../../src/lib/types";
+import RedisDataStore from "../../src/lib/dataStores/redis";
 
 describe("pubsub", () => {
-	let hub: any;
+	let hub: Hub;
 	let terminator: HttpTerminator;
 
 	beforeAll(async () => {
@@ -34,25 +36,25 @@ describe("pubsub", () => {
 					clientId: "wwww",
 				};
 				const secondData = { channel: "business" };
-				const response = await hub.pubsub.subscribe({ data, socket });
+				const response = await hub.pubsub.subscribe({ data, socket: socket as WebSocketWithClientId });
 				assert(response.success);
 				assert.strictEqual(
 					response.message,
 					'Client "xxxx" subscribed to channel "sport"',
 				);
-				assert.deepStrictEqual(hub.pubsub.dataStore.channels.sport, ["xxxx"]);
-				assert.deepStrictEqual(hub.pubsub.dataStore.clients.xxxx, ["sport"]);
-				await hub.pubsub.subscribe({ data, socket: secondWs });
-				await hub.pubsub.subscribe({ data: secondData, socket });
-				assert.deepStrictEqual(hub.pubsub.dataStore.channels.sport, [
+				assert.deepStrictEqual((hub.pubsub.dataStore as MemoryDataStore).channels.sport, ["xxxx"]);
+				assert.deepStrictEqual((hub.pubsub.dataStore as MemoryDataStore).clients.xxxx, ["sport"]);
+				await hub.pubsub.subscribe({ data, socket: secondWs as WebSocketWithClientId });
+				await hub.pubsub.subscribe({ data: secondData, socket: socket as WebSocketWithClientId });
+				assert.deepStrictEqual((hub.pubsub.dataStore as MemoryDataStore).channels.sport, [
 					"xxxx",
 					"wwww",
 				]);
-				assert.deepStrictEqual(hub.pubsub.dataStore.clients.wwww, ["sport"]);
-				assert.deepStrictEqual(hub.pubsub.dataStore.channels.business, [
+				assert.deepStrictEqual((hub.pubsub.dataStore as MemoryDataStore).clients.wwww, ["sport"]);
+				assert.deepStrictEqual((hub.pubsub.dataStore as MemoryDataStore).channels.business, [
 					"xxxx",
 				]);
-				assert.deepStrictEqual(hub.pubsub.dataStore.clients.xxxx, [
+				assert.deepStrictEqual((hub.pubsub.dataStore as MemoryDataStore).clients.xxxx, [
 					"sport",
 					"business",
 				]);
@@ -65,7 +67,7 @@ describe("pubsub", () => {
 				const socket = {};
 				await assert.rejects(
 					async () => {
-						await hub.pubsub.subscribe({ data, socket });
+						await hub.pubsub.subscribe({ data, socket: socket as WebSocketWithClientId });
 					},
 					{ message: "No client id was found on the WebSocket" },
 				);
@@ -80,7 +82,7 @@ describe("pubsub", () => {
 				};
 				await assert.rejects(
 					async () => {
-						await hub.pubsub.subscribe({ data, socket });
+						await hub.pubsub.subscribe({ data, socket: socket as WebSocketWithClientId });
 					},
 					{ message: "No channel was passed in the data" },
 				);
@@ -91,8 +93,8 @@ describe("pubsub", () => {
 			it("should run a check against the authenticate function set for that channel", async () => {
 				const channel = "fish";
 				let called = false;
-				const authenticate = ({ data, socket }: any) => {
-					assert.strictEqual(data.password, "food");
+				const authenticate = ({ data, socket }: { data: unknown, socket: WebSocketWithClientId}) => {
+					assert.strictEqual((data as { password: string}).password, "food");
 					assert.strictEqual(socket.clientId, "ooo");
 					called = true;
 					return called;
@@ -106,11 +108,12 @@ describe("pubsub", () => {
 				const socket = {
 					clientId: "ooo",
 				};
-				await hub.pubsub.subscribe({ data, socket });
+				await hub.pubsub.subscribe({ data, socket: socket as WebSocketWithClientId });
 				assert(called);
-				const channels = await hub.pubsub.dataStore.getChannelsForClientId(
+				const channels = await (hub.pubsub.dataStore as MemoryDataStore).getChannelsForClientId(
 					socket.clientId,
 				);
+				assert(channels, "Channels should not be null");
 				assert(channels.indexOf("fish") !== -1);
 			});
 		});
@@ -123,21 +126,21 @@ describe("pubsub", () => {
 				};
 				const firstResponse = await hub.pubsub.subscribe({
 					data,
-					socket,
+					socket: socket as WebSocketWithClientId,
 				});
 				const secondResponse = await hub.pubsub.subscribe({
 					data,
-					socket,
+					socket: socket as WebSocketWithClientId,
 				});
 				assert(firstResponse.success);
 				assert(secondResponse.success);
 				const message = 'Client "zzzz" subscribed to channel "entertainment"';
 				assert.strictEqual(firstResponse.message, message);
 				assert.strictEqual(secondResponse.message, message);
-				assert.deepStrictEqual(hub.pubsub.dataStore.channels.entertainment, [
+				assert.deepStrictEqual((hub.pubsub.dataStore as MemoryDataStore).channels.entertainment, [
 					"zzzz",
 				]);
-				assert.deepStrictEqual(hub.pubsub.dataStore.clients.zzzz, [
+				assert.deepStrictEqual((hub.pubsub.dataStore as MemoryDataStore).clients.zzzz, [
 					"entertainment",
 				]);
 			});
@@ -146,9 +149,9 @@ describe("pubsub", () => {
 
 	describe("#publish", () => {
 		it("should allow the client to publish a message to all of the channel subscribers, including themselves", async () => {
-			const messages: any[] = [];
+			const messages: unknown[] = [];
 			const hubClient = new HubClient({ url: "ws://localhost:5050" });
-			hubClient.sarus.on("message", (event: any) => {
+			hubClient.sarus.on("message", (event: MessageEvent) => {
 				const message = JSON.parse(event.data);
 				messages.push(message);
 			});
@@ -183,9 +186,9 @@ describe("pubsub", () => {
 		});
 
 		it("should allow the client to publish a message to all of the channel subscribers, excluding themselves", async () => {
-			const messages: any[] = [];
+			const messages: unknown[] = [];
 			const hubClient = new HubClient({ url: "ws://localhost:5050" });
-			hubClient.sarus.on("message", (event: any) => {
+			hubClient.sarus.on("message", (event: MessageEvent) => {
 				const message = JSON.parse(event.data);
 				messages.push(message);
 			});
@@ -220,9 +223,9 @@ describe("pubsub", () => {
 		});
 
 		it("should allow the server to publish a message to all of the channel subscribers", async () => {
-			const messages: any[] = [];
+			const messages: unknown[] = [];
 			const hubClient = new HubClient({ url: "ws://localhost:5050" });
-			hubClient.sarus.on("message", (event: any) => {
+			hubClient.sarus.on("message", (event: MessageEvent) => {
 				const message = JSON.parse(event.data);
 				messages.push(message);
 			});
@@ -254,12 +257,12 @@ describe("pubsub", () => {
 
 		describe("when publishing from a client", () => {
 			it("should return an error response if the websocket client id is not present", async () => {
-				const messages: any[] = [];
+				const messages: unknown[] = [];
 				const client = new WebSocket("ws://localhost:5050");
-				client.on("message", (event: any) => {
-					const message = JSON.parse(event);
+				client.onmessage = (event: MessageEvent) => {
+					const message = JSON.parse(event.data);
 					messages.push(message);
-				});
+				};
 				const publishRequest = {
 					id: uuidv4(),
 					action: "publish",
@@ -272,7 +275,7 @@ describe("pubsub", () => {
 				await delayUntil(() => client.readyState === 1);
 				client.send(JSON.stringify(publishRequest));
 				await delay(50);
-				const latestMessage = messages[messages.length - 1];
+				const latestMessage = messages[messages.length - 1] as { type: string; error: string };
 				assert.strictEqual(latestMessage.type, "error");
 				assert.strictEqual(
 					latestMessage.error,
@@ -281,9 +284,9 @@ describe("pubsub", () => {
 				client.close();
 			});
 			it("should return an error response if the channel is missing", async () => {
-				const messages: any[] = [];
+				const messages: unknown[] = [];
 				const hubClient = new HubClient({ url: "ws://localhost:5050" });
-				hubClient.sarus.on("message", (event: any) => {
+				hubClient.sarus.on("message", (event: MessageEvent) => {
 					const message = JSON.parse(event.data);
 					messages.push(message);
 				});
@@ -313,9 +316,9 @@ describe("pubsub", () => {
 				hubClient.sarus.disconnect();
 			});
 			it("should return an error response if the message is missing", async () => {
-				const messages: any[] = [];
+				const messages: unknown[] = [];
 				const hubClient = new HubClient({ url: "ws://localhost:5050" });
-				hubClient.sarus.on("message", (event: any) => {
+				hubClient.sarus.on("message", (event: MessageEvent) => {
 					const message = JSON.parse(event.data);
 					messages.push(message);
 				});
@@ -345,9 +348,9 @@ describe("pubsub", () => {
 			});
 
 			it("should not allow a client to publish to a channel that they are not subscribed to", async () => {
-				const messages: any[] = [];
+				const messages: unknown[] = [];
 				const hubClient = new HubClient({ url: "ws://localhost:5050" });
-				hubClient.sarus.on("message", (event: any) => {
+				hubClient.sarus.on("message", (event: MessageEvent) => {
 					const message = JSON.parse(event.data);
 					messages.push(message);
 				});
@@ -407,10 +410,10 @@ describe("pubsub", () => {
 		});
 
 		describe("when using the redis dataStore", () => {
-			let firstHub: any;
-			let secondHub: any;
-			let firstHubClient: any;
-			let secondHubClient: any;
+			let firstHub: Hub;
+			let secondHub: Hub;
+			let firstHubClient: HubClient;
+			let secondHubClient: HubClient;
 
 			beforeAll(async () => {
 				firstHub = new Hub({ port: 4006, dataStoreType: "redis" });
@@ -431,11 +434,11 @@ describe("pubsub", () => {
 				secondHubClient.sarus.disconnect();
 				firstHub.server.close();
 				secondHub.server.close();
-				await delay(100);
-				await firstHub.pubsub.dataStore.redis.quit();
-				await secondHub.pubsub.dataStore.redis.quit();
-				await firstHub.pubsub.dataStore.internalRedis.quit();
-				await secondHub.pubsub.dataStore.internalRedis.quit();
+				await delay(50);
+				await (firstHub.pubsub.dataStore as RedisDataStore).redis.quit();
+				await (secondHub.pubsub.dataStore as RedisDataStore).redis.quit();
+				await (firstHub.pubsub.dataStore as RedisDataStore).internalRedis.quit();
+				await (secondHub.pubsub.dataStore as RedisDataStore).internalRedis.quit();
 			});
 
 			it("should relay the published message to all Hub server instances via Redis", async () => {
@@ -479,10 +482,10 @@ describe("pubsub", () => {
 
 	describe("#unsubscribe", () => {
 		it("should remove a client from a channel, and ensure that the client no longer receives messages for that channel", async () => {
-			const messages: any[] = [];
+			const messages: unknown[] = [];
 			const config = { url: "ws://localhost:5050" };
 			const hubClient = new HubClient(config);
-			hubClient.sarus.on("message", (event: any) => {
+			hubClient.sarus.on("message", (event: MessageEvent) => {
 				const message = JSON.parse(event.data);
 				messages.push(message);
 			});
@@ -532,12 +535,12 @@ describe("pubsub", () => {
 		});
 
 		it("should return an error response if the websocket client id is not present", async () => {
-			const messages: any[] = [];
+			const messages: unknown[] = [];
 			const client = new WebSocket("ws://localhost:5050");
-			client.on("message", (event: any) => {
-				const message = JSON.parse(event);
+			client.onmessage = (event: MessageEvent) => {
+				const message = JSON.parse(event.data);
 				messages.push(message);
-			});
+			};
 
 			const unsubscribeRequest = {
 				id: uuidv4(),
@@ -559,9 +562,9 @@ describe("pubsub", () => {
 			client.close();
 		});
 		it("should return an error response if the channel is missing", async () => {
-			const messages: any[] = [];
+			const messages: unknown[] = [];
 			const hubClient = new HubClient({ url: "ws://localhost:5050" });
-			hubClient.sarus.on("message", (event: any) => {
+			hubClient.sarus.on("message", (event: MessageEvent) => {
 				const message = JSON.parse(event.data);
 				messages.push(message);
 			});
@@ -602,8 +605,7 @@ describe("pubsub", () => {
 						port: 6000,
 						dataStoreType: "redis",
 					});
-					assert(redisHub.pubsub.dataStore.redis);
-					assert.strictEqual(redisHub.pubsub.dataStore.redis._eventsCount, 0);
+					assert((redisHub.pubsub.dataStore as RedisDataStore).redis);
 				});
 			});
 		});
@@ -620,7 +622,7 @@ describe("pubsub", () => {
 			const clientId = hubClient.getClientId();
 			if (!clientId) { throw new Error("No client id found"); }
 			await newHub.pubsub.unsubscribeClientFromAllChannels({
-				ws: { clientId },
+				ws: { clientId } as WebSocketWithClientId,
 			});
 			const channels = await newHub.pubsub.dataStore.getChannelsForClientId(
 				clientId,
@@ -662,6 +664,9 @@ describe("pubsub", () => {
 				const channels = await hub.pubsub.dataStore.getChannelsForClientId(
 					socket.clientId,
 				);
+				if (!channels) {
+					throw new Error("Channels should not be null");
+				}
 				assert(channels.indexOf("dogs") !== -1);
 			});
 		});

@@ -3,19 +3,15 @@ import { v4 as uuidv4 } from "uuid";
 import { requestClientId, checkHasClientId } from "../../src/lib/clientId";
 import RPC from "../../src/lib/rpc";
 import { describe, it, beforeAll } from "vitest";
-
-interface TestWebSocket {
-	send: (message: string) => void;
-	clientId?: string;
-}
+import type { WebSocketWithClientId } from "../../src/lib/types";
 
 describe("clientId", () => {
 	let rpc: RPC;
 	let requestId: string;
 	const messages: string[] = [];
 	const nonClientMessages: string[] = [];
-	let ws: TestWebSocket;
-	let nonClientWs: TestWebSocket;
+	let ws: WebSocketWithClientId;
+	let nonClientWs: WebSocketWithClientId;
 	let clientId: string;
 
 	beforeAll(() => {
@@ -38,7 +34,7 @@ describe("clientId", () => {
 					rpc.receive({ message: JSON.stringify(reply), ws });
 				}
 			},
-		};
+		} as WebSocketWithClientId;
 		nonClientWs = {
 			send: (message: string) => {
 				nonClientMessages.push(message);
@@ -67,7 +63,7 @@ describe("clientId", () => {
 					});
 				}
 			},
-		};
+		} as WebSocketWithClientId;;
 	});
 
 	describe("requestClientId", () => {
@@ -105,25 +101,25 @@ describe("clientId", () => {
 	describe("#checkHasClientId", () => {
 		describe("when the websocket has a clientId set", () => {
 			it("should return true", async () => {
-				let dataReceived: any;
+				let dataReceived: unknown;
 				const socket = ws;
-				const reply = ({ data }: { data: any }) => {
+				const reply = ({ data }: { data: unknown }) => {
 					dataReceived = data;
 				};
 				await checkHasClientId({ socket, reply });
-				assert.strictEqual(dataReceived.hasClientId, true);
+				assert.strictEqual((dataReceived as {hasClientId: boolean }).hasClientId, true);
 			});
 		});
 
 		describe("when the websocket does not have a clientId set", () => {
 			it("should return false", async () => {
-				let dataReceived: any;
-				const socket: Partial<TestWebSocket> = {};
-				const reply = ({ data }: { data: any }) => {
+				let dataReceived: unknown;
+				const socket = {} as WebSocketWithClientId;
+				const reply = ({ data }: { data: unknown }) => {
 					dataReceived = data;
 				};
 				await checkHasClientId({ socket, reply });
-				assert.strictEqual(dataReceived.hasClientId, false);
+				assert.strictEqual((dataReceived as {hasClientId: boolean }).hasClientId, false);
 			});
 		});
 	});
