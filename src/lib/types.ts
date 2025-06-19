@@ -71,7 +71,7 @@ type ServerEventListeners = {
 }
 
 type ConnectionEventListeners = {
-	message: Array<(args: { data?: unknown, message: Data; ws: WebSocket }) => void>;
+	message: Array<(args: { data?: unknown, message: string; ws: WebSocket }) => void>;
 	close: Array<
 		(args: { event: CloseEvent; ws: WebSocket }) => void
 	>;

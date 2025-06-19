@@ -228,7 +228,7 @@ class Hub {
 		req: http.IncomingMessage,
 	) {
 		const { connectionEventListeners, setHostAndIp } = this;
-		ws.on("message", (message: Data) => {
+		ws.on("message", (message: string) => {
 			for (const func of connectionEventListeners.message) {
 				func({ message, ws });
 			}

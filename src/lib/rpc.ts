@@ -68,9 +68,9 @@ class RPC {
 		});
 	}
 
-	setMessageAndSocket({ params, sarus }: { params: {data: unknown, message: string, ws: WebSocket }; sarus?: Sarus }) {
+	setMessageAndSocket({ params, sarus }: { params: {data?: unknown, message: string, ws: WebSocketWithClientId }; sarus?: Sarus }) {
 		let message: string;
-		let ws: WebSocket | undefined;
+		let ws: WebSocketWithClientId | undefined;
 		if (sarus) {
 			message = params.data as string;
 		} else {
@@ -153,7 +153,7 @@ class RPC {
 		}
 	}
 
-	receive(params: { data?: unknown; message: string; ws: WebSocket }) {
+	receive(params: { data?: unknown; message: string; ws: WebSocketWithClientId }) {
 		const { requests, responses } = this;
 		const sarus = this.sarus;
 		const { message, ws } = this.setMessageAndSocket({ sarus, params });
