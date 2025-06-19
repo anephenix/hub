@@ -77,7 +77,7 @@ class RPC {
 			message = params.message as string;
 			ws = params.ws;
 		}
-		return { message, ws } as { message: string; ws: WebSocket | undefined };
+		return { message, ws } as { message: string; ws: WebSocketWithClientId | undefined };
 	}
 
 	setupReply({
