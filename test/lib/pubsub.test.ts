@@ -7,7 +7,7 @@ import MemoryDataStore from "../../src/lib/dataStores/memory";
 import { createHttpTerminator, type HttpTerminator } from "http-terminator";
 import { describe, it, beforeAll, afterAll } from "vitest";
 import type { WebSocketWithClientId } from "../../src/lib/types";
-import RedisDataStore from "../../src/lib/dataStores/redis";
+import type RedisDataStore from "../../src/lib/dataStores/redis";
 
 describe("pubsub", () => {
 	let hub: Hub;
@@ -161,7 +161,7 @@ describe("pubsub", () => {
 			// Acknowledge the channel subscription
 			// @ts-ignore
 			const clientId = global.localStorage.getItem("sarus-client-id");
-			const latestMessage = messages[messages.length - 1];
+			const latestMessage = messages[messages.length - 1] as { type: string; data: { success: boolean; message: string } };
 			if (!latestMessage) throw new Error("No messages intercepted");
 			assert.strictEqual(latestMessage.data.success, true);
 			assert.strictEqual(
@@ -172,8 +172,8 @@ describe("pubsub", () => {
 			// Get the client to publish a message to the channel
 			await hubClient.publish("politics", "Elections held");
 			// Check that the client receives the messages
-			const thePreviousLatestMessage = messages[messages.length - 2];
-			const theNextLatestMessage = messages[messages.length - 1];
+			const thePreviousLatestMessage = messages[messages.length - 2] as { action: string; data: { channel: string; message: string } };
+			const theNextLatestMessage = messages[messages.length - 1] as { action: string; data: { success: boolean, channel: string; message: string } };
 			assert.strictEqual(thePreviousLatestMessage.action, "message");
 			assert.strictEqual(thePreviousLatestMessage.data.channel, "politics");
 			assert.strictEqual(
@@ -198,7 +198,7 @@ describe("pubsub", () => {
 			// Acknowledge the channel subscription
 			// @ts-ignore
 			const clientId = global.localStorage.getItem("sarus-client-id");
-			const latestMessage = messages[messages.length - 1];
+			const latestMessage = messages[messages.length - 1] as { type: string; data: { success: boolean; message: string } };
 			if (!latestMessage) throw new Error("No messages intercepted");
 			assert.strictEqual(latestMessage.data.success, true);
 			assert.strictEqual(
@@ -209,8 +209,8 @@ describe("pubsub", () => {
 			// Get the client to publish a message to the channel
 			await hubClient.publish("showbiz", "Oscars ceremony to be virtual", true);
 			// Check that the client does not receive the message
-			const thePreviousLatestMessage = messages[messages.length - 2];
-			const theNextLatestMessage = messages[messages.length - 1];
+			const thePreviousLatestMessage = messages[messages.length - 2] as { action: string; data: { channel: string; message: string } };
+			const theNextLatestMessage = messages[messages.length - 1] as { action: string; data: { success: boolean; message: string } };
 			assert.notStrictEqual(thePreviousLatestMessage.action, "message");
 			assert.strictEqual(thePreviousLatestMessage.action, "subscribe");
 			assert.strictEqual(theNextLatestMessage.action, "publish");
@@ -235,7 +235,7 @@ describe("pubsub", () => {
 			// Acknowledge the channel subscription
 			// @ts-ignore
 			const clientId = global.localStorage.getItem("sarus-client-id");
-			const latestMessage = messages[messages.length - 1];
+			const latestMessage = messages[messages.length - 1] as { type: string; data: { success: boolean; message: string } };
 			if (!latestMessage) throw new Error("No messages intercepted");
 			assert.strictEqual(latestMessage.data.success, true);
 			assert.strictEqual(
@@ -248,7 +248,7 @@ describe("pubsub", () => {
 			});
 			await delay(25);
 			// Check that the client receives the message
-			const theNextLatestMessage = messages[messages.length - 1];
+			const theNextLatestMessage = messages[messages.length - 1] as { action: string; data: { channel: string; message: string } };
 			assert.strictEqual(theNextLatestMessage.action, "message");
 			assert.strictEqual(theNextLatestMessage.data.channel, "markets");
 			assert.strictEqual(theNextLatestMessage.data.message, "FTSE: 5845 (-5)");
@@ -296,7 +296,7 @@ describe("pubsub", () => {
 				// Acknowledge the channel subscription
 				// @ts-ignore
 				const clientId = global.localStorage.getItem("sarus-client-id");
-				const latestMessage = messages[messages.length - 1];
+				const latestMessage = messages[messages.length - 1] as { type: string; data: { success: boolean; message: string } };
 				if (!latestMessage) throw new Error("No messages intercepted");
 				assert.strictEqual(latestMessage.data.success, true);
 				assert.strictEqual(
@@ -305,9 +305,9 @@ describe("pubsub", () => {
 				);
 
 				// Get the client to publish a message to the channel
-				await hubClient.publish(null as any, "Oscars ceremony to be virtual");
+				await hubClient.publish("", "Oscars ceremony to be virtual");
 				// Check that the client receives the message
-				const theNextLatestMessage = messages[messages.length - 1];
+				const theNextLatestMessage = messages[messages.length - 1] as { type: string; error: string };
 				assert.strictEqual(theNextLatestMessage.type, "error");
 				assert.strictEqual(
 					theNextLatestMessage.error,
@@ -328,7 +328,7 @@ describe("pubsub", () => {
 				// Acknowledge the channel subscription
 				// @ts-ignore
 				const clientId = global.localStorage.getItem("sarus-client-id");
-				const latestMessage = messages[messages.length - 1];
+				const latestMessage = messages[messages.length - 1] as { type: string; data: { success: boolean; message: string } };
 				if (!latestMessage) throw new Error("No messages intercepted");
 				assert.strictEqual(latestMessage.data.success, true);
 				assert.strictEqual(
@@ -336,9 +336,9 @@ describe("pubsub", () => {
 					`Client "${clientId}" subscribed to channel "showbiz"`,
 				);
 				// Get the client to publish a message to the channel
-				await hubClient.publish("showbiz", null as any);
+				await hubClient.publish("showbiz", null);
 				// Check that the client receives the message
-				const theNextLatestMessage = messages[messages.length - 1];
+				const theNextLatestMessage = messages[messages.length - 1] as { type: string; error: string };
 				assert.strictEqual(theNextLatestMessage.type, "error");
 				assert.strictEqual(
 					theNextLatestMessage.error,
@@ -360,7 +360,7 @@ describe("pubsub", () => {
 				// Get the client to publish a message to the channel
 				await hubClient.publish("dashboard_y", "Some data");
 				// Check that the client receives the message
-				const theNextLatestMessage = messages[messages.length - 1];
+				const theNextLatestMessage = messages[messages.length - 1] as { type: string; error: string };
 				assert.strictEqual(theNextLatestMessage.type, "error");
 				assert.strictEqual(
 					theNextLatestMessage.error,
@@ -375,6 +375,7 @@ describe("pubsub", () => {
 				await assert.rejects(
 					async () => {
 						await hub.pubsub.publish({
+							// @ts-ignore - deliberately missing channel - NOTE TypeScript will highlight missing props, so maybe we can remove this test?
 							data: {
 								message: "FTSE: 5845 (-5)",
 							},
@@ -388,6 +389,7 @@ describe("pubsub", () => {
 				await assert.rejects(
 					async () => {
 						await hub.pubsub.publish({
+							// @ts-ignore - deliberately missing message - NOTE TypeScript will highlight missing props, so maybe we can remove this test?
 							data: {
 								channel: "markets",
 							},
@@ -442,11 +444,11 @@ describe("pubsub", () => {
 			});
 
 			it("should relay the published message to all Hub server instances via Redis", async () => {
-				let firstClientMessage: any;
+				let firstClientMessage: unknown;
 				let firstClientReceivesMessage = false;
-				let secondClientMessage: any;
+				let secondClientMessage: unknown;
 				let secondClientReceivesMessage = false;
-				const firstClientHandlerFunction = (message: any) => {
+				const firstClientHandlerFunction = (message) => {
 					firstClientMessage = message;
 					firstClientReceivesMessage = true;
 				};
@@ -454,7 +456,7 @@ describe("pubsub", () => {
 					"news",
 					firstClientHandlerFunction,
 				);
-				const secondClientHandlerFunction = (message: any) => {
+				const secondClientHandlerFunction = (message) => {
 					secondClientMessage = message;
 					secondClientReceivesMessage = true;
 				};
@@ -495,7 +497,7 @@ describe("pubsub", () => {
 			// Acknowledge the channel subscription
 			// @ts-ignore
 			const clientId = global.localStorage.getItem("sarus-client-id");
-			const latestMessage = messages[messages.length - 1];
+			const latestMessage = messages[messages.length - 1] as { type: string; data: { success: boolean; message: string } };
 			if (!latestMessage) throw new Error("No messages intercepted");
 			assert.strictEqual(latestMessage.data.success, true);
 			assert.strictEqual(
@@ -504,7 +506,7 @@ describe("pubsub", () => {
 			);
 			// Subscribe the client to the channel
 			await hubClient.unsubscribe("markets");
-			const theNextLatestMessage = messages[messages.length - 1];
+			const theNextLatestMessage = messages[messages.length - 1] as { type: string; data: { success: boolean; message: string } };
 			assert.strictEqual(theNextLatestMessage.data.success, true);
 			assert.strictEqual(
 				theNextLatestMessage.data.message,
@@ -528,7 +530,7 @@ describe("pubsub", () => {
 			await delay(25);
 
 			// Check that the client does not receive the message
-			const theFinalLatestMessage = messages[messages.length - 1];
+			const theFinalLatestMessage = messages[messages.length - 1] as { action: string; data: { channel: string; message: string } };
 			assert.notStrictEqual(theFinalLatestMessage.action, "message");
 			hubClient.sarus.disconnect();
 			otherHubClient.sarus.disconnect();
@@ -553,7 +555,7 @@ describe("pubsub", () => {
 			await delayUntil(() => client.readyState === 1);
 			client.send(JSON.stringify(unsubscribeRequest));
 			await delay(50);
-			const latestMessage = messages[messages.length - 1];
+			const latestMessage = messages[messages.length - 1] as { type: string; error: string };
 			assert.strictEqual(latestMessage.type, "error");
 			assert.strictEqual(
 				latestMessage.error,
@@ -572,9 +574,8 @@ describe("pubsub", () => {
 			// Subscribe the client to the channel
 			await hubClient.subscribe("markets");
 			// Acknowledge the channel subscription
-			// @ts-ignore
 			const clientId = global.localStorage.getItem("sarus-client-id");
-			const latestMessage = messages[messages.length - 1];
+			const latestMessage = messages[messages.length - 1] as { type: string; data: { success: boolean; message: string } };
 			if (!latestMessage) throw new Error("No messages intercepted");
 			assert.strictEqual(latestMessage.data.success, true);
 			assert.strictEqual(
@@ -582,8 +583,8 @@ describe("pubsub", () => {
 				`Client "${clientId}" subscribed to channel "markets"`,
 			);
 			// Unsubscribe the client from the channel
-			await hubClient.unsubscribe(null as any);
-			const theNextLatestMessage = messages[messages.length - 1];
+			await hubClient.unsubscribe("");
+			const theNextLatestMessage = messages[messages.length - 1] as { type: string; error: string };
 			assert.strictEqual(theNextLatestMessage.type, "error");
 			assert.strictEqual(
 				theNextLatestMessage.error,
@@ -641,7 +642,7 @@ describe("pubsub", () => {
 			it("should add a channel with an authenticate function to call during subscription requests", async () => {
 				const channel = "dogs";
 				let called = false;
-				const authenticate = ({ data, socket }: any) => {
+				const authenticate = ({ data, socket }) => {
 					assert.strictEqual(data.password, "food");
 					assert.strictEqual(socket.clientId, "woof");
 					called = true;
@@ -659,7 +660,7 @@ describe("pubsub", () => {
 				const socket = {
 					clientId: "woof",
 				};
-				await hub.pubsub.subscribe({ data, socket });
+				await hub.pubsub.subscribe({ data, socket: socket as WebSocketWithClientId });
 				assert(called);
 				const channels = await hub.pubsub.dataStore.getChannelsForClientId(
 					socket.clientId,
@@ -676,7 +677,7 @@ describe("pubsub", () => {
 				// create a channel configuration for multiple dashboards
 				const wildcardChannel = "dashboard_*";
 				let callCount = 0;
-				const authenticate = ({ data, socket }: any) => {
+				const authenticate = ({ data, socket }) => {
 					assert.strictEqual(data.password, "opensesame");
 					assert.strictEqual(socket.clientId, "viewer");
 					callCount++;
@@ -707,21 +708,27 @@ describe("pubsub", () => {
 				const socket = {
 					clientId: "viewer",
 				};
-				await hub.pubsub.subscribe({ data, socket });
-				assert(callCount === 1);
+				await hub.pubsub.subscribe({ data, socket: socket as WebSocketWithClientId });
+				assert.strictEqual(callCount, 1);
 				const channels = await hub.pubsub.dataStore.getChannelsForClientId(
 					socket.clientId,
 				);
+				if (!channels) {
+					throw new Error("channelsTwo should not be null");
+				}
 				assert(channels.indexOf("dashboard_e220j92") !== -1);
 				const dataTwo = {
 					channel: "dashboard_29jd92j",
 					password: "opensesame",
 				};
-				await hub.pubsub.subscribe({ data: dataTwo, socket });
-				assert(callCount === 2);
+				await hub.pubsub.subscribe({ data: dataTwo, socket: socket as WebSocketWithClientId });
+				assert.strictEqual(callCount, 2);
 				const channelsTwo = await hub.pubsub.dataStore.getChannelsForClientId(
 					socket.clientId,
 				);
+				if (!channelsTwo) {
+					throw new Error("channelsTwo should not be null");
+				}
 				assert(channelsTwo.indexOf("dashboard_29jd92j") !== -1);
 				assert.strictEqual(otherCallCount, 0);
 			});
@@ -737,7 +744,7 @@ describe("pubsub", () => {
 				const normalChannelFive = "de";
 
 				// Just an example
-				const authenticate = ({ data }: any) => {
+				const authenticate = ({ data }) => {
 					return data.password === "xyz";
 				};
 				hub.pubsub.addChannelConfiguration({
@@ -797,7 +804,7 @@ describe("pubsub", () => {
 			describe("and the value is true", () => {
 				it("should allow the client to publish to the channel", async () => {
 					const channelAllowed = "birds";
-					let messageReceived: any;
+					let messageReceived: unknown;
 					hub.pubsub.addChannelConfiguration({
 						channel: channelAllowed,
 						clientCanPublish: true,
@@ -807,7 +814,7 @@ describe("pubsub", () => {
 					});
 					await hubClient.isReady();
 					await hubClient.subscribe(channelAllowed);
-					hubClient.addChannelMessageHandler(channelAllowed, (message: any) => {
+					hubClient.addChannelMessageHandler(channelAllowed, (message) => {
 						messageReceived = message;
 					});
 					await hubClient.publish(channelAllowed, "hello everyone");
@@ -817,7 +824,7 @@ describe("pubsub", () => {
 
 			describe("and the value is false", () => {
 				it("should not allow the client to publish to the channel", async () => {
-					let messageReceived: any;
+					let messageReceived: unknown;
 					const channelNotAllowed = "crocadiles";
 					hub.pubsub.addChannelConfiguration({
 						channel: channelNotAllowed,
@@ -830,7 +837,7 @@ describe("pubsub", () => {
 					await hubClient.subscribe(channelNotAllowed);
 					hubClient.addChannelMessageHandler(
 						channelNotAllowed,
-						(message: any) => {
+						(message: unknown) => {
 							messageReceived = message;
 						},
 					);
@@ -846,12 +853,13 @@ describe("pubsub", () => {
 			describe("and the value is a function", () => {
 				it("should be passed the data and the socket", async () => {
 					const channelAllowed = "lizards";
-					let messageReceived: any;
-					let dataPassed: any;
-					let socketPassed: any;
-					const clientCanPublish = ({ data, socket }: any) => {
+					let messageReceived: unknown;
+					let dataPassed: unknown;
+					let socketPassed: WebSocketWithClientId;
+					const clientCanPublish = ({ data, socket }) => {
 						dataPassed = data;
 						socketPassed = socket;
+						assert.strictEqual(socketPassed.clientId, hubClient.getClientId());
 						return true;
 					};
 					hub.pubsub.addChannelConfiguration({
@@ -863,14 +871,13 @@ describe("pubsub", () => {
 					});
 					await hubClient.isReady();
 					await hubClient.subscribe(channelAllowed);
-					hubClient.addChannelMessageHandler(channelAllowed, (message: any) => {
+					hubClient.addChannelMessageHandler(channelAllowed, (message: unknown) => {
 						messageReceived = message;
 					});
 					await hubClient.publish(channelAllowed, "hello everyone");
 					assert.strictEqual(messageReceived, "hello everyone");
-					assert.strictEqual(dataPassed.channel, channelAllowed);
-					assert.strictEqual(dataPassed.message, "hello everyone");
-					assert.strictEqual(socketPassed.clientId, hubClient.getClientId());
+					assert.strictEqual((dataPassed as { channel: string, message: string}).channel, channelAllowed);
+					assert.strictEqual((dataPassed as { channel: string, message: string}).message, "hello everyone");
 				});
 			});
 		});
