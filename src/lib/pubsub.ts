@@ -5,9 +5,12 @@ import type {
 	DataStoreInstance,
 	PublishMessageReceivedParams,
 	WebSocketWithClientId,
+	RPCFunctionArgs,
+	RPCFunction,
 } from "./types";
 import type { WebSocketServer } from "ws";
 import type RPC from "./rpc";
+import type Sarus from "@anephenix/sarus";
 
 const noClientIdError = "No client id was found on the WebSocket";
 const noChannelError = "No channel was passed in the data";
@@ -67,33 +70,29 @@ class PubSub {
 	}
 
 	attachPubSubFunction(pubSubName: "subscribe" | "publish" | "unsubscribe") {
-		const pubSubFunction = async ({
+		const pubSubFunction:RPCFunction = async ({
 			data,
 			socket,
 			reply,
-		}: {
-			data: unknown;
-			socket: WebSocketWithClientId;
-			reply: (response: unknown) => void;
-		}) => {
+		}: RPCFunctionArgs) => {
 			try {
 				const pubSubMethod = this[pubSubName] as (params: {
 					data: unknown;
-					socket: WebSocketWithClientId;
+					socket: WebSocketWithClientId | Sarus | undefined;
 				}) => Promise<unknown>;
 				const response = await pubSubMethod({ data, socket });
-				reply({
+				reply?.({
 					type: "response",
 					data: response,
 				});
 			} catch (error: unknown) {
 				if (error instanceof Error) {
-					reply({
+					reply?.({
 						type: "error",
 						error: error.message,
 					});
 				} else {
-					reply({
+					reply?.({
 						type: "error",
 						error: String(error),
 					});
