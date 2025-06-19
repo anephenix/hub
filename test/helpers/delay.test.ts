@@ -1,6 +1,6 @@
 import assert from "node:assert";
-import { delayUntil } from "../../src/helpers/delay";
 import { describe, it } from "vitest";
+import { delayUntil } from "../../src/helpers/delay";
 
 describe("delay helpers", () => {
 	describe("#delayUntil", () => {
@@ -40,6 +40,5 @@ describe("delay helpers", () => {
 			assert.strictEqual(result, true);
 			assert.strictEqual(count, expectedCount);
 		});
-
 	});
 });

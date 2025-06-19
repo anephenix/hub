@@ -1,8 +1,8 @@
 import assert from "node:assert";
 import { v4 as uuidv4 } from "uuid";
-import { requestClientId, checkHasClientId } from "../../src/lib/clientId";
+import { beforeAll, describe, it } from "vitest";
+import { checkHasClientId, requestClientId } from "../../src/lib/clientId";
 import RPC from "../../src/lib/rpc";
-import { describe, it, beforeAll } from "vitest";
 import type { WebSocketWithClientId } from "../../src/lib/types";
 
 describe("clientId", () => {
@@ -63,7 +63,7 @@ describe("clientId", () => {
 					});
 				}
 			},
-		} as WebSocketWithClientId;;
+		} as WebSocketWithClientId;
 	});
 
 	describe("requestClientId", () => {
@@ -107,7 +107,10 @@ describe("clientId", () => {
 					dataReceived = data;
 				};
 				await checkHasClientId({ socket, reply });
-				assert.strictEqual((dataReceived as {hasClientId: boolean }).hasClientId, true);
+				assert.strictEqual(
+					(dataReceived as { hasClientId: boolean }).hasClientId,
+					true,
+				);
 			});
 		});
 
@@ -119,7 +122,10 @@ describe("clientId", () => {
 					dataReceived = data;
 				};
 				await checkHasClientId({ socket, reply });
-				assert.strictEqual((dataReceived as {hasClientId: boolean }).hasClientId, false);
+				assert.strictEqual(
+					(dataReceived as { hasClientId: boolean }).hasClientId,
+					false,
+				);
 			});
 		});
 	});

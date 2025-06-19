@@ -15,23 +15,23 @@ import type {
 	Server as HttpsServer,
 	ServerOptions as HttpsServerOptions,
 } from "node:https";
-import { WebSocketServer, type Data, type CloseEvent } from "ws";
-import { requestClientId, checkHasClientId } from "./clientId";
+import { type CloseEvent, type Data, WebSocketServer } from "ws";
+import { checkHasClientId, requestClientId } from "./clientId";
 import dataStores from "./dataStores";
+import { handleIpAddressCheck } from "./ipCheck";
+import { handleOriginCheck } from "./originCheck";
 import PubSub from "./pubsub";
 import RPC from "./rpc";
 import { Security } from "./security";
-import { handleOriginCheck } from "./originCheck";
-import { handleIpAddressCheck } from "./ipCheck";
 
 import type {
-	DataStoreType,
+	ConnectionEventListeners,
 	DataStoreInstance,
-	RedisDataStoreConfig,
+	DataStoreType,
 	RPCFunction,
-	WebSocketWithClientId,
+	RedisDataStoreConfig,
 	ServerEventListeners,
-	ConnectionEventListeners
+	WebSocketWithClientId,
 } from "./types";
 
 interface HubOptions {
@@ -115,8 +115,10 @@ class Hub {
 		connectionEventListeners?: ConnectionEventListeners;
 		serverEventListeners?: ServerEventListeners;
 	}) {
-		this.connectionEventListeners = connectionEventListeners || this.loadDefaultConnectionEventListeners();
-		this.serverEventListeners = serverEventListeners || this.loadDefaultServerEventListeners();
+		this.connectionEventListeners =
+			connectionEventListeners || this.loadDefaultConnectionEventListeners();
+		this.serverEventListeners =
+			serverEventListeners || this.loadDefaultServerEventListeners();
 	}
 
 	loadDefaultConnectionEventListeners(): ConnectionEventListeners {
@@ -156,7 +158,9 @@ class Hub {
 	}) {
 		if (!serverType && !server) {
 			this.protocol = "ws";
-			this.server = serverOptions ? http.createServer(serverOptions): http.createServer();
+			this.server = serverOptions
+				? http.createServer(serverOptions)
+				: http.createServer();
 			return;
 		}
 		if (server) {
@@ -175,13 +179,17 @@ class Hub {
 		if (serverType === "http" || serverType === "https") {
 			if (serverType === "http") {
 				this.protocol = "ws";
-				this.server = serverOptions ? http.createServer(serverOptions): http.createServer();
+				this.server = serverOptions
+					? http.createServer(serverOptions)
+					: http.createServer();
 				return;
 			}
 			// Would be https at this point
-				this.protocol = "wss";
-				this.server = serverOptions ? https.createServer(serverOptions): https.createServer();
-				return;
+			this.protocol = "wss";
+			this.server = serverOptions
+				? https.createServer(serverOptions)
+				: https.createServer();
+			return;
 		}
 		throw new Error("Invalid option passed for server");
 	}
@@ -210,8 +218,8 @@ class Hub {
 	async kickAndBan({ ws }: { ws: WebSocketWithClientId }) {
 		const { clientId, host, ipAddress } = ws;
 		if (clientId && host && ipAddress) {
-		await this.security.ban({ clientId, host, ipAddress });
-		await this.kick({ ws });
+			await this.security.ban({ clientId, host, ipAddress });
+			await this.kick({ ws });
 		}
 	}
 
@@ -254,11 +262,14 @@ class Hub {
 	attachBindings() {
 		this.rpc.add("has-client-id", checkHasClientId as RPCFunction);
 
-		this.wss.on("connection", (ws: WebSocketWithClientId, req: http.IncomingMessage) => {
-			for (const func of this.serverEventListeners.connection) {
-				func(ws, req);
-			}
-		});
+		this.wss.on(
+			"connection",
+			(ws: WebSocketWithClientId, req: http.IncomingMessage) => {
+				for (const func of this.serverEventListeners.connection) {
+					func(ws, req);
+				}
+			},
+		);
 
 		this.wss.on("close", (event: unknown) => {
 			for (const func of this.serverEventListeners.close) {

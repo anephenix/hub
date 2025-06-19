@@ -23,7 +23,7 @@ import type { WebSocketWithClientId } from "./types";
 // merging them in the future if they are used in the same context.
 type GetClientIdData = {
 	clientId?: string;
-}
+};
 
 interface Rpc {
 	send(args: {
@@ -109,10 +109,10 @@ async function requestClientId({
 	rpc,
 }: RequestClientIdParams): Promise<void> {
 	try {
-		const { clientId } = await rpc.send({
+		const { clientId } = (await rpc.send({
 			ws,
 			action: "get-client-id",
-		}) as GetClientIdData;
+		})) as GetClientIdData;
 		await processReply({ clientId, ws, rpc });
 	} catch (err) {
 		console.error(err);

@@ -1,14 +1,17 @@
 import assert from "node:assert";
-import http from "node:http";
-import https, { type ServerOptions as HttpsServerOptions, } from "node:https";
-import { Hub, HubClient } from "../src/index";
-import type { WebSocketServer } from "ws";
-import { delay, delayUntil } from "../src/helpers/delay";
-import { checkHasClientId, type WebSocketWithClientId } from "../src/lib/clientId";
 import fs from "node:fs";
+import http from "node:http";
+import https, { type ServerOptions as HttpsServerOptions } from "node:https";
 import path from "node:path";
 import { createHttpTerminator } from "http-terminator";
-import { describe, it, beforeAll, afterAll } from "vitest";
+import { afterAll, beforeAll, describe, it } from "vitest";
+import type { WebSocketServer } from "ws";
+import { delay, delayUntil } from "../src/helpers/delay";
+import { Hub, HubClient } from "../src/index";
+import {
+	type WebSocketWithClientId,
+	checkHasClientId,
+} from "../src/lib/clientId";
 import type RedisDataStore from "../src/lib/dataStores/redis";
 
 describe("Hub", () => {
@@ -76,7 +79,9 @@ describe("Hub", () => {
 				};
 				await delayUntil(() => client.readyState === 1);
 				assert(connected);
-				const latestMessage = messages[messages.length - 1] as { action: string };
+				const latestMessage = messages[messages.length - 1] as {
+					action: string;
+				};
 				assert(latestMessage.action === "get-client-id");
 				client.send(
 					JSON.stringify({
@@ -113,15 +118,16 @@ describe("Hub", () => {
 		});
 
 		afterAll(async () => {
-			const { redis, channelsKey, clientsKey } = (hub.pubsub.dataStore as RedisDataStore);
+			const { redis, channelsKey, clientsKey } = hub.pubsub
+				.dataStore as RedisDataStore;
 			await redis.del(channelsKey);
 			await redis.del(clientsKey);
 			hubClient.sarus.disconnect();
 			hub.server.close();
 			await delay(100);
 			try {
-				await(hub.pubsub.dataStore as RedisDataStore).internalRedis.quit();
-				await(hub.pubsub.dataStore as RedisDataStore).redis.quit();
+				await (hub.pubsub.dataStore as RedisDataStore).internalRedis.quit();
+				await (hub.pubsub.dataStore as RedisDataStore).redis.quit();
 			} catch (err) {
 				console.error(err);
 			}
@@ -184,9 +190,8 @@ describe("Hub", () => {
 			if (!clientId) {
 				throw new Error("Client ID should not be null");
 			}
-			const channels = await newHub.pubsub.dataStore.getChannelsForClientId(
-				clientId
-			);
+			const channels =
+				await newHub.pubsub.dataStore.getChannelsForClientId(clientId);
 			const clientIds =
 				await newHub.pubsub.dataStore.getClientIdsForChannel("accounts");
 			assert.deepStrictEqual(channels, []);
@@ -297,7 +302,7 @@ describe("Hub", () => {
 			});
 			hub.listen();
 			hubClient = new HubClient({ url: "ws://localhost:4010" });
-			hubClient.sarus.on("message", (event: {data: string}) => {
+			hubClient.sarus.on("message", (event: { data: string }) => {
 				const message = JSON.parse(event.data);
 				messages.push(message);
 			});
@@ -314,7 +319,11 @@ describe("Hub", () => {
 		});
 
 		it("should send a RPC action to the client to stop them from automatically reconnecting", async () => {
-			const lastMessage = messages[messages.length - 1] as { type: string, action: string, data: string};
+			const lastMessage = messages[messages.length - 1] as {
+				type: string;
+				action: string;
+				data: string;
+			};
 			assert.strictEqual(lastMessage.type, "request");
 			assert.strictEqual(lastMessage.action, "kick");
 			assert.strictEqual(lastMessage.data, "Server has kicked the client");

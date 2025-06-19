@@ -3,7 +3,7 @@
 	running in Node.js or the browser.
 */
 const isNode = (): boolean =>
-	typeof process !== 'undefined' &&
+	typeof process !== "undefined" &&
 	process.versions != null &&
 	process.versions.node != null;
 

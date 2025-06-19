@@ -5,13 +5,17 @@
 	supports persistence across restarts and can be clustered for scaling.
 */
 
+import { type RedisClientType, createClient } from "redis";
+import { decode, encode } from "../dataTransformer";
 // Dependencies
-import type { DataType, RedisDataStoreConfig, OnMessageFunc, PublishMessageReceivedParams } from "../types";
-import { encode, decode } from "../dataTransformer";
-import { createClient, type RedisClientType } from "redis";
+import type {
+	DataType,
+	OnMessageFunc,
+	PublishMessageReceivedParams,
+	RedisDataStoreConfig,
+} from "../types";
 
 // Types and Interfaces
-
 
 interface CollectionActionParams {
 	value: string;
@@ -19,7 +23,7 @@ interface CollectionActionParams {
 	key: string;
 }
 
-// NOTE - some of these types might also be used in the memory data store, 
+// NOTE - some of these types might also be used in the memory data store,
 // so we can consider moving them to a shared file in the future if needed.
 interface ClientChannelActionParams {
 	action: "addItemToCollection" | "removeItemFromCollection";

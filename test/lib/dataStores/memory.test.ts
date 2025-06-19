@@ -1,7 +1,7 @@
 // Dependencies
 import assert from "node:assert";
+import { afterAll, beforeAll, describe, it } from "vitest";
 import MemoryDataStore from "../../../src/lib/dataStores/memory";
-import { describe, it, beforeAll, afterAll } from "vitest";
 
 describe("memory data store", () => {
 	const memoryStore = new MemoryDataStore();

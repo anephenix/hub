@@ -1,12 +1,12 @@
 // Dependencies
 import assert from "node:assert";
-import { Hub, HubClient } from "../../../src/index";
 import { createHttpTerminator } from "http-terminator";
+import { afterAll, beforeAll, describe, it } from "vitest";
 import { delay, delayUntil } from "../../../src/helpers/delay";
-import { decode } from "../../../src/lib/dataTransformer";
-import { describe, it, beforeAll, afterAll } from "vitest";
+import { Hub, HubClient } from "../../../src/index";
 import type MemoryDataStore from "../../../src/lib/dataStores/memory";
-import type { RPCFunctionArgs, ChannelHandler} from "../../../src/lib/types";
+import { decode } from "../../../src/lib/dataTransformer";
+import type { ChannelHandler, RPCFunctionArgs } from "../../../src/lib/types";
 
 describe("Client library", () => {
 	let hub: InstanceType<typeof Hub>;
@@ -49,11 +49,11 @@ describe("Client library", () => {
 			});
 			await delayUntil(() => handlerFunctionCalled);
 			assert.strictEqual(
-				(messageReceived as {title:string, url:string}).title,
+				(messageReceived as { title: string; url: string }).title,
 				"Sadio Mane: Liverpool forward isolating after positive coronavirus test",
 			);
 			assert.strictEqual(
-				(messageReceived as {title:string, url:string}).url,
+				(messageReceived as { title: string; url: string }).url,
 				"http://bbc.co.uk/sport/football/54396525",
 			);
 		});
@@ -160,7 +160,11 @@ describe("Client library", () => {
 			assert(subscribe.success);
 			const clientId = global.localStorage.getItem("sarus-client-id");
 			// assert that the hub server has that client noted as a subscriber to that channel
-			assert((hub.pubsub.dataStore as MemoryDataStore).channels.business.indexOf(clientId) !== -1);
+			assert(
+				(hub.pubsub.dataStore as MemoryDataStore).channels.business.indexOf(
+					clientId,
+				) !== -1,
+			);
 		});
 
 		it("should add the channel to the list of channels", () => {
@@ -174,7 +178,9 @@ describe("Client library", () => {
 					messages.push(data);
 				});
 				await hubClient.subscribe("cats", { password: "tuna" });
-				const lastMessage = messages[messages.length - 1] as { password: string };
+				const lastMessage = messages[messages.length - 1] as {
+					password: string;
+				};
 				assert.strictEqual(lastMessage.password, "tuna");
 				await hubClient.unsubscribe("cats");
 			});
@@ -188,10 +194,18 @@ describe("Client library", () => {
 			assert(subscribe.success);
 			const clientId = global.localStorage.getItem("sarus-client-id");
 			// assert that the hub server has that client noted as a subscriber to that channel
-			assert((hub.pubsub.dataStore as MemoryDataStore).channels.markets.indexOf(clientId) !== -1);
+			assert(
+				(hub.pubsub.dataStore as MemoryDataStore).channels.markets.indexOf(
+					clientId,
+				) !== -1,
+			);
 			const unsubscribe = await hubClient.unsubscribe("markets");
 			assert(unsubscribe.success);
-			assert((hub.pubsub.dataStore as MemoryDataStore).channels.markets.indexOf(clientId) === -1);
+			assert(
+				(hub.pubsub.dataStore as MemoryDataStore).channels.markets.indexOf(
+					clientId,
+				) === -1,
+			);
 		});
 
 		it("should remove the channel from the list of channels", () => {
@@ -209,7 +223,10 @@ describe("Client library", () => {
 			hubClient.addChannelMessageHandler("culture", handlerFunction);
 			await hubClient.publish("culture", { title: "Dune film delayed" });
 			assert((messageReceived as { title: string }).title);
-			assert.strictEqual((messageReceived as { title: string }).title, "Dune film delayed");
+			assert.strictEqual(
+				(messageReceived as { title: string }).title,
+				"Dune film delayed",
+			);
 		});
 		it("should publish a message to a channel, but exclude the sender if they are also a subscribe but wish to not receive the message themselves", async () => {
 			await hubClient.subscribe("arts");
@@ -320,7 +337,9 @@ describe("Client library", () => {
 				await delay(100);
 				await newHubClient.resubscribeOnReconnect();
 				assert.strictEqual(
-					messages.map((m: unknown) => (m as {action:string}).action).indexOf("has-client-id"),
+					messages
+						.map((m: unknown) => (m as { action: string }).action)
+						.indexOf("has-client-id"),
 					-1,
 				);
 			});
@@ -344,7 +363,9 @@ describe("Client library", () => {
 			it("should ask the server if the websocket connection has a client id set", async () => {
 				await delayUntil(() => {
 					return (
-						messages.map((m: unknown) => (m as {action:string}).action).indexOf("has-client-id") !== -1
+						messages
+							.map((m: unknown) => (m as { action: string }).action)
+							.indexOf("has-client-id") !== -1
 					);
 				});
 			});
@@ -363,7 +384,7 @@ describe("Client library", () => {
 			it("should resubscribe to those channels too", async () => {
 				const channel = "cheeses";
 				const authenticate = ({ data }: { data: unknown }) => {
-					return (data as {password:string}).password === "brie";
+					return (data as { password: string }).password === "brie";
 				};
 				hub.pubsub.addChannelConfiguration({ channel, authenticate });
 				const anotherHubClient = new HubClient({
@@ -377,17 +398,15 @@ describe("Client library", () => {
 				if (!clientId) {
 					throw new Error("Client ID is not set");
 				}
-				const channels = await hub.pubsub.dataStore.getChannelsForClientId(
-					clientId,
-				);
+				const channels =
+					await hub.pubsub.dataStore.getChannelsForClientId(clientId);
 				assert(channels?.indexOf(channel) !== -1);
 				anotherHubClient.sarus.disconnect();
 				await delay(100);
 				anotherHubClient.sarus.reconnect();
 				await delay(1200);
-				const freshChannels = await hub.pubsub.dataStore.getChannelsForClientId(
-					clientId,
-				);
+				const freshChannels =
+					await hub.pubsub.dataStore.getChannelsForClientId(clientId);
 				assert(freshChannels?.indexOf(channel) !== -1);
 				await anotherHubClient.unsubscribe(channel);
 			});
@@ -416,16 +435,17 @@ describe("Client library", () => {
 			if (!clientId) {
 				throw new Error("Client ID is not set");
 			}
-			const channels = await hub.pubsub.dataStore.getChannelsForClientId(
-				clientId
-			);
+			const channels =
+				await hub.pubsub.dataStore.getChannelsForClientId(clientId);
 			assert.deepStrictEqual(channels, [channelOne, channelTwo]);
 			newHubClient.sarus.disconnect();
 			await delay(50);
 			newHubClient.sarus.reconnect();
 			await delayUntil(() => {
 				return (
-					messages.map((m: unknown) => (m as {action:string}).action).indexOf("has-client-id") !== -1
+					messages
+						.map((m: unknown) => (m as { action: string }).action)
+						.indexOf("has-client-id") !== -1
 				);
 			});
 		});
@@ -434,7 +454,9 @@ describe("Client library", () => {
 			it("should check that the server has a clientId set for the webSocket", async () => {
 				await delayUntil(() => {
 					return (
-						messages.map((m: unknown) => (m as {action:string}).action).indexOf("has-client-id") !== -1
+						messages
+							.map((m: unknown) => (m as { action: string }).action)
+							.indexOf("has-client-id") !== -1
 					);
 				});
 			});
@@ -445,14 +467,19 @@ describe("Client library", () => {
 				}
 				let channels: unknown[] | undefined;
 				await delayUntil(async () => {
-					channels = await hub.pubsub.dataStore.getChannelsForClientId(clientId);
+					channels =
+						await hub.pubsub.dataStore.getChannelsForClientId(clientId);
 					if (!channels) {
-						throw new Error("No channels found for client ID when expecting some");
+						throw new Error(
+							"No channels found for client ID when expecting some",
+						);
 					}
 					return channels.length === 2;
 				});
 				if (!channels) {
-					throw new Error("No channels found for client ID when expecting some");
+					throw new Error(
+						"No channels found for client ID when expecting some",
+					);
 				}
 				assert.strictEqual(channels.length, 2);
 				assert(channels.indexOf(channelOne) > -1);
@@ -481,8 +508,9 @@ describe("Client library", () => {
 			it("should not check that the server has a clientId set for the webSocket", async () => {
 				await delay(1100);
 				assert(
-					otherMessages.map((m: unknown) => (m as {action:string}).action).indexOf("has-client-id") ===
-						-1,
+					otherMessages
+						.map((m: unknown) => (m as { action: string }).action)
+						.indexOf("has-client-id") === -1,
 				);
 			});
 		});

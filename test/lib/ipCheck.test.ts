@@ -1,9 +1,9 @@
 // Dependencies
 import assert from "node:assert";
-import { Hub, HubClient } from "../../src/index";
-import { delayUntil } from "../../src/helpers/delay";
 import { createHttpTerminator } from "http-terminator";
 import { describe, it } from "vitest";
+import { delayUntil } from "../../src/helpers/delay";
+import { Hub, HubClient } from "../../src/index";
 
 describe("IP Address checking", () => {
 	describe("when allowedIPAddresses is an empty array", () => {
@@ -15,9 +15,11 @@ describe("IP Address checking", () => {
 			const terminator = createHttpTerminator({ server: hub.server });
 			const hubClient = new HubClient({ url: "ws://localhost:6001" });
 			await hubClient.isReady();
-			await delayUntil(() => { 
-				return Array.from(hub.wss.clients).length === 1 && 
-					hubClient.sarus.ws?.readyState === 1;
+			await delayUntil(() => {
+				return (
+					Array.from(hub.wss.clients).length === 1 &&
+					hubClient.sarus.ws?.readyState === 1
+				);
 			});
 			await terminator.terminate();
 		});
@@ -34,9 +36,11 @@ describe("IP Address checking", () => {
 			});
 			const terminator = createHttpTerminator({ server: hub.server });
 			const hubClient = new HubClient({ url: "ws://localhost:6050" });
-			await delayUntil(() => { 
-				return Array.from(hub.wss.clients).length === 0 && 
-					hubClient.sarus.ws?.readyState === 3;
+			await delayUntil(() => {
+				return (
+					Array.from(hub.wss.clients).length === 0 &&
+					hubClient.sarus.ws?.readyState === 3
+				);
 			});
 			assert.strictEqual(Array.from(hub.wss.clients).length, 0);
 			assert.strictEqual(hubClient.sarus.ws?.readyState, 3);
@@ -55,9 +59,11 @@ describe("IP Address checking", () => {
 			const terminator = createHttpTerminator({ server: hub.server });
 			const hubClient = new HubClient({ url: "ws://localhost:8001" });
 			await hubClient.isReady();
-			await delayUntil(() => { 
-				return Array.from(hub.wss.clients).length === 1 && 
-					hubClient.sarus.ws?.readyState === 1;
+			await delayUntil(() => {
+				return (
+					Array.from(hub.wss.clients).length === 1 &&
+					hubClient.sarus.ws?.readyState === 1
+				);
 			});
 			assert.strictEqual(Array.from(hub.wss.clients).length, 1);
 			assert.strictEqual(hubClient.sarus.ws?.readyState, 1);

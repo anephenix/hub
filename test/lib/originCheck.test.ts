@@ -1,9 +1,9 @@
 // Dependencies
 import assert from "node:assert";
-import { Hub, HubClient } from "../../src/index";
-import { delayUntil } from "../../src/helpers/delay";
 import { createHttpTerminator } from "http-terminator";
 import { describe, it } from "vitest";
+import { delayUntil } from "../../src/helpers/delay";
+import { Hub, HubClient } from "../../src/index";
 
 describe("Origin checking", () => {
 	describe("when allowedOrigins is an empty array", () => {

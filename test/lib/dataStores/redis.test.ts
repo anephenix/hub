@@ -1,10 +1,10 @@
 // Dependencies
 import assert from "node:assert";
-import RedisDataStore from "../../../src/lib/dataStores/redis";
-import { decode } from "../../../src/lib/dataTransformer";
 import * as redisLib from "redis";
 import { RedisClientType } from "redis";
-import { describe, it, beforeAll, afterAll } from "vitest";
+import { afterAll, beforeAll, describe, it } from "vitest";
+import RedisDataStore from "../../../src/lib/dataStores/redis";
+import { decode } from "../../../src/lib/dataTransformer";
 
 const redisConfig = { url: "redis://localhost:6379/1" };
 let redis: redisLib.RedisClientType;

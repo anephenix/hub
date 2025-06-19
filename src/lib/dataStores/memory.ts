@@ -136,12 +136,16 @@ class MemoryDataStore {
 		});
 	}
 
-	async getClientIdsForChannel(channel: string): Promise<unknown[] | undefined> {
+	async getClientIdsForChannel(
+		channel: string,
+	): Promise<unknown[] | undefined> {
 		const { channels } = this;
 		return channels[channel];
 	}
 
-	async getChannelsForClientId(clientId: string): Promise<unknown[] | undefined> {
+	async getChannelsForClientId(
+		clientId: string,
+	): Promise<unknown[] | undefined> {
 		const { clients } = this;
 		return clients[clientId];
 	}

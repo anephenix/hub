@@ -1,13 +1,17 @@
 // Dependencies
 import assert from "node:assert";
 import http from "node:http";
-import RPC from "../../src/lib/rpc";
-import { v4 as uuidv4 } from "uuid";
-import { Hub, HubClient } from "../../src/index";
-import { delayUntil } from "../../src/helpers/delay";
 import { createHttpTerminator } from "http-terminator";
-import { describe, it, beforeAll } from "vitest";
-import type { RPCFunction, RPCFunctionArgs, WebSocketWithClientId } from "../../src/lib/types";
+import { v4 as uuidv4 } from "uuid";
+import { beforeAll, describe, it } from "vitest";
+import { delayUntil } from "../../src/helpers/delay";
+import { Hub, HubClient } from "../../src/index";
+import RPC from "../../src/lib/rpc";
+import type {
+	RPCFunction,
+	RPCFunctionArgs,
+	WebSocketWithClientId,
+} from "../../src/lib/types";
 
 describe("rpc", () => {
 	let server: http.Server;
@@ -42,7 +46,7 @@ describe("rpc", () => {
 	describe("removing an action function", () => {
 		it("should remove a function for an action name", () => {
 			const firstFunc = () => {};
-			const secondFunc:RPCFunction = ({ data, reply }) => {
+			const secondFunc: RPCFunction = ({ data, reply }) => {
 				reply?.({ data });
 			};
 			rpc.add("world", firstFunc);
@@ -55,7 +59,7 @@ describe("rpc", () => {
 	describe("making a request from client to server", () => {
 		describe("when an action is found", () => {
 			it("should execute the action and return a response to the client", () => {
-				let responsePayload: string|null = null;
+				let responsePayload: string | null = null;
 
 				const searchFunc = ({ id, data, reply }: RPCFunctionArgs) => {
 					const entries = [
@@ -70,7 +74,9 @@ describe("rpc", () => {
 						"spider",
 						"lizard",
 					];
-					const results = entries.filter((x) => x.includes((data as { term: string}).term));
+					const results = entries.filter((x) =>
+						x.includes((data as { term: string }).term),
+					);
 					reply?.({
 						id,
 						action: "search",
@@ -97,7 +103,10 @@ describe("rpc", () => {
 					},
 				};
 
-				rpc.receive({ message: requestPayload, ws: ws as WebSocketWithClientId });
+				rpc.receive({
+					message: requestPayload,
+					ws: ws as WebSocketWithClientId,
+				});
 
 				assert(responsePayload !== null, "Response payload should not be null");
 				assert.deepStrictEqual(JSON.parse(responsePayload), {
@@ -113,7 +122,7 @@ describe("rpc", () => {
 
 		describe("when an action is not found", () => {
 			it("should return an error response if no corresponding action was found", () => {
-				let responsePayload:string | null = null;
+				let responsePayload: string | null = null;
 
 				const id = uuidv4();
 				const requestPayload = JSON.stringify({
@@ -131,7 +140,10 @@ describe("rpc", () => {
 					},
 				};
 
-				rpc.receive({ message: requestPayload, ws: ws as WebSocketWithClientId });
+				rpc.receive({
+					message: requestPayload,
+					ws: ws as WebSocketWithClientId,
+				});
 				assert(responsePayload !== null, "Response payload should not be null");
 
 				assert.deepStrictEqual(JSON.parse(responsePayload), {
@@ -153,7 +165,7 @@ describe("rpc", () => {
 				const hubClient = new HubClient({ url: "ws://localhost:4001" });
 				hubClient.rpc.add("get-environment", ({ reply }) => {
 					const { arch, platform, version } = process;
-					reply?.({ data: { arch, platform, version } })
+					reply?.({ data: { arch, platform, version } });
 				});
 
 				await hubClient.isReady();
@@ -161,13 +173,14 @@ describe("rpc", () => {
 				type RPCResponse = {
 					arch: string;
 					platform: string;
-					version: string;}
+					version: string;
+				};
 
 				const ws = hubServer.wss.clients.values().next().value;
-				const response = await hubServer.rpc.send({
+				const response = (await hubServer.rpc.send({
 					ws,
 					action: "get-environment",
-				}) as RPCResponse;
+				})) as RPCResponse;
 				assert.strictEqual(response.arch, process.arch);
 				assert.strictEqual(response.platform, process.platform);
 				assert.strictEqual(response.version, process.version);
@@ -204,7 +217,7 @@ describe("rpc", () => {
 			const terminator = createHttpTerminator({ server: hubServer.server });
 			const hubClient = new HubClient({ url: "ws://localhost:4002" });
 			hubClient.rpc.add("set-api-key", ({ data, reply }) => {
-				assert.strictEqual((data as {apiKey: string}).apiKey, "xxx");
+				assert.strictEqual((data as { apiKey: string }).apiKey, "xxx");
 				reply?.({ data: { success: true, message: "api key set" } });
 			});
 			await hubClient.isReady();

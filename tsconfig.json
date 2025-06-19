@@ -1,19 +1,19 @@
 {
-  "compilerOptions": {
-    "target": "ES2022",
-    "module": "ESNext",
-    "lib": ["ES2022", "DOM"],
-    "rootDir": "src",
-    "outDir": "dist/esm",
-    "declaration": true,
-    "sourceMap": true,
-    "strict": true,
-    "esModuleInterop": true,
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
-    "skipLibCheck": true,
-    "allowJs": true // Enabling JavaScript files to be compiled for now, until we migrate everything to TypeScript
-  },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist"]
+	"compilerOptions": {
+		"target": "ES2022",
+		"module": "ESNext",
+		"lib": ["ES2022", "DOM"],
+		"rootDir": "src",
+		"outDir": "dist/esm",
+		"declaration": true,
+		"sourceMap": true,
+		"strict": true,
+		"esModuleInterop": true,
+		"moduleResolution": "node",
+		"resolveJsonModule": true,
+		"skipLibCheck": true,
+		"allowJs": true // Enabling JavaScript files to be compiled for now, until we migrate everything to TypeScript
+	},
+	"include": ["src/**/*"],
+	"exclude": ["node_modules", "dist"]
 }

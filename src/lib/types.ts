@@ -1,11 +1,11 @@
 // Types and Interfaces
 
+import type { IncomingMessage } from "node:http";
 // Dependencies
 import type { SarusClassParams } from "@anephenix/sarus";
 import type Sarus from "@anephenix/sarus";
+import type { CloseEvent, Data, WebSocket } from "ws";
 import type dataStores from "./dataStores";
-import type { WebSocket, Data, CloseEvent } from 'ws';
-import type { IncomingMessage } from "node:http";
 
 /* DataTransformer */
 
@@ -68,17 +68,17 @@ type ServerEventListeners = {
 	listening: Array<(event: unknown) => void>;
 	headers: Array<(event: unknown) => void>;
 	close: Array<(event: unknown) => void>;
-}
+};
 
 type ConnectionEventListeners = {
-	message: Array<(args: { data?: unknown, message: string; ws: WebSocket }) => void>;
-	close: Array<
-		(args: { event: CloseEvent; ws: WebSocket }) => void
+	message: Array<
+		(args: { data?: unknown; message: string; ws: WebSocket }) => void
 	>;
+	close: Array<(args: { event: CloseEvent; ws: WebSocket }) => void>;
 	error: Array<(args: { error: Error; ws: WebSocket }) => void>;
-}
+};
 
-// DataStore types 
+// DataStore types
 type DataStoreType = keyof typeof dataStores;
 type DataStoreInstance = InstanceType<
 	(typeof dataStores)[keyof typeof dataStores]
@@ -119,7 +119,10 @@ type PublishMessageReceivedParams = {
 };
 
 // OriginCheck and IPCheck
-type NextFunction = (socket: WebSocketWithClientId, req: IncomingMessage) => void;
+type NextFunction = (
+	socket: WebSocketWithClientId,
+	req: IncomingMessage,
+) => void;
 
 export type {
 	DataType,
@@ -142,5 +145,5 @@ export type {
 	SetClientIdData,
 	MessageData,
 	PublishMessageReceivedParams,
-	NextFunction
+	NextFunction,
 };

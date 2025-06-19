@@ -14,7 +14,7 @@
 
 // Types and Interfaces
 import type { IncomingMessage } from "node:http";
-import type { WebSocketWithClientId, NextFunction } from "./types";
+import type { NextFunction, WebSocketWithClientId } from "./types";
 
 /* Check if the origin is allowed */
 export function checkOrigin(
@@ -33,7 +33,7 @@ export function handleOriginCheck(
 	origins: string[] | undefined,
 	next: NextFunction,
 ) {
-	return (socket:  WebSocketWithClientId, req: IncomingMessage) => {
+	return (socket: WebSocketWithClientId, req: IncomingMessage) => {
 		const host = req.headers.host || "";
 		if (!checkOrigin(origins, host)) {
 			socket.close();

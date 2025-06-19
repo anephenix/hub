@@ -13,8 +13,7 @@
 */
 // Dependencies
 import type { IncomingMessage } from "node:http";
-import type { WebSocketWithClientId, NextFunction } from "./types";
-
+import type { NextFunction, WebSocketWithClientId } from "./types";
 
 export function checkIpAddress(
 	ipAddresses: string[] | undefined,

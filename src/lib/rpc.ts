@@ -11,12 +11,18 @@
 	over WebSockets, or implementing chat functionality in their apps.
 */
 
+import type Sarus from "@anephenix/sarus";
 // Dependencies
 import { v4 as uuidv4 } from "uuid";
-import { encode, decode } from "./dataTransformer";
-import type Sarus from "@anephenix/sarus";
+import { decode, encode } from "./dataTransformer";
 
-import type { RPCPayload, RPCFunction, RPCArgs, SendArgs, WebSocketWithClientId } from "./types";
+import type {
+	RPCArgs,
+	RPCFunction,
+	RPCPayload,
+	SendArgs,
+	WebSocketWithClientId,
+} from "./types";
 
 class RPC {
 	sarus?: Sarus;
@@ -68,7 +74,13 @@ class RPC {
 		});
 	}
 
-	setMessageAndSocket({ params, sarus }: { params: {data?: unknown, message: string, ws: WebSocketWithClientId }; sarus?: Sarus }) {
+	setMessageAndSocket({
+		params,
+		sarus,
+	}: {
+		params: { data?: unknown; message: string; ws: WebSocketWithClientId };
+		sarus?: Sarus;
+	}) {
 		let message: string;
 		let ws: WebSocketWithClientId | undefined;
 		if (sarus) {
@@ -77,7 +89,10 @@ class RPC {
 			message = params.message as string;
 			ws = params.ws;
 		}
-		return { message, ws } as { message: string; ws: WebSocketWithClientId | undefined };
+		return { message, ws } as {
+			message: string;
+			ws: WebSocketWithClientId | undefined;
+		};
 	}
 
 	setupReply({
@@ -153,7 +168,11 @@ class RPC {
 		}
 	}
 
-	receive(params: { data?: unknown; message: string; ws: WebSocketWithClientId }) {
+	receive(params: {
+		data?: unknown;
+		message: string;
+		ws: WebSocketWithClientId;
+	}) {
 		const { requests, responses } = this;
 		const sarus = this.sarus;
 		const { message, ws } = this.setMessageAndSocket({ sarus, params });

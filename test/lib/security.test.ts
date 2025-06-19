@@ -1,8 +1,8 @@
 // Dependencies
 import assert from "node:assert";
+import { describe, it } from "vitest";
 import dataStores from "../../src/lib/dataStores";
 import { Security } from "../../src/lib/security";
-import { describe, it } from "vitest";
 
 // Setup
 const DataStore = dataStores.memory;
