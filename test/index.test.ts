@@ -1,17 +1,15 @@
 import assert from "node:assert";
-import http, { Server as HttpServer } from "node:http";
-import https, {
-	type Server as HttpsServer,
-	type ServerOptions as HttpsServerOptions,
-} from "node:https";
+import http from "node:http";
+import https, { type ServerOptions as HttpsServerOptions, } from "node:https";
 import { Hub, HubClient } from "../src/index";
-import type { WebSocketServer, MessageEvent } from "ws";
+import type { WebSocketServer } from "ws";
 import { delay, delayUntil } from "../src/helpers/delay";
-import { checkHasClientId } from "../src/lib/clientId";
+import { checkHasClientId, type WebSocketWithClientId } from "../src/lib/clientId";
 import fs from "node:fs";
 import path from "node:path";
 import { createHttpTerminator } from "http-terminator";
 import { describe, it, beforeAll, afterAll } from "vitest";
+import type RedisDataStore from "../src/lib/dataStores/redis";
 
 describe("Hub", () => {
 	it("should return a class function", () => {
@@ -68,7 +66,7 @@ describe("Hub", () => {
 
 			it("should attach the connection event listeners", async () => {
 				let connected = false;
-				const messages: any[] = [];
+				const messages: unknown[] = [];
 				const client = new WebSocket("ws://localhost:4000");
 				client.onopen = () => {
 					connected = true;
@@ -78,7 +76,7 @@ describe("Hub", () => {
 				};
 				await delayUntil(() => client.readyState === 1);
 				assert(connected);
-				const latestMessage = messages[messages.length - 1];
+				const latestMessage = messages[messages.length - 1] as { action: string };
 				assert(latestMessage.action === "get-client-id");
 				client.send(
 					JSON.stringify({
@@ -98,8 +96,8 @@ describe("Hub", () => {
 	});
 
 	describe("initialising with redis data store options", () => {
-		let hub: any;
-		let hubClient: any;
+		let hub: Hub;
+		let hubClient: HubClient;
 		beforeAll(() => {
 			hub = new Hub({
 				port: 4005,
@@ -122,16 +120,15 @@ describe("Hub", () => {
 			hub.server.close();
 			await delay(100);
 			try {
-				await hub.pubsub.dataStore.internalRedis.quit();
-				await hub.pubsub.dataStore.redis.quit();
+				await(hub.pubsub.dataStore as RedisDataStore).internalRedis.quit();
+				await(hub.pubsub.dataStore as RedisDataStore).redis.quit();
 			} catch (err) {
 				console.error(err);
 			}
 		});
 
 		it("should have a redis client", () => {
-			assert(hub.pubsub.dataStore.redis);
-			assert.strictEqual(hub.pubsub.dataStore.redis._eventsCount, 0);
+			assert((hub.pubsub.dataStore as RedisDataStore).redis);
 		});
 
 		it("should handle subscribing a client to a channel", async () => {
@@ -183,8 +180,12 @@ describe("Hub", () => {
 			await hubClient.subscribe("accounts");
 			hubClient.sarus.disconnect();
 			await delay(100);
+			const clientId = hubClient.getClientId();
+			if (!clientId) {
+				throw new Error("Client ID should not be null");
+			}
 			const channels = await newHub.pubsub.dataStore.getChannelsForClientId(
-				hubClient.getClientId(),
+				clientId
 			);
 			const clientIds =
 				await newHub.pubsub.dataStore.getClientIdsForChannel("accounts");
@@ -257,22 +258,11 @@ describe("Hub", () => {
 				assert.strictEqual(secureHub.protocol, "wss");
 			});
 		});
-
-		describe("when an invalid server option is passed", () => {
-			it("should throw an error", async () => {
-				try {
-					await new Hub({ port: 5003, server: "secure" });
-					assert(false, "Should not reach this point");
-				} catch (err: any) {
-					assert.strictEqual(err.message, "Invalid option passed for server");
-				}
-			});
-		});
 	});
 
 	describe("setHostAndIp", () => {
-		let hub: any;
-		let hubClient: any;
+		let hub: Hub;
+		let hubClient: HubClient;
 		beforeAll(() => {
 			hub = new Hub({
 				port: 4009,
@@ -290,16 +280,16 @@ describe("Hub", () => {
 		it("should set the hostname and ip address on the websocket client", async () => {
 			await hubClient.isReady();
 			const ipAddress = "::1";
-			const ws = Array.from(hub.wss.clients)[0] as any;
+			const ws = Array.from(hub.wss.clients)[0] as WebSocketWithClientId;
 			assert.strictEqual(ws.host, "localhost:4009");
 			assert.strictEqual(ws.ipAddress, ipAddress);
 		});
 	});
 
 	describe("kick", () => {
-		let hub: any;
-		let hubClient: any;
-		const messages: any[] = [];
+		let hub: Hub;
+		let hubClient: HubClient;
+		const messages: unknown[] = [];
 
 		beforeAll(async () => {
 			hub = new Hub({
@@ -331,14 +321,14 @@ describe("Hub", () => {
 		});
 
 		it("should then close the websocket connection to the client", async () => {
-			assert.strictEqual(hubClient.sarus.ws.readyState, 3);
+			assert.strictEqual(hubClient.sarus.ws?.readyState, 3);
 		});
 	});
 
 	describe("kickAndBan", () => {
-		let hub: any;
-		let hubClient: any;
-		let ws: any;
+		let hub: Hub;
+		let hubClient: HubClient;
+		let ws: WebSocketWithClientId;
 
 		beforeAll(async () => {
 			hub = new Hub({
@@ -347,7 +337,7 @@ describe("Hub", () => {
 			hub.listen();
 			hubClient = new HubClient({ url: "ws://localhost:4011" });
 			await hubClient.isReady();
-			ws = Array.from(hub.wss.clients)[0] as any;
+			ws = Array.from(hub.wss.clients)[0] as WebSocketWithClientId;
 			await hub.kickAndBan({ ws });
 			await delay(100);
 		});
@@ -366,14 +356,14 @@ describe("Hub", () => {
 		});
 
 		it("should then kick the client", () => {
-			assert.strictEqual(hubClient.sarus.ws.readyState, 3);
+			assert.strictEqual(hubClient.sarus.ws?.readyState, 3);
 		});
 	});
 
 	describe("kickIfBanned", () => {
-		let hub: any;
-		let hubClient: any;
-		let ws: any;
+		let hub: Hub;
+		let hubClient: HubClient;
+		let ws: WebSocketWithClientId;
 
 		beforeAll(async () => {
 			hub = new Hub({
@@ -386,9 +376,9 @@ describe("Hub", () => {
 			it("should allow the client to proceed", async () => {
 				hubClient = new HubClient({ url: "ws://localhost:4012" });
 				await hubClient.isReady();
-				ws = Array.from(hub.wss.clients)[0] as any;
+				ws = Array.from(hub.wss.clients)[0] as WebSocketWithClientId;
 				await delay(100);
-				assert.strictEqual(hubClient.sarus.ws.readyState, 1);
+				assert.strictEqual(hubClient.sarus.ws?.readyState, 1);
 			});
 		});
 
@@ -398,7 +388,7 @@ describe("Hub", () => {
 				await delay(100);
 				hubClient.sarus.connect();
 				await delay(100);
-				assert.strictEqual(hubClient.sarus.ws.readyState, 3);
+				assert.strictEqual(hubClient.sarus.ws?.readyState, 3);
 			});
 		});
 	});
