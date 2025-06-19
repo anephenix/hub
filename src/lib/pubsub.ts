@@ -7,6 +7,7 @@ import type {
 	WebSocketWithClientId,
 } from "./types";
 import type { WebSocketServer } from "ws";
+import type RPC from "./rpc";
 
 const noClientIdError = "No client id was found on the WebSocket";
 const noChannelError = "No channel was passed in the data";
@@ -35,17 +36,6 @@ type ChannelConfiguration = {
 	clientCanPublish?:
 		| boolean
 		| ((params: { data: unknown; socket: WebSocketWithClientId }) => boolean);
-};
-
-type RPC = {
-	add: (
-		name: string,
-		fn: (params: {
-			data: unknown;
-			socket: WebSocketWithClientId;
-			reply: (response: unknown) => void;
-		}) => void,
-	) => void;
 };
 
 interface PubSubConstructorParams {
