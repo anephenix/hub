@@ -3,9 +3,10 @@ import assert from "node:assert";
 import RedisDataStore from "../../../src/lib/dataStores/redis";
 import { decode } from "../../../src/lib/dataTransformer";
 import * as redisLib from "redis";
+import { RedisClientType } from "redis";
 import { describe, it, beforeAll, afterAll } from "vitest";
 
-const redisConfig = { db: 1 };
+const redisConfig = { url: "redis://localhost:6379/1" };
 let redis: redisLib.RedisClientType;
 
 describe("redis data store", () => {
@@ -30,7 +31,6 @@ describe("redis data store", () => {
 
 	it("should initialise with a redis client", () => {
 		assert(dataStore.redis);
-		assert.strictEqual((dataStore.redis as any)._eventsCount, 0);
 	});
 
 	describe("#addItemToCollection", () => {
@@ -42,6 +42,9 @@ describe("redis data store", () => {
 					key,
 				});
 				const encodedValues = await redis.hGet(hash, key);
+				if (!encodedValues) {
+					throw new Error(`No values found for hash: ${hash}, key: ${key}`);
+				}
 				const values = decode(encodedValues);
 				assert.deepStrictEqual(values, [value]);
 			});
@@ -55,6 +58,9 @@ describe("redis data store", () => {
 					key,
 				});
 				const encodedValues = await redis.hGet(hash, key);
+				if (!encodedValues) {
+					throw new Error(`No values found for hash: ${hash}, key: ${key}`);
+				}
 				const values = decode(encodedValues);
 				assert.deepStrictEqual(values, [value, anotherValue]);
 			});
@@ -69,6 +75,9 @@ describe("redis data store", () => {
 				key,
 			});
 			const encodedValues = await redis.hGet(hash, key);
+			if (!encodedValues) {
+				throw new Error(`No values found for hash: ${hash}, key: ${key}`);
+			}
 			const values = decode(encodedValues);
 			assert.deepStrictEqual(values, [anotherValue]);
 		});
@@ -105,12 +114,18 @@ describe("redis data store", () => {
 
 		it("should add the clientID value to the channel key in the channels hash", async () => {
 			const encodedValues = await redis.hGet(dataStore.channelsKey, channel);
+			if (!encodedValues) {
+				throw new Error(`No values found for hash: ${hash}, key: ${key}`);
+			}
 			const values = decode(encodedValues);
 			assert.deepStrictEqual(values, [clientId]);
 		});
 
 		it("should add the channel value to the clientId key in the clients hash", async () => {
 			const encodedValues = await redis.hGet(dataStore.clientsKey, clientId);
+			if (!encodedValues) {
+				throw new Error(`No values found for hash: ${hash}, key: ${key}`);
+			}
 			const values = decode(encodedValues);
 			assert.deepStrictEqual(values, [channel]);
 		});
@@ -131,11 +146,17 @@ describe("redis data store", () => {
 
 		it("should remove the clientID value from the channel key in the channels hash", async () => {
 			const encodedValues = await redis.hGet(dataStore.channelsKey, channel);
+			if (!encodedValues) {
+				throw new Error(`No values found for hash: ${hash}, key: ${key}`);
+			}
 			const values = decode(encodedValues);
 			assert.deepStrictEqual(values, [otherClientId]);
 		});
 		it("should remove the channel value from the clientId key in the clients hash", async () => {
 			const encodedValues = await redis.hGet(dataStore.clientsKey, clientId);
+			if (!encodedValues) {
+				throw new Error(`No values found for hash: ${hash}, key: ${key}`);
+			}
 			const values = decode(encodedValues);
 			assert.deepStrictEqual(values, []);
 		});

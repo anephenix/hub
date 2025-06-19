@@ -15,7 +15,7 @@ describe("Origin checking", () => {
 			const terminator = createHttpTerminator({ server: hub.server });
 			const hubClient = new HubClient({ url: "ws://localhost:6000" });
 			await hubClient.isReady();
-			await delayUntil(async () => Array.from(hub.wss.clients).length, 1);
+			await delayUntil(async () => Array.from(hub.wss.clients).length === 1, 1);
 			assert.strictEqual(Array.from(hub.wss.clients).length, 1);
 			await terminator.terminate();
 		});
@@ -48,7 +48,7 @@ describe("Origin checking", () => {
 			const terminator = createHttpTerminator({ server: hub.server });
 			const hubClient = new HubClient({ url: "ws://localhost:8000" });
 			await hubClient.isReady();
-			await delayUntil(async () => Array.from(hub.wss.clients).length, 1);
+			await delayUntil(async () => Array.from(hub.wss.clients).length === 1, 1);
 			assert.strictEqual(Array.from(hub.wss.clients).length, 1);
 			assert.strictEqual((hubClient.sarus.ws as WebSocket).readyState, 1);
 			await terminator.terminate();
