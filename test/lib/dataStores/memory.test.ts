@@ -5,7 +5,7 @@ import { describe, it, beforeAll, afterAll } from "vitest";
 
 describe("memory data store", () => {
 	const memoryStore = new MemoryDataStore();
-	const hash: Record<string, any[]> = memoryStore.channels;
+	const hash: Record<string, unknown[]> = memoryStore.channels;
 	const key = "news";
 	const value = "xxx";
 	const anotherValue = "yyy";
@@ -56,7 +56,7 @@ describe("memory data store", () => {
 			const copyofChannels = { ...memoryStore.channels };
 			await memoryStore.removeItemFromCollection({
 				value,
-				hash: "foo" as any,
+				hash: {},
 				key: "bar",
 			});
 			assert.deepStrictEqual(copyofChannels, memoryStore.channels);
