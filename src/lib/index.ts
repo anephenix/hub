@@ -102,9 +102,13 @@ class Hub {
 		dataStoreType?: DataStoreType;
 		dataStoreOptions?: Record<string, unknown> | RedisDataStoreConfig;
 	}) {
-		const DataStore = dataStores[dataStoreType || "memory"];
+		type DataStoreKey = keyof typeof dataStores;
+		const type: DataStoreKey = (dataStoreType || "memory") as DataStoreKey;
+		const DataStore = dataStores[type];
 		if (!DataStore)
-			throw new Error(`dataStoreType "${dataStoreType}" is not a valid option`);
+			throw new Error(
+				`dataStoreType "${String(dataStoreType)}" is not a valid option`,
+			);
 		this.dataStore = new DataStore(dataStoreOptions || {});
 	}
 

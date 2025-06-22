@@ -12,7 +12,7 @@
 */
 
 import type Sarus from "@anephenix/sarus";
-import type { GenericFunction } from "@anephenix/sarus/dist/esm/lib/types.js";
+import type { GenericFunction } from "@anephenix/sarus";
 // Dependencies
 import { v4 as uuidv4 } from "uuid";
 import { decode, encode } from "./dataTransformer.js";
@@ -23,7 +23,7 @@ import type {
 	RPCPayload,
 	SendArgs,
 	WebSocketWithClientId,
-} from "./types";
+} from "./types.js";
 
 class RPC {
 	sarus?: Sarus;

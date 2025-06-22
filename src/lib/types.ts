@@ -3,9 +3,9 @@
 import type { IncomingMessage } from "node:http";
 import type Sarus from "@anephenix/sarus";
 // Dependencies
-import type { SarusClassParams } from "@anephenix/sarus/dist/esm/index.js";
-import type { CloseEvent, Data, WebSocket } from "ws";
-import type dataStores from "./dataStores";
+import type { SarusClassParams } from "@anephenix/sarus";
+import type { CloseEvent, WebSocket } from "ws";
+import type dataStores from "./dataStores/index.js";
 
 /* DataTransformer */
 

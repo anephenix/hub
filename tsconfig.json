@@ -1,7 +1,7 @@
 {
 	"compilerOptions": {
 		"target": "ES2022",
-		"module": "ESNext",
+		"module": "nodenext",
 		"lib": ["ES2022", "DOM"],
 		"rootDir": "src",
 		"outDir": "dist/esm",
@@ -10,7 +10,7 @@
 		"strict": true,
 		"esModuleInterop": true,
 		"emitDeclarationOnly": false,
-		"moduleResolution": "node",
+		"moduleResolution": "nodenext",
 		"resolveJsonModule": true,
 		"skipLibCheck": true,
 		"allowJs": true
