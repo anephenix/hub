@@ -2,17 +2,40 @@
 	"name": "@anephenix/hub",
 	"version": "0.0.36",
 	"description": "A Node.js WebSocket server and client with added features",
-	"main": "index.js",
+	"type": "module",
+	"exports": {
+		".": {
+			"import": "./dist/esm/index.js"
+		},
+		"./client": {
+			"node": "./dist/esm/lib/client/HubClient.node.js",
+			"default": "./dist/esm/lib/client/HubClient.browser.js"
+		}
+	},
+	"types": "./dist/esm/index.d.ts",
+	"typesVersions": {
+		"*": {
+			"client": [
+				"./dist/esm/lib/client/HubClient.browser.d.ts"
+			]
+		}
+	},
+	"files": [
+		"dist",
+		"README.md"
+	],
 	"scripts": {
+		"build": "tsc --build tsconfig.json",
 		"build-cucumber-support-files": "npx esbuild support/client/main.js --bundle --minify --sourcemap --outdir=support/client/dist",
 		"certs": "mkdir -p certs && cd certs && mkcert localhost 127.0.0.1 ::1",
-		"lint": "npx eslint .",
+		"format": "npx @biomejs/biome format --write src/**/* test/**/*",
+		"lint": "npx @biomejs/biome check src test",
 		"cover": "NODE_ENV=test npx nyc --reporter=lcov npm t",
-		"cucumber": "NODE_ENV=test npx cucumber-js --no-strict",
-		"cucumber-wip": "NODE_ENV=test npx cucumber-js --no-strict -t @wip",
+		"cucumber": "NODE_ENV=test npx cucumber-js",
+		"cucumber-wip": "NODE_ENV=test npx cucumber-js -t @wip",
 		"prepare-patch-release": "npm run update-changelog && git add CHANGELOG.md && git commit -m \"Updated changelog\" && npm version patch",
 		"publish-patch-release": "npm run prepare-patch-release && git push origin master && git push --tags",
-		"test": "NODE_ENV=test npx mocha -r node-localstorage/register __tests__/* --test --exit",
+		"test": "NODE_ENV=test npx vitest test --run",
 		"update-changelog": "node scripts/update-changelog.js"
 	},
 	"keywords": [
@@ -28,33 +51,35 @@
 	"author": "Paul Jensen <paul@anephenix.com>",
 	"license": "MIT",
 	"dependencies": {
-		"@anephenix/sarus": "^0.6.0",
-		"localStorage": "^1.0.4",
+		"@anephenix/sarus": "^0.7.8",
 		"node-ip": "^0.1.2",
-		"npm-check-updates": "^18.0.1",
+		"node-localstorage": "^3.0.5",
 		"redis": "^5.0.0",
 		"uuid": "^11.0.1",
 		"ws": "^8.17.0"
 	},
 	"devDependencies": {
 		"@babel/eslint-parser": "^7.24.5",
+		"@biomejs/biome": "1.9.4",
 		"@cucumber/cucumber": "^11.0.0",
+		"@types/node-localstorage": "^1.3.3",
+		"@types/ws": "^8.18.1",
 		"esbuild": "^0.25.0",
-		"eslint": "^9.3.0",
-		"eslint-plugin-jest": "^28.5.0",
 		"git-changed-files": "^1.0.0",
 		"gradient-string": "^3.0.0",
 		"http-shutdown": "^1.2.2",
+		"http-terminator": "^3.2.0",
 		"husky": "^9.1.5",
-		"mocha": "^11.0.1",
 		"mocha-lcov-reporter": "^1.3.0",
 		"node-emoji": "^2.1.3",
-		"node-localstorage": "^3.0.5",
 		"npm": "^11.0.0",
 		"nyc": "^17.0.0",
-		"prettier": "^3.2.5",
 		"puppeteer": "^24.1.0",
+		"rimraf": "^6.0.1",
 		"terminal-kit": "^3.1.1",
+		"ts-node": "^10.9.2",
+		"typescript": "^5.8.3",
+		"vitest": "^3.2.3",
 		"why-is-node-running": "^3.2.0"
 	},
 	"browserslist": "> 0.5%, last 2 versions, not dead"

@@ -1,5 +1,5 @@
 // Dependencies
-const gradient = require('gradient-string');
+const gradient = require("gradient-string");
 
 const enableMessageLogger = (sarus) => {
 	const messages = [];
@@ -9,7 +9,7 @@ const enableMessageLogger = (sarus) => {
 		console.log(gradient.pastel(JSON.stringify(message)));
 	};
 
-	sarus.on('message', logMessage);
+	sarus.on("message", logMessage);
 };
 
 module.exports = { enableMessageLogger };

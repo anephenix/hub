@@ -6,9 +6,9 @@
     server remotely, uu can change the url value to the 
     remote address.
 */
-const config = { 
-    port: 3005,
-    url: 'ws://localhost:3005'
+const config = {
+	port: 3005,
+	url: "ws://localhost:3005",
 };
 
 module.exports = config;

@@ -1,16 +1,16 @@
 // Dependencies
-const repl = require('repl');
+const repl = require("repl");
 
 // Shims to make this work on Node.js rather than the web browser
 // It would be great to have this automatically loaded into HubClient and auto-deect
 
 // Other dependencies
-const HubClient = require('../../lib/client');
-const { enableMessageLogger } = require('./messageLogger');
+const HubClient = require("../../lib/client");
+const { enableMessageLogger } = require("./messageLogger");
 
 // Starts the repl
-const replInstance = repl.start('> ');
-const hubClient = new HubClient({ url: 'ws://localhost:5050' });
+const replInstance = repl.start("> ");
+const hubClient = new HubClient({ url: "ws://localhost:5050" });
 
 // // This enables message logging
 enableMessageLogger(hubClient.sarus);
@@ -19,8 +19,8 @@ enableMessageLogger(hubClient.sarus);
 const makeRequest = async () => {
 	try {
 		const request = {
-			action: 'get-prices',
-			data: { stock: 'amzn' },
+			action: "get-prices",
+			data: { stock: "amzn" },
 		};
 		const { stock } = await hubClient.rpc.send(request);
 		console.log({ stock });

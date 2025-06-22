@@ -1,7 +1,7 @@
 // Dependencies
-const assert = require('assert');
-const { HubClient } = require('../../index');
-const scope = require('./scope');
+import assert from "node:assert";
+import HubClient from "../../dist/esm/lib/client/HubClient.node.js";
+import { scope } from "./scope.js";
 
 let headless = false;
 const slowMo = 5;
@@ -9,25 +9,23 @@ const ignoreHTTPSErrors = false;
 // const args = ['--disable-gpu', '--no-sandbox', '--disable-dev-shm-usage'];
 
 if (process.env.CI) {
-	headless = 'new';
+	headless = "new";
 }
 
 const visitPage = async (pageUrl) => {
 	if (!scope.browser)
-		 
 		scope.browser = await scope.driver.launch({
 			headless,
 			slowMo,
 			ignoreHTTPSErrors,
-			args: ['--no-sandbox', '--disable-setuid-sandbox'],
+			args: ["--no-sandbox", "--disable-setuid-sandbox"],
 		});
 
-	 
 	scope.context.currentPage = await scope.browser.newPage();
 	// Cater for admin urls
 	const url = scope.host + pageUrl;
 	const visit = await scope.context.currentPage.goto(url, {
-		waitUntil: 'networkidle2',
+		waitUntil: "networkidle2",
 	});
 	return visit;
 };
@@ -39,13 +37,12 @@ const closePage = async () => {
 const clientIdRequested = async () => {
 	const { currentPage } = scope.context;
 	const messages = await currentPage.evaluate(() => {
-		 
 		if (globalThis.sarusMessages.length === 0) return false;
-		 
+
 		return globalThis.sarusMessages;
 	});
-	assert(JSON.parse(messages[0]).action === 'get-client-id');
-	assert(JSON.parse(messages[0]).type === 'request');
+	assert(JSON.parse(messages[0]).action === "get-client-id");
+	assert(JSON.parse(messages[0]).type === "request");
 };
 
 const clientRepliesWithNoClientId = async () => {
@@ -53,8 +50,8 @@ const clientRepliesWithNoClientId = async () => {
 	// as we also respond to setting a id
 	const message = scope.messages[scope.messages.length - 2];
 	const parsedMessage = JSON.parse(message);
-	assert.strictEqual(parsedMessage.action, 'get-client-id');
-	assert.strictEqual(parsedMessage.type, 'response');
+	assert.strictEqual(parsedMessage.action, "get-client-id");
+	assert.strictEqual(parsedMessage.type, "response");
 	assert.strictEqual(parsedMessage.data.clientId, null);
 };
 
@@ -63,8 +60,8 @@ const clientRepliesWithAClientId = async () => {
 	// as we also respond to setting a id
 	const message = scope.messages[scope.messages.length - 2];
 	const parsedMessage = JSON.parse(message);
-	assert.strictEqual(parsedMessage.action, 'get-client-id');
-	assert.strictEqual(parsedMessage.type, 'response');
+	assert.strictEqual(parsedMessage.action, "get-client-id");
+	assert.strictEqual(parsedMessage.type, "response");
 	assert(parsedMessage.data.clientId !== null);
 	assert.strictEqual(parsedMessage.data.clientId.length, 36);
 };
@@ -78,14 +75,13 @@ const serverSetsClientIdOnConnection = async () => {
 const serverSendsClientIdToClient = async () => {
 	const { currentPage } = scope.context;
 	const messages = await currentPage.evaluate(() => {
-		 
 		if (sarusMessages.length === 0) return false;
-		 
+
 		return sarusMessages;
 	});
 	const { action, type, data } = JSON.parse(messages[messages.length - 1]);
-	assert(action === 'set-client-id');
-	assert(type === 'request');
+	assert(action === "set-client-id");
+	assert(type === "request");
 	assert(data.clientId !== undefined);
 	return assert(data.clientId.length === 36);
 };
@@ -94,7 +90,6 @@ const clientSubscribesToChannel = async (channel) => {
 	const { currentPage } = scope.context;
 	// We need to make a request from the client to the server to subscribe to a channel
 	await currentPage.evaluate(async (channel) => {
-		 
 		await hubClient.subscribe(channel);
 	}, channel);
 };
@@ -102,14 +97,14 @@ const clientSubscribesToChannel = async (channel) => {
 const serverReceivesSubscriptionRequest = async (channel) => {
 	const message = scope.messages[scope.messages.length - 1];
 	const parsedMessage = JSON.parse(message);
-	assert.strictEqual(parsedMessage.action, 'subscribe');
+	assert.strictEqual(parsedMessage.action, "subscribe");
 	assert.strictEqual(parsedMessage.data.channel, channel);
 };
 
 const serverReceivesUnsubscriptionRequest = async (channel) => {
 	const message = scope.messages[scope.messages.length - 1];
 	const parsedMessage = JSON.parse(message);
-	assert.strictEqual(parsedMessage.action, 'unsubscribe');
+	assert.strictEqual(parsedMessage.action, "unsubscribe");
 	assert.strictEqual(parsedMessage.data.channel, channel);
 };
 
@@ -117,44 +112,33 @@ const getClientId = async () => {
 	const { currentPage } = scope.context;
 	// We need to make a request from the client to the server to subscribe to a channel
 	const clientId = await currentPage.evaluate(() => {
-		 
-		return localStorage.getItem('sarus-client-id');
+		return localStorage.getItem("sarus-client-id");
 	});
 	return clientId;
 };
 
 // Checks that a client is subscribed to a channel
 const serverSubscribesClientToChannel = ({ clientId, channel }) => {
-	assert(
-		scope.hub.pubsub.dataStore.clients[clientId].indexOf(channel) !== -1
-	);
-	assert(
-		scope.hub.pubsub.dataStore.channels[channel].indexOf(clientId) !== -1
-	);
+	assert(scope.hub.pubsub.dataStore.clients[clientId].indexOf(channel) !== -1);
+	assert(scope.hub.pubsub.dataStore.channels[channel].indexOf(clientId) !== -1);
 };
 
 const serverUnsubscribesClientFromChannel = ({ clientId, channel }) => {
-	assert(
-		scope.hub.pubsub.dataStore.clients[clientId].indexOf(channel) === -1
-	);
-	assert(
-		scope.hub.pubsub.dataStore.channels[channel].indexOf(clientId) === -1
-	);
+	assert(scope.hub.pubsub.dataStore.clients[clientId].indexOf(channel) === -1);
+	assert(scope.hub.pubsub.dataStore.channels[channel].indexOf(clientId) === -1);
 };
 
 const clientReceivesSubscribeSuccessReponse = async ({ clientId, channel }) => {
 	const { currentPage } = scope.context;
 	const messages = await currentPage.evaluate(() => {
-		 
 		if (sarusMessages.length === 0) return false;
-		 
+
 		return sarusMessages;
 	});
 	const { data } = JSON.parse(messages[messages.length - 1]);
 	assert(data.success === true);
 	assert(
-		data.message ===
-			`Client "${clientId}" subscribed to channel "${channel}"`
+		data.message === `Client "${clientId}" subscribed to channel "${channel}"`,
 	);
 };
 
@@ -173,12 +157,11 @@ const publishMessageToChannel = async ({
 		scope.clientPublishedMessage = true;
 		await currentPage.evaluate(
 			async (channel, message, excludeSender) => {
-				 
 				await hubClient.publish(channel, message, excludeSender);
 			},
 			channel,
 			message,
-			excludeSender
+			excludeSender,
 		);
 	}
 };
@@ -186,15 +169,14 @@ const publishMessageToChannel = async ({
 const clientReceivesMessageForChannel = async ({ message, channel }) => {
 	const { currentPage } = scope.context;
 	const messages = await currentPage.evaluate(() => {
-		 
 		if (sarusMessages.length === 0) return false;
-		 
+
 		return sarusMessages;
 	});
 	// Has to be 2 back if the client publishes the message themselves, or 1 if someone else (i.e. the server)
 	const amount = scope.clientPublishedMessage ? 2 : 1;
 	const { action, data } = JSON.parse(messages[messages.length - amount]);
-	assert.strictEqual(action, 'message');
+	assert.strictEqual(action, "message");
 	assert.strictEqual(data.channel, channel);
 	assert.strictEqual(data.message, message);
 };
@@ -202,14 +184,13 @@ const clientReceivesMessageForChannel = async ({ message, channel }) => {
 const clientDoesNotReceiveMessageForChannel = async ({ message, channel }) => {
 	const { currentPage } = scope.context;
 	const messages = await currentPage.evaluate(() => {
-		 
 		if (sarusMessages.length === 0) return false;
-		 
+
 		return sarusMessages;
 	});
 	const { action, data } = JSON.parse(messages[messages.length - 1]);
 	if (!action && !data) return;
-	assert.notStrictEqual(action, 'message');
+	assert.notStrictEqual(action, "message");
 	assert.notStrictEqual(data.channel, channel);
 	assert.notStrictEqual(data.message, message);
 };
@@ -218,7 +199,6 @@ const clientUnsubscribesFromChannel = async (channel) => {
 	const { currentPage } = scope.context;
 	// We need to make a request from the client to the server to subscribe to a channel
 	await currentPage.evaluate(async (channel) => {
-		 
 		await hubClient.unsubscribe(channel);
 	}, channel);
 };
@@ -229,24 +209,23 @@ const clientReceivesUnsubscribeSuccessReponse = async ({
 }) => {
 	const { currentPage } = scope.context;
 	const messages = await currentPage.evaluate(() => {
-		 
 		if (sarusMessages.length === 0) return false;
-		 
+
 		return sarusMessages;
 	});
 	const { data } = JSON.parse(messages[messages.length - 1]);
 	assert(data.success === true);
 	assert(
 		data.message ===
-			`Client "${clientId}" unsubscribed from channel "${channel}"`
+			`Client "${clientId}" unsubscribed from channel "${channel}"`,
 	);
 };
 
 const otherClientSubscribesToChannel = async (channel) => {
-	scope.otherClient = new HubClient({ url: 'ws://localhost:3001' });
+	scope.otherClient = new HubClient({ url: "ws://localhost:3001" });
 	scope.otherClientMessages = [];
-	scope.otherClient.sarus.on('message', (message) =>
-		scope.otherClientMessages.push(message.data)
+	scope.otherClient.sarus.on("message", (message) =>
+		scope.otherClientMessages.push(message.data),
 	);
 	await scope.otherClient.isReady();
 	await scope.otherClient.subscribe(channel);
@@ -260,12 +239,12 @@ const otherClientReceivesMessageForChannel = async (message, channel) => {
 	assert.strictEqual(parsedLastMessage.data.channel, channel);
 };
 
-const rpcActionExistsOnServer = function () {
-	if (scope.hub.rpc.list('hello')) return;
+const rpcActionExistsOnServer = () => {
+	if (scope.hub.rpc.list("hello")) return;
 	const helloFunc = ({ reply }) => {
-		reply({ data: 'Hello to you too' });
+		reply({ data: "Hello to you too" });
 	};
-	scope.hub.rpc.add('hello', helloFunc);
+	scope.hub.rpc.add("hello", helloFunc);
 };
 
 const clientMakesHelloRPCRequest = async () => {
@@ -273,9 +252,11 @@ const clientMakesHelloRPCRequest = async () => {
 	// We need to make a request from the client to the server to subscribe to a channel
 	await currentPage.evaluate(async () => {
 		const request = {
-			action: 'hello',
+			action: "hello",
 		};
-		 
+
+		console.log(window.hubClient);
+
 		await hubClient.rpc.send(request);
 	});
 };
@@ -283,15 +264,14 @@ const clientMakesHelloRPCRequest = async () => {
 const clientReceivesHelloRPCReply = async () => {
 	const { currentPage } = scope.context;
 	const messages = await currentPage.evaluate(() => {
-		 
 		if (sarusMessages.length === 0) return false;
-		 
+
 		return sarusMessages;
 	});
 	const { action, type, data } = JSON.parse(messages[messages.length - 1]);
-	assert.strictEqual(action, 'hello');
-	assert.strictEqual(type, 'response');
-	assert.strictEqual(data, 'Hello to you too');
+	assert.strictEqual(action, "hello");
+	assert.strictEqual(type, "response");
+	assert.strictEqual(data, "Hello to you too");
 };
 
 const clientMakesIncorrecRPCRequest = async () => {
@@ -299,10 +279,9 @@ const clientMakesIncorrecRPCRequest = async () => {
 	// We need to make a request from the client to the server to subscribe to a channel
 	await currentPage.evaluate(async () => {
 		const request = {
-			action: 'hi',
+			action: "hi",
 		};
 		try {
-			 
 			await hubClient.rpc.send(request);
 		} catch (err) {
 			// Do nothing
@@ -313,25 +292,23 @@ const clientMakesIncorrecRPCRequest = async () => {
 const clientReceivesIncorrectRPCReply = async () => {
 	const { currentPage } = scope.context;
 	const messages = await currentPage.evaluate(() => {
-		 
 		if (sarusMessages.length === 0) return false;
-		 
+
 		return sarusMessages;
 	});
 	const { action, type, error } = JSON.parse(messages[messages.length - 1]);
-	assert.strictEqual(action, 'hi');
-	assert.strictEqual(type, 'error');
-	assert.strictEqual(error, 'No server action found');
+	assert.strictEqual(action, "hi");
+	assert.strictEqual(type, "error");
+	assert.strictEqual(error, "No server action found");
 };
 
 const rpcActionExistsOnClient = async () => {
 	const { currentPage } = scope.context;
 	await currentPage.evaluate(async () => {
-		 
-		if (hubClient.rpc.list('time')) return;
-		 
-		hubClient.rpc.add('time', ({ reply }) => {
-			reply({ data: 'The time is now' });
+		if (hubClient.rpc.list("time")) return;
+
+		hubClient.rpc.add("time", ({ reply }) => {
+			reply({ data: "The time is now" });
 		});
 	});
 };
@@ -342,7 +319,7 @@ const serverMakesTimeRPCRequest = async () => {
 	try {
 		await scope.hub.rpc.send({
 			ws,
-			action: 'time',
+			action: "time",
 		});
 	} catch (err) {
 		// Do nothing
@@ -351,9 +328,9 @@ const serverMakesTimeRPCRequest = async () => {
 const serverReceivesTimeRPCReply = () => {
 	const message = scope.messages[scope.messages.length - 1];
 	const { action, type, data } = JSON.parse(message);
-	assert.strictEqual(action, 'time');
-	assert.strictEqual(type, 'response');
-	assert.strictEqual(data, 'The time is now');
+	assert.strictEqual(action, "time");
+	assert.strictEqual(type, "response");
+	assert.strictEqual(data, "The time is now");
 };
 
 const serverMakesIncorrecRPCRequest = async () => {
@@ -362,7 +339,7 @@ const serverMakesIncorrecRPCRequest = async () => {
 	try {
 		await scope.hub.rpc.send({
 			ws,
-			action: 'clock',
+			action: "clock",
 		});
 	} catch (err) {
 		// Do nothing
@@ -371,14 +348,14 @@ const serverMakesIncorrecRPCRequest = async () => {
 const serverReceivesIncorrectRPCReply = () => {
 	const message = scope.messages[scope.messages.length - 1];
 	const { action, type, error } = JSON.parse(message);
-	assert.strictEqual(action, 'clock');
-	assert.strictEqual(type, 'error');
-	assert.strictEqual(error, 'No client action found');
+	assert.strictEqual(action, "clock");
+	assert.strictEqual(type, "error");
+	assert.strictEqual(error, "No client action found");
 };
 
 const addAuthenticatedChannelWithPassword = async (channel, password) => {
 	const authenticate = async ({ data }) => {
-		if (!data.password) throw new Error('Requires authentication');
+		if (!data.password) throw new Error("Requires authentication");
 		return data.password === password;
 	};
 	scope.hub.pubsub.addChannelConfiguration({ channel, authenticate });
@@ -389,21 +366,20 @@ const clientSubscribesToChannelWithPassword = async (channel, password) => {
 	// We need to make a request from the client to the server to subscribe to a channel
 	await currentPage.evaluate(
 		async (channel, password) => {
-			 
 			await hubClient.subscribe(channel, { password });
 		},
 		channel,
-		password
+		password,
 	);
 };
 
 const serverReceivesSubscriptionRequestWithPassword = async (
 	channel,
-	password
+	password,
 ) => {
 	const message = scope.messages[scope.messages.length - 1];
 	const parsedMessage = JSON.parse(message);
-	assert.strictEqual(parsedMessage.action, 'subscribe');
+	assert.strictEqual(parsedMessage.action, "subscribe");
 	assert.strictEqual(parsedMessage.data.channel, channel);
 	assert.strictEqual(parsedMessage.data.password, password);
 };
@@ -411,31 +387,28 @@ const serverReceivesSubscriptionRequestWithPassword = async (
 const serverMakesRequiresAuthenticationReply = async () => {
 	const { currentPage } = scope.context;
 	const messages = await currentPage.evaluate(() => {
-		 
 		if (sarusMessages.length === 0) return false;
-		 
+
 		return sarusMessages;
 	});
 	const { action, type, error } = JSON.parse(messages[messages.length - 1]);
-	assert.strictEqual(action, 'subscribe');
-	assert.strictEqual(type, 'error');
-	assert.strictEqual(error, 'Requires authentication');
+	assert.strictEqual(action, "subscribe");
+	assert.strictEqual(type, "error");
+	assert.strictEqual(error, "Requires authentication");
 };
 
 const clientShouldNotBeSubscribedToChannel = async (channel) => {
 	const { currentPage } = scope.context;
 	// We need to make a request from the client to the server to subscribe to a channel
 	const clientId = await currentPage.evaluate(async () => {
-		 
 		await hubClient.getClientId();
 	});
-	const clients = await scope.hub.pubsub.dataStore.getClientIdsForChannel(
-		channel
-	);
+	const clients =
+		await scope.hub.pubsub.dataStore.getClientIdsForChannel(channel);
 	assert(!clients || clients.indexOf(clientId) === -1);
 };
 
-module.exports = {
+export {
 	visitPage,
 	closePage,
 	clientIdRequested,

@@ -1,13 +1,13 @@
 // Dependencies
-const { BeforeAll, After, AfterAll } = require('@cucumber/cucumber');
+import { After, AfterAll, BeforeAll } from "@cucumber/cucumber";
 // const log = require('why-is-node-running');
 
-const scope = require('./support/scope');
 /*
 	The web client is loaded here because it relies
 	on async which the world.js file can't support
 */
-const { startServer, stopServer } = require('./support/client');
+import { startServer, stopServer } from "./support/client/index.js";
+import { scope } from "./support/scope.js";
 
 BeforeAll({ timeout: 60000 }, async () => {
 	await startServer();
@@ -20,7 +20,7 @@ After(async () => {
 			await scope.context.currentPage.deleteCookie(...cookies);
 		}
 		await scope.context.currentPage.close();
-		 
+
 		scope.context.currentPage = null;
 		scope.clientPublishedMessage = null;
 	}
@@ -32,7 +32,7 @@ AfterAll({ timeout: 20000 }, async () => {
 		if (scope.otherClient) {
 			scope.otherClient.sarus.disconnect();
 		}
-		scope.api.shutdown(() => console.log('\nAPI is shut down'));
+		scope.api.shutdown(() => console.log("\nAPI is shut down"));
 		await stopServer();
 		// setTimeout(log, 20000);
 	} catch (err) {

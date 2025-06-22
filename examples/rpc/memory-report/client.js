@@ -1,6 +1,6 @@
-const HubClient = require('../../../lib/client');
-const hubClient = new HubClient({ url: 'ws://localhost:6000' });
-const os = require('os');
+const HubClient = require("../../../lib/client");
+const hubClient = new HubClient({ url: "ws://localhost:6000" });
+const os = require("os");
 
 const reportMemory = ({ reply }) => {
 	const freemem = os.freemem();
@@ -8,4 +8,4 @@ const reportMemory = ({ reply }) => {
 	reply({ data: { freemem, totalmem } });
 };
 
-hubClient.rpc.add('report-memory', reportMemory);
+hubClient.rpc.add("report-memory", reportMemory);
