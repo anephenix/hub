@@ -15,10 +15,15 @@
 	"types": "./dist/esm/index.d.ts",
 	"typesVersions": {
 		"*": {
-			"client": ["./dist/esm/lib/client/HubClient.browser.d.ts"]
+			"client": [
+				"./dist/esm/lib/client/HubClient.browser.d.ts"
+			]
 		}
 	},
-	"files": ["dist", "README.md"],
+	"files": [
+		"dist",
+		"README.md"
+	],
 	"scripts": {
 		"build": "tsc --build tsconfig.json",
 		"build-cucumber-support-files": "npx esbuild support/client/main.js --bundle --minify --sourcemap --outdir=support/client/dist",
@@ -33,7 +38,11 @@
 		"test": "NODE_ENV=test npx vitest test --run",
 		"update-changelog": "node scripts/update-changelog.js"
 	},
-	"keywords": ["websocket", "rpc", "pubsub"],
+	"keywords": [
+		"websocket",
+		"rpc",
+		"pubsub"
+	],
 	"husky": {
 		"hooks": {
 			"pre-commit": "npm run lint && npm run test && npm run cucumber"
@@ -42,7 +51,7 @@
 	"author": "Paul Jensen <paul@anephenix.com>",
 	"license": "MIT",
 	"dependencies": {
-		"@anephenix/sarus": "^0.7.6",
+		"@anephenix/sarus": "^0.7.7",
 		"node-ip": "^0.1.2",
 		"node-localstorage": "^3.0.5",
 		"redis": "^5.0.0",
