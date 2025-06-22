@@ -3,27 +3,23 @@
 	"version": "0.0.36",
 	"description": "A Node.js WebSocket server and client with added features",
 	"type": "module",
+	"types": "./dist/esm/index.d.ts",
 	"exports": {
 		".": {
-			"import": "./dist/esm/index.js"
+			"import": "./dist/esm/index.js",
+			"types": "./dist/esm/index.d.ts"
 		},
 		"./client": {
 			"node": "./dist/esm/lib/client/HubClient.node.js",
 			"default": "./dist/esm/lib/client/HubClient.browser.js"
 		}
 	},
-	"types": "./dist/esm/index.d.ts",
 	"typesVersions": {
 		"*": {
-			"client": [
-				"./dist/esm/lib/client/HubClient.browser.d.ts"
-			]
+			"client": ["./dist/esm/lib/client/HubClient.browser.d.ts"]
 		}
 	},
-	"files": [
-		"dist",
-		"README.md"
-	],
+	"files": ["dist", "README.md"],
 	"scripts": {
 		"build": "tsc --build tsconfig.json",
 		"build-cucumber-support-files": "npx esbuild support/client/main.js --bundle --minify --sourcemap --outdir=support/client/dist",
@@ -38,11 +34,7 @@
 		"test": "NODE_ENV=test npx vitest test --run",
 		"update-changelog": "node scripts/update-changelog.js"
 	},
-	"keywords": [
-		"websocket",
-		"rpc",
-		"pubsub"
-	],
+	"keywords": ["websocket", "rpc", "pubsub"],
 	"husky": {
 		"hooks": {
 			"pre-commit": "npm run lint && npm run test && npm run cucumber"

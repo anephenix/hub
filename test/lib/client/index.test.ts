@@ -1,5 +1,6 @@
 // Dependencies
 import assert from "node:assert";
+import type { GenericFunction } from "@anephenix/sarus";
 import { createHttpTerminator } from "http-terminator";
 import { afterAll, beforeAll, describe, it } from "vitest";
 import { delay, delayUntil } from "../../../src/helpers/delay";
@@ -331,9 +332,10 @@ describe("Client library", () => {
 				const newHubClient = new HubClient({
 					url: "ws://localhost:5001",
 				});
-				newHubClient.sarus.on("message", (event: MessageEvent) => {
+				const messageFunction = (event: MessageEvent) => {
 					messages.push(decode(event.data));
-				});
+				};
+				newHubClient.sarus.on("message", messageFunction as GenericFunction);
 				newHubClient.sarus.disconnect();
 				await delay(100);
 				await newHubClient.resubscribeOnReconnect();
@@ -352,9 +354,10 @@ describe("Client library", () => {
 				url: "ws://localhost:5001",
 				clientIdKey: "another-sarus-client-id",
 			});
-			newHubClient.sarus.on("message", (event: MessageEvent) => {
+			const messageFunction = (event: MessageEvent) => {
 				messages.push(decode(event.data));
-			});
+			};
+			newHubClient.sarus.on("message", messageFunction as GenericFunction);
 			beforeAll(async () => {
 				await newHubClient.isReady();
 				newHubClient.addChannel("dogs");
@@ -425,9 +428,10 @@ describe("Client library", () => {
 				url: "ws://localhost:5001",
 				clientIdKey: "yet-another-sarus-client-id",
 			});
-			newHubClient.sarus.on("message", (event: MessageEvent) => {
+			const messageFunction = (event: MessageEvent) => {
 				messages.push(decode(event.data));
-			});
+			};
+			newHubClient.sarus.on("message", messageFunction as GenericFunction);
 			await newHubClient.isReady();
 			await newHubClient.subscribe(channelOne);
 			await newHubClient.subscribe(channelTwo);
@@ -497,9 +501,10 @@ describe("Client library", () => {
 					url: "ws://localhost:5001",
 					clientIdKey: "other-sarus-client-id",
 				});
-				otherHubClient.sarus.on("message", (event: MessageEvent) => {
+				const messageFunction = (event: MessageEvent) => {
 					otherMessages.push(decode(event.data));
-				});
+				};
+				otherHubClient.sarus.on("message", messageFunction as GenericFunction);
 				await otherHubClient.isReady();
 				otherHubClient.sarus.disconnect();
 				await delay(50);

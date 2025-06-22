@@ -1,5 +1,6 @@
 // Dependencies
 import assert from "node:assert";
+import type { GenericFunction } from "@anephenix/sarus";
 import { type HttpTerminator, createHttpTerminator } from "http-terminator";
 import { v4 as uuidv4 } from "uuid";
 import { afterAll, beforeAll, describe, it } from "vitest";
@@ -185,10 +186,11 @@ describe("pubsub", () => {
 		it("should allow the client to publish a message to all of the channel subscribers, including themselves", async () => {
 			const messages: unknown[] = [];
 			const hubClient = new HubClient({ url: "ws://localhost:5050" });
-			hubClient.sarus.on("message", (event: MessageEvent) => {
+			const messageFunction = (event: MessageEvent) => {
 				const message = JSON.parse(event.data);
 				messages.push(message);
-			});
+			};
+			hubClient.sarus.on("message", messageFunction as GenericFunction);
 			await hubClient.isReady();
 			// Subscribe the client to the channel
 			await hubClient.subscribe("politics");
@@ -231,10 +233,11 @@ describe("pubsub", () => {
 		it("should allow the client to publish a message to all of the channel subscribers, excluding themselves", async () => {
 			const messages: unknown[] = [];
 			const hubClient = new HubClient({ url: "ws://localhost:5050" });
-			hubClient.sarus.on("message", (event: MessageEvent) => {
+			const messageFunction = (event: MessageEvent) => {
 				const message = JSON.parse(event.data);
 				messages.push(message);
-			});
+			};
+			hubClient.sarus.on("message", messageFunction as GenericFunction);
 			await hubClient.isReady();
 			// Subscribe the client to the channel
 			await hubClient.subscribe("showbiz");
@@ -277,10 +280,11 @@ describe("pubsub", () => {
 		it("should allow the server to publish a message to all of the channel subscribers", async () => {
 			const messages: unknown[] = [];
 			const hubClient = new HubClient({ url: "ws://localhost:5050" });
-			hubClient.sarus.on("message", (event: MessageEvent) => {
+			const messageFunction = (event: MessageEvent) => {
 				const message = JSON.parse(event.data);
 				messages.push(message);
-			});
+			};
+			hubClient.sarus.on("message", messageFunction as GenericFunction);
 			await hubClient.isReady();
 			// Subscribe the client to the channel
 			await hubClient.subscribe("markets");
@@ -347,10 +351,11 @@ describe("pubsub", () => {
 			it("should return an error response if the channel is missing", async () => {
 				const messages: unknown[] = [];
 				const hubClient = new HubClient({ url: "ws://localhost:5050" });
-				hubClient.sarus.on("message", (event: MessageEvent) => {
+				const messageFunction = (event: MessageEvent) => {
 					const message = JSON.parse(event.data);
 					messages.push(message);
-				});
+				};
+				hubClient.sarus.on("message", messageFunction as GenericFunction);
 				await hubClient.isReady();
 				// Subscribe the client to the channel
 				await hubClient.subscribe("showbiz");
@@ -385,10 +390,11 @@ describe("pubsub", () => {
 			it("should return an error response if the message is missing", async () => {
 				const messages: unknown[] = [];
 				const hubClient = new HubClient({ url: "ws://localhost:5050" });
-				hubClient.sarus.on("message", (event: MessageEvent) => {
+				const messageFunction = (event: MessageEvent) => {
 					const message = JSON.parse(event.data);
 					messages.push(message);
-				});
+				};
+				hubClient.sarus.on("message", messageFunction as GenericFunction);
 				await hubClient.isReady();
 				// Subscribe the client to the channel
 				await hubClient.subscribe("showbiz");
@@ -423,10 +429,11 @@ describe("pubsub", () => {
 			it("should not allow a client to publish to a channel that they are not subscribed to", async () => {
 				const messages: unknown[] = [];
 				const hubClient = new HubClient({ url: "ws://localhost:5050" });
-				hubClient.sarus.on("message", (event: MessageEvent) => {
+				const messageFunction = (event: MessageEvent) => {
 					const message = JSON.parse(event.data);
 					messages.push(message);
-				});
+				};
+				hubClient.sarus.on("message", messageFunction as GenericFunction);
 				await hubClient.isReady();
 				const latestMessage = messages[messages.length - 1];
 				if (!latestMessage) throw new Error("No messages intercepted");
@@ -567,10 +574,11 @@ describe("pubsub", () => {
 			const messages: unknown[] = [];
 			const config = { url: "ws://localhost:5050" };
 			const hubClient = new HubClient(config);
-			hubClient.sarus.on("message", (event: MessageEvent) => {
+			const messageFunction = (event: MessageEvent) => {
 				const message = JSON.parse(event.data);
 				messages.push(message);
-			});
+			};
+			hubClient.sarus.on("message", messageFunction as GenericFunction);
 			await hubClient.isReady();
 			// Subscribe the client to the channel
 			await hubClient.subscribe("markets");
@@ -658,10 +666,11 @@ describe("pubsub", () => {
 		it("should return an error response if the channel is missing", async () => {
 			const messages: unknown[] = [];
 			const hubClient = new HubClient({ url: "ws://localhost:5050" });
-			hubClient.sarus.on("message", (event: MessageEvent) => {
+			const messageFunction = (event: MessageEvent) => {
 				const message = JSON.parse(event.data);
 				messages.push(message);
-			});
+			};
+			hubClient.sarus.on("message", messageFunction as GenericFunction);
 			await hubClient.isReady();
 			// Subscribe the client to the channel
 			await hubClient.subscribe("markets");

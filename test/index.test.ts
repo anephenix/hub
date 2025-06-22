@@ -3,6 +3,7 @@ import fs from "node:fs";
 import http from "node:http";
 import https, { type ServerOptions as HttpsServerOptions } from "node:https";
 import path from "node:path";
+import type { GenericFunction } from "@anephenix/sarus";
 import { createHttpTerminator } from "http-terminator";
 import { afterAll, beforeAll, describe, it } from "vitest";
 import type { WebSocketServer } from "ws";
@@ -303,10 +304,11 @@ describe("Hub", () => {
 			});
 			hub.listen();
 			hubClient = new HubClient({ url: "ws://localhost:4010" });
-			hubClient.sarus.on("message", (event: { data: string }) => {
+			const messageFunction = (event: { data: string }) => {
 				const message = JSON.parse(event.data);
 				messages.push(message);
-			});
+			};
+			hubClient.sarus.on("message", messageFunction as GenericFunction);
 
 			await hubClient.isReady();
 			const ws = Array.from(hub.wss.clients)[0] as WebSocketWithClientId;
