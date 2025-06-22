@@ -12,9 +12,10 @@
 */
 
 import type Sarus from "@anephenix/sarus";
+import type { GenericFunction } from "@anephenix/sarus/dist/esm/lib/types.js";
 // Dependencies
 import { v4 as uuidv4 } from "uuid";
-import { decode, encode } from "./dataTransformer";
+import { decode, encode } from "./dataTransformer.js";
 
 import type {
 	RPCArgs,
@@ -40,7 +41,7 @@ class RPC {
 		if (sarus) this.sarus = sarus;
 		this.receive = this.receive.bind(this);
 		// Automatically enable RPC message parsing on Sarus
-		this.sarus?.on("message", this.receive);
+		this.sarus?.on("message", this.receive as GenericFunction);
 	}
 
 	add(action: string, func: RPCFunction) {

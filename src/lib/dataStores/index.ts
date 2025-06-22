@@ -16,8 +16,8 @@
 */
 
 // Dependencies
-import MemoryDataStore from "./memory";
-import RedisDataStore from "./redis";
+import MemoryDataStore from "./memory.js";
+import RedisDataStore from "./redis.js";
 
 const dataStores = {
 	memory: MemoryDataStore,

@@ -1,8 +1,8 @@
 import type Sarus from "@anephenix/sarus";
 import type { WebSocketServer } from "ws";
 // Dependencies
-import { encode } from "./dataTransformer";
-import type RPC from "./rpc";
+import { encode } from "./dataTransformer.js";
+import type RPC from "./rpc.js";
 import type {
 	DataStoreInstance,
 	DataType,
@@ -10,7 +10,7 @@ import type {
 	RPCFunction,
 	RPCFunctionArgs,
 	WebSocketWithClientId,
-} from "./types";
+} from "./types.js";
 
 const noClientIdError = "No client id was found on the WebSocket";
 const noChannelError = "No channel was passed in the data";

@@ -9,10 +9,15 @@
 		"sourceMap": true,
 		"strict": true,
 		"esModuleInterop": true,
+		"emitDeclarationOnly": false,
 		"moduleResolution": "node",
 		"resolveJsonModule": true,
 		"skipLibCheck": true,
-		"allowJs": true // Enabling JavaScript files to be compiled for now, until we migrate everything to TypeScript
+		"allowJs": true
+	},
+	"ts-node": {
+		"esm": true,
+		"transpileOnly": true
 	},
 	"include": ["src/**/*"],
 	"exclude": ["node_modules", "dist"]

@@ -4,7 +4,7 @@
 	It is used for testing purposes and is not suitable for production use, as
 	it does not persist data across restarts or support clustering.
 */
-import type { OnMessageFunc, PublishMessageReceivedParams } from "../types";
+import type { OnMessageFunc, PublishMessageReceivedParams } from "../types.js";
 
 // Types and Interfaces
 

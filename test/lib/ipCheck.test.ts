@@ -3,7 +3,8 @@ import assert from "node:assert";
 import { createHttpTerminator } from "http-terminator";
 import { describe, it } from "vitest";
 import { delayUntil } from "../../src/helpers/delay";
-import { Hub, HubClient } from "../../src/index";
+import { Hub } from "../../src/index";
+import HubClient from "../../src/lib/client/HubClient.node";
 
 describe("IP Address checking", () => {
 	describe("when allowedIPAddresses is an empty array", () => {

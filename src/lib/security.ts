@@ -1,6 +1,6 @@
 // Types and Interfaces
 
-import type { DataStoreInstance } from "./types";
+import type { DataStoreInstance } from "./types.js";
 
 interface BanParams {
 	clientId: string;

@@ -1,4 +1,3 @@
-import HubClient from "./lib/client";
-import Hub from "./lib/index";
+import Hub from "./lib/index.js";
 
-export { Hub, HubClient };
+export { Hub };

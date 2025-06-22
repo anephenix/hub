@@ -6,14 +6,14 @@
 */
 
 import { type RedisClientType, createClient } from "redis";
-import { decode, encode } from "../dataTransformer";
+import { decode, encode } from "../dataTransformer.js";
 // Dependencies
 import type {
 	DataType,
 	OnMessageFunc,
 	PublishMessageReceivedParams,
 	RedisDataStoreConfig,
-} from "../types";
+} from "../types.js";
 
 // Types and Interfaces
 

@@ -1,17 +1,17 @@
 // Dependencies
-const gitChangedFiles = require('git-changed-files');
-const simpleGit = require('simple-git');
-const fs = require('fs');
-const util = require('util');
-const path = require('path');
+const gitChangedFiles = require("git-changed-files");
+const simpleGit = require("simple-git");
+const fs = require("fs");
+const util = require("util");
+const path = require("path");
 const git = simpleGit({
 	baseDir: process.cwd(),
-	binary: 'git',
+	binary: "git",
 });
-const exec = util.promisify(require('child_process').exec);
+const exec = util.promisify(require("child_process").exec);
 const readFile = util.promisify(fs.readFile);
 const writeFile = util.promisify(fs.writeFile);
-const { useRedisServer } = require('../helpers/redisServer');
+const { useRedisServer } = require("../helpers/redisServer");
 
 // Example usage:
 
@@ -19,52 +19,52 @@ const { useRedisServer } = require('../helpers/redisServer');
 
 const formatDate = (date) => {
 	const options = {
-		weekday: 'long',
-		day: 'numeric',
-		month: 'long',
-		year: 'numeric',
+		weekday: "long",
+		day: "numeric",
+		month: "long",
+		year: "numeric",
 	};
-	const formattedDate = date.toLocaleDateString('en-US', options);
+	const formattedDate = date.toLocaleDateString("en-US", options);
 	const daySuffix = getDaySuffix(date.getDate());
 	return formattedDate.replace(/\d+(st|nd|rd|th)/, daySuffix);
 };
 
 const getDaySuffix = (day) => {
 	if (day >= 11 && day <= 13) {
-		return 'th';
+		return "th";
 	}
 	switch (day % 10) {
 		case 1:
-			return 'st';
+			return "st";
 		case 2:
-			return 'nd';
+			return "nd";
 		case 3:
-			return 'rd';
+			return "rd";
 		default:
-			return 'th';
+			return "th";
 	}
 };
 
 const amendChangelogFile = async () => {
-	const filePath = path.join(process.cwd(), 'CHANGELOG.md');
-	const content = await readFile(filePath, 'utf-8');
-	const lines = content.split('\n');
+	const filePath = path.join(process.cwd(), "CHANGELOG.md");
+	const content = await readFile(filePath, "utf-8");
+	const lines = content.split("\n");
 	const title = lines[0];
 	const update = `### ${formatDate(new Date())}\n\n - Updated dependencies`;
-	const newContent = `${title}\n\n${update}\n\n${lines.slice(2).join('\n')}`;
-	await writeFile(filePath, newContent, 'utf-8');
+	const newContent = `${title}\n\n${update}\n\n${lines.slice(2).join("\n")}`;
+	await writeFile(filePath, newContent, "utf-8");
 };
 
 const runTests = async () => {
-	return await exec('npm t');
+	return await exec("npm t");
 };
 
 const makeUpdates = async () => {
-	return await exec('npx ncu -u');
+	return await exec("npx ncu -u");
 };
 
 const installUpdates = async () => {
-	return await exec('npm i');
+	return await exec("npm i");
 };
 
 const checkForChanges = async () => {
@@ -78,7 +78,7 @@ const addChangesToGit = async () => {
 };
 
 const bumpVersion = async () => {
-	return await exec('npm version patch');
+	return await exec("npm version patch");
 };
 
 const commitToGit = async () => {
@@ -86,7 +86,7 @@ const commitToGit = async () => {
 };
 
 const createGitTag = async () => {
-	const version = require('../package.json').version;
+	const version = require("../package.json").version;
 	return await exec(`git tag -a v${version} -m "Applied npm updates"`);
 };
 
@@ -97,7 +97,7 @@ const pushToGit = async (originAndBranch) => {
 
 // NOTE - we will need a way to intercept requests to pass the OTP from the command line
 const publishToNpm = async () => {
-	return await exec('npm publish --access=public');
+	return await exec("npm publish --access=public");
 };
 
 const main = async () => {
@@ -115,12 +115,12 @@ const main = async () => {
 				await bumpVersion();
 				await createGitTag();
 				// These may need shell input
-				await pushToGit('origin master');
+				await pushToGit("origin master");
 				// These may need shell input
-				await pushToGit('origin --tags');
+				await pushToGit("origin --tags");
 				await publishToNpm();
 			} else {
-				console.log('No changes to commit');
+				console.log("No changes to commit");
 			}
 		});
 	} catch (err) {

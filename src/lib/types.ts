@@ -1,9 +1,9 @@
 // Types and Interfaces
 
 import type { IncomingMessage } from "node:http";
-// Dependencies
-import type { SarusClassParams } from "@anephenix/sarus";
 import type Sarus from "@anephenix/sarus";
+// Dependencies
+import type { SarusClassParams } from "@anephenix/sarus/dist/esm/index.js";
 import type { CloseEvent, Data, WebSocket } from "ws";
 import type dataStores from "./dataStores";
 

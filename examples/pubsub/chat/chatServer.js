@@ -1,6 +1,6 @@
 // Import the @anephenix/hub library
-const { port } = require('./config');
-const { Hub } = require('../../../index');
+const { port } = require("./config");
+const { Hub } = require("../../../index");
 
 // Set up the Hub server to listen on  port as from the config
 /*

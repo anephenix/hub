@@ -14,7 +14,7 @@
 
 // Types and Interfaces
 import type { IncomingMessage } from "node:http";
-import type { NextFunction, WebSocketWithClientId } from "./types";
+import type { NextFunction, WebSocketWithClientId } from "./types.js";
 
 /* Check if the origin is allowed */
 export function checkOrigin(

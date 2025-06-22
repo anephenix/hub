@@ -1,1 +1,3 @@
-module.exports = {};
+const scope = {};
+
+export { scope };

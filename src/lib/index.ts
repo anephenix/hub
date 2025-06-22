@@ -15,14 +15,14 @@ import type {
 	Server as HttpsServer,
 	ServerOptions as HttpsServerOptions,
 } from "node:https";
-import { type CloseEvent, type Data, WebSocketServer } from "ws";
-import { checkHasClientId, requestClientId } from "./clientId";
-import dataStores from "./dataStores";
-import { handleIpAddressCheck } from "./ipCheck";
-import { handleOriginCheck } from "./originCheck";
-import PubSub from "./pubsub";
-import RPC from "./rpc";
-import { Security } from "./security";
+import { type CloseEvent, WebSocketServer } from "ws";
+import { checkHasClientId, requestClientId } from "./clientId.js";
+import dataStores from "./dataStores/index.js";
+import { handleIpAddressCheck } from "./ipCheck.js";
+import { handleOriginCheck } from "./originCheck.js";
+import PubSub from "./pubsub.js";
+import RPC from "./rpc.js";
+import { Security } from "./security.js";
 
 import type {
 	ConnectionEventListeners,
@@ -32,7 +32,7 @@ import type {
 	RedisDataStoreConfig,
 	ServerEventListeners,
 	WebSocketWithClientId,
-} from "./types";
+} from "./types.js";
 
 interface HubOptions {
 	port: number;

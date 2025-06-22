@@ -7,7 +7,8 @@ import { createHttpTerminator } from "http-terminator";
 import { afterAll, beforeAll, describe, it } from "vitest";
 import type { WebSocketServer } from "ws";
 import { delay, delayUntil } from "../src/helpers/delay";
-import { Hub, HubClient } from "../src/index";
+import { Hub } from "../src/index";
+import HubClient from "../src/lib/client/HubClient.node";
 import {
 	type WebSocketWithClientId,
 	checkHasClientId,

@@ -12,9 +12,9 @@
 */
 
 import Sarus from "@anephenix/sarus";
-import { delay, delayUntil } from "../../helpers/delay";
+import { delay, delayUntil } from "../../helpers/delay.js";
 // Dependencies
-import RPC from "../rpc";
+import RPC from "../rpc.js";
 import type {
 	ChannelHandler,
 	ChannelOptions,
@@ -24,29 +24,8 @@ import type {
 	RPCFunctionArgs,
 	SetClientIdData,
 	StorageType,
-} from "../types";
-import { isNode } from "../utils";
-
-if (isNode()) {
-	/*
-		Although Node.js 22 has built-in support for WebSocket clients, the 
-		underling implementation has issues with the WS module's WebSocket 
-		server.
-		
-		Therefore for now we use the WS module for WebSocket support in 
-		Node.js.
-	*/
-	import("ws").then((wsModule) => {
-		// @ts-ignore Using the WS module's WebSocket class as an override
-		global.WebSocket = wsModule.WebSocket;
-	});
-	import("node-localstorage").then((localStorageModule) => {
-		global.localStorage = new localStorageModule.LocalStorage("./localStorage");
-		global.sessionStorage = new localStorageModule.LocalStorage(
-			"./sessionStorage",
-		);
-	});
-}
+} from "../types.js";
+import { isNode } from "../utils.js";
 
 class HubClient {
 	context: (Window & typeof globalThis) | typeof global;

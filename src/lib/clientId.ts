@@ -15,7 +15,7 @@
 
 // Dependencies
 import { v4 as uuidv4 } from "uuid";
-import type { WebSocketWithClientId } from "./types";
+import type { WebSocketWithClientId } from "./types.js";
 
 // Types and Interfaces
 
