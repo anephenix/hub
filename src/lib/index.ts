@@ -10,11 +10,11 @@ import http, {
 	type Server as HttpServer,
 	type ServerOptions as HttpServerOptions,
 } from "node:http";
-import https from "node:https";
 import type {
 	Server as HttpsServer,
 	ServerOptions as HttpsServerOptions,
 } from "node:https";
+import https from "node:https";
 import { type CloseEvent, WebSocketServer } from "ws";
 import { checkHasClientId, requestClientId } from "./clientId.js";
 import dataStores from "./dataStores/index.js";
@@ -28,8 +28,8 @@ import type {
 	ConnectionEventListeners,
 	DataStoreInstance,
 	DataStoreType,
-	RPCFunction,
 	RedisDataStoreConfig,
+	RPCFunction,
 	ServerEventListeners,
 	WebSocketWithClientId,
 } from "./types.js";

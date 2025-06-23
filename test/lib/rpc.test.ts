@@ -1,6 +1,5 @@
 // Dependencies
 import assert from "node:assert";
-import http from "node:http";
 import { createHttpTerminator } from "http-terminator";
 import { v4 as uuidv4 } from "uuid";
 import { beforeAll, describe, it } from "vitest";
@@ -15,12 +14,10 @@ import type {
 } from "../../src/lib/types";
 
 describe("rpc", () => {
-	let server: http.Server;
 	let rpc: RPC;
 	let helloFunc: RPCFunction;
 
 	beforeAll(() => {
-		server = http.createServer();
 		rpc = new RPC();
 	});
 

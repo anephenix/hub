@@ -11,8 +11,8 @@ import { delay, delayUntil } from "../src/helpers/delay";
 import { Hub } from "../src/index";
 import HubClient from "../src/lib/client/HubClient.node";
 import {
-	type WebSocketWithClientId,
 	checkHasClientId,
+	type WebSocketWithClientId,
 } from "../src/lib/clientId";
 import type RedisDataStore from "../src/lib/dataStores/redis";
 
