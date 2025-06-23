@@ -205,7 +205,6 @@ describe("pubsub", () => {
 			};
 			if (!latestMessage) throw new Error("No messages intercepted");
 			assert.strictEqual(latestMessage.data.success, true);
-			console.log({ messages });
 			assert.strictEqual(
 				latestMessage.data.message,
 				`Client "${clientId}" subscribed to channel "politics"`,
