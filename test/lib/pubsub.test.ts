@@ -1,7 +1,7 @@
 // Dependencies
 import assert from "node:assert";
 import type { GenericFunction } from "@anephenix/sarus";
-import { type HttpTerminator, createHttpTerminator } from "http-terminator";
+import { createHttpTerminator, type HttpTerminator } from "http-terminator";
 import { v4 as uuidv4 } from "uuid";
 import { afterAll, beforeAll, describe, it } from "vitest";
 import { delay, delayUntil } from "../../src/helpers/delay";
@@ -123,7 +123,10 @@ describe("pubsub", () => {
 				const authenticate = ({
 					data,
 					socket,
-				}: { data: unknown; socket: WebSocketWithClientId }) => {
+				}: {
+					data: unknown;
+					socket: WebSocketWithClientId;
+				}) => {
 					assert.strictEqual((data as { password: string }).password, "food");
 					assert.strictEqual(socket.clientId, "ooo");
 					called = true;

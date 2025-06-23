@@ -33,9 +33,10 @@ Set.prototype.filter = function filter<T>(f: (v: T) => boolean): Set<T> {
 };
 
 type ChannelConfiguration = {
-	authenticate?: (params: { socket: WebSocketWithClientId; data: unknown }) =>
-		| Promise<boolean>
-		| boolean;
+	authenticate?: (params: {
+		socket: WebSocketWithClientId;
+		data: unknown;
+	}) => Promise<boolean> | boolean;
 	clientCanPublish?:
 		| boolean
 		| ((params: { data: unknown; socket: WebSocketWithClientId }) => boolean);
@@ -130,7 +131,10 @@ class PubSub {
 	async addClientToChannel({
 		clientId,
 		channel,
-	}: { clientId: string; channel: string }) {
+	}: {
+		clientId: string;
+		channel: string;
+	}) {
 		return await this.clientChannelAction({
 			clientId,
 			channel,
@@ -142,7 +146,10 @@ class PubSub {
 	async removeClientFromChannel({
 		clientId,
 		channel,
-	}: { clientId: string; channel: string }) {
+	}: {
+		clientId: string;
+		channel: string;
+	}) {
 		return await this.clientChannelAction({
 			clientId,
 			channel,
@@ -153,7 +160,9 @@ class PubSub {
 
 	async unsubscribeClientFromAllChannels({
 		ws,
-	}: { ws: WebSocketWithClientId }) {
+	}: {
+		ws: WebSocketWithClientId;
+	}) {
 		const { clientId } = ws;
 		if (!clientId) return;
 		const channels = await this.dataStore.getChannelsForClientId(clientId);
@@ -193,7 +202,11 @@ class PubSub {
 		channel,
 		socket,
 		data,
-	}: { channel: string; socket: WebSocketWithClientId; data: unknown }) {
+	}: {
+		channel: string;
+		socket: WebSocketWithClientId;
+		data: unknown;
+	}) {
 		const channelConfiguration = this.getChannelConfiguration(channel);
 		if (channelConfiguration?.authenticate) {
 			const authenticated = await channelConfiguration.authenticate({
@@ -207,7 +220,10 @@ class PubSub {
 	async subscribe({
 		data,
 		socket,
-	}: { data: unknown; socket: WebSocketWithClientId }) {
+	}: {
+		data: unknown;
+		socket: WebSocketWithClientId;
+	}) {
 		const { clientId } = socket;
 		const { channel } = data as { channel: string };
 		if (!clientId) throw new Error(noClientIdError);
@@ -237,7 +253,10 @@ class PubSub {
 	async checkClientIsASubscriberToChannel({
 		clientId,
 		channel,
-	}: { clientId: string; channel: string }) {
+	}: {
+		clientId: string;
+		channel: string;
+	}) {
 		const subscribers = await this.dataStore.getClientIdsForChannel(channel);
 		if (!subscribers || subscribers.length === 0) {
 			throw new Error(clientMustBeSubscriberError);
@@ -317,7 +336,10 @@ class PubSub {
 	async unsubscribe({
 		data,
 		socket,
-	}: { data: unknown; socket: WebSocketWithClientId }) {
+	}: {
+		data: unknown;
+		socket: WebSocketWithClientId;
+	}) {
 		const { clientId } = socket;
 		const { channel } = data as { channel: string };
 		if (!clientId) throw new Error(noClientIdError);
@@ -331,7 +353,10 @@ class PubSub {
 	compareWildcardChannelNames({
 		channel,
 		wildcardChannel,
-	}: { channel: string; wildcardChannel: string }) {
+	}: {
+		channel: string;
+		wildcardChannel: string;
+	}) {
 		const formattedChannel = channel.replace(/\*/g, "");
 		const formattedWildcardChannel = wildcardChannel.replace(/\*/g, "");
 		const compare = formattedChannel.includes(formattedWildcardChannel);

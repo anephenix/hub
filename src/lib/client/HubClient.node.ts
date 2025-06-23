@@ -3,6 +3,7 @@
 
 import { LocalStorage } from "node-localstorage";
 import { WebSocket } from "ws";
+
 // @ts-ignore
 global.WebSocket = WebSocket;
 global.localStorage = new LocalStorage("./localStorage");

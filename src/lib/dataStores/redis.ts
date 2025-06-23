@@ -5,7 +5,7 @@
 	supports persistence across restarts and can be clustered for scaling.
 */
 
-import { type RedisClientType, createClient } from "redis";
+import { createClient, type RedisClientType } from "redis";
 import { decode, encode } from "../dataTransformer.js";
 // Dependencies
 import type {
@@ -137,7 +137,10 @@ class RedisDataStore {
 	async addClientToChannel({
 		clientId,
 		channel,
-	}: { clientId: string; channel: string }) {
+	}: {
+		clientId: string;
+		channel: string;
+	}) {
 		await this.performActionForClientAndChannel({
 			action: "addItemToCollection",
 			clientId,
@@ -148,7 +151,10 @@ class RedisDataStore {
 	async removeClientFromChannel({
 		clientId,
 		channel,
-	}: { clientId: string; channel: string }) {
+	}: {
+		clientId: string;
+		channel: string;
+	}) {
 		await this.performActionForClientAndChannel({
 			action: "removeItemFromCollection",
 			clientId,

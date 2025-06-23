@@ -68,7 +68,10 @@ class RPC {
 	handleError({
 		error,
 		reply,
-	}: { error: unknown; reply: (response: Partial<RPCPayload>) => unknown }) {
+	}: {
+		error: unknown;
+		reply: (response: Partial<RPCPayload>) => unknown;
+	}) {
 		reply({
 			type: "error",
 			error,
