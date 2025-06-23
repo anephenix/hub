@@ -197,12 +197,15 @@ describe("pubsub", () => {
 			// Acknowledge the channel subscription
 			// @ts-ignore
 			const clientId = global.localStorage.getItem("sarus-client-id");
+			const hubClientId = await hubClient.getClientId();
+			assert.strictEqual(clientId, hubClientId);
 			const latestMessage = messages[messages.length - 1] as {
 				type: string;
 				data: { success: boolean; message: string };
 			};
 			if (!latestMessage) throw new Error("No messages intercepted");
 			assert.strictEqual(latestMessage.data.success, true);
+			console.log({ messages });
 			assert.strictEqual(
 				latestMessage.data.message,
 				`Client "${clientId}" subscribed to channel "politics"`,
