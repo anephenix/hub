@@ -120,7 +120,7 @@ an example:
 ```javascript
 // Dependencies
 import repl from 'node:repl';
-import HubClient from '@anephenix/hub/dist/lib/client/HubClient.node.js'; // TODO - check and verify against published library
+import HubClient from "@anephenix/hub/client";
 
 // Initialise the client
 const hubClient = new HubClient({ url: 'ws://localhost:3000' });
