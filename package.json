@@ -1,6 +1,6 @@
 {
 	"name": "@anephenix/hub",
-	"version": "0.1.2",
+	"version": "0.1.3",
 	"description": "A Node.js WebSocket server and client with added features",
 	"type": "module",
 	"types": "./dist/esm/index.d.ts",
