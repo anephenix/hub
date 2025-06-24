@@ -1,5 +1,10 @@
 # CHANGELOG
 
+### 0.1.2 - Tuesday 24th June, 2025
+
+- Updated README on using HubClient in the browser, and exported HubOptions interface for TypeScript usage
+- Updated README on using HubClient on Node.js
+
 ### 0.1.1 - Tuesday 24th June, 2025
 
 - Fix for GitHub workflow not exporting the dist folder as expected
