@@ -1,5 +1,52 @@
 # CHANGELOG
 
+### 0.1.0 - Tuesday 24th June, 2025
+
+- Updated Changelog script to TypeScript
+- Small tweak
+- Updates to code and documentation relating to default ESModule usage
+- Merge pull request #252 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.0.4
+- Migrated the biome config and applied some linting fixes
+- Merge pull request #251 from anephenix/dependabot/npm_and_yarn/vitest-3.2.4
+- Merge pull request #250 from anephenix/dependabot/npm_and_yarn/puppeteer-24.10.2
+- Bump @biomejs/biome from 1.9.4 to 2.0.4
+- Bump vitest from 3.2.3 to 3.2.4
+- Bump puppeteer from 24.10.0 to 24.10.2
+- Merge pull request #248 from anephenix/dependabot/npm_and_yarn/puppeteer-24.10.1
+- Merge pull request #244 from anephenix/dependabot/npm_and_yarn/eslint-9.29.0
+- Bump puppeteer from 24.10.0 to 24.10.1
+- Bump eslint from 9.28.0 to 9.29.0
+- Removed an unneeded script and a devDependency (npm)
+- Disabled fileParallelism in vitest as that was causing tests that needed a shared folder resource (localStorage) to collide and fail
+- Debugging an issue in the GitHub Workflow's test run
+- TypeScript fixes
+- Merge pull request #249 from anephenix/feature/typescript
+- Added some more TypeScript changes and fixes
+- Updated Sarus to include fixes for build issue
+- Update GitHub workflows to run build command
+- Got Hub working with TypeScript changes in place
+- TypeScript fixes
+- TypeScript fixes for a unit test
+- Some more TypeScript issues in unit tests fixed
+- Some more typescript fixes in the unit tests
+- Yet some more typescript fixes
+- Some more typescript fixes
+- Yet some more TypeScript fixes
+- Some more TypeScript fixes
+- Fixed some unit tests
+- Another typescript issue fixed
+- Yet another typescript fix
+- Another typescript fix
+- More typescript fixes
+- Fixed one typescript issue
+- Some more typescript fixes
+- More typescript fixes
+- and some few more typescript fixes
+- Some few more typescript fixes
+- A few more typescript fixes
+- Initial conversion to TypeScript, still need to fix some typescript errors, convert the E2E tests to TS and verify the build formats
+- Removed CodeClimate and updated dependencies
+
 ### 0.0.36 - Tuesday 10th June, 2025
 
 - Merge branch 'master' of github.com:anephenix/hub
