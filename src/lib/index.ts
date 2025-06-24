@@ -34,7 +34,7 @@ import type {
 	WebSocketWithClientId,
 } from "./types.js";
 
-interface HubOptions {
+export interface HubOptions {
 	port: number;
 	serverType?: "http" | "https";
 	server?: HttpServer | HttpsServer;

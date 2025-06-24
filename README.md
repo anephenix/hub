@@ -94,7 +94,7 @@ hub.listen();
 And for the client, you can load this code:
 
 ```javascript
-import HubClient from '@anephenix/hub/dist/lib/client/HubClient.browser.js'; // TODO - check and verify against published library
+import HubClient from '@anephenix/hub/client';
 
 // Create an instance of HubClient
 const hubClient = new HubClient({ url: 'ws://localhost:4000' });
