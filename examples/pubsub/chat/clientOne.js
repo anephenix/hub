@@ -1,8 +1,9 @@
+import * as emoji from "node-emoji";
 import termkit from "terminal-kit";
-const terminal = termkit.terminal;
 import ChatClient from "./chatClient.js";
 import config from "./config.js";
-import * as emoji from "node-emoji";
+
+const terminal = termkit.terminal;
 
 let room;
 let name;
@@ -57,6 +58,7 @@ const enableScrolling = () => {
 	terminal.grabInput({ mouse: "button" });
 
 	terminal.on("mouse", (name, data) => {
+		name; // Unused variable, but kept for compatibility
 		if (data.y < terminal.height - 2) {
 			// Ensure scrolling only affects message area
 			if (data.mwheelup) {
