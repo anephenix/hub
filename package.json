@@ -39,7 +39,7 @@
 		"publish-patch-release": "npm run prepare-patch-release && git push origin master && git push --tags",
 		"pretest": "rm -rf localStorage && rm -rf sessionStorage",
 		"test": "NODE_ENV=test npx vitest test --run",
-		"update-changelog": "node scripts/update-changelog.js"
+		"update-changelog": "node --experimental-strip-types scripts/update-changelog.ts"
 	},
 	"keywords": [
 		"websocket",
