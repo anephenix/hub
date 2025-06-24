@@ -1,5 +1,9 @@
 # CHANGELOG
 
+### 0.1.3 - Tuesday 24th June, 2025
+
+- Missed a step in exporting a type in a file
+
 ### 0.1.2 - Tuesday 24th June, 2025
 
 - Updated README on using HubClient in the browser, and exported HubOptions interface for TypeScript usage
