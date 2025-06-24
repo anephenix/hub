@@ -1,6 +1,6 @@
 // Dependencies
 import httpShutdown from "http-shutdown";
-import { Hub } from "../../../dist/esm/index.js";
+import Hub from "../../../dist/esm/index.js";
 
 // Initialise an instance of Hub
 const hub = new Hub({

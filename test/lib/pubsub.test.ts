@@ -5,7 +5,7 @@ import { createHttpTerminator, type HttpTerminator } from "http-terminator";
 import { v4 as uuidv4 } from "uuid";
 import { afterAll, beforeAll, describe, it } from "vitest";
 import { delay, delayUntil } from "../../src/helpers/delay";
-import { Hub } from "../../src/index";
+import Hub from "../../src/index";
 import HubClient from "../../src/lib/client/HubClient.node";
 import MemoryDataStore from "../../src/lib/dataStores/memory";
 import type RedisDataStore from "../../src/lib/dataStores/redis";

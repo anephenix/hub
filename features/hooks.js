@@ -1,6 +1,6 @@
 // Dependencies
 import { After, AfterAll, BeforeAll } from "@cucumber/cucumber";
-// const log = require('why-is-node-running');
+// import log from 'why-is-node-running';
 
 /*
 	The web client is loaded here because it relies

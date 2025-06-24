@@ -1,6 +1,6 @@
 // Import the @anephenix/hub library
-const { port } = require("./config");
-const { Hub } = require("../../../index");
+import Hub from "../../../dist/esm/index.js";
+import config from "./config.js";
 
 // Set up the Hub server to listen on  port as from the config
 /*
@@ -10,6 +10,7 @@ const { Hub } = require("../../../index");
 
     https://github.com/anephenix/hub?tab=readme-ov-file#handling-client--channel-subscriptions-data
 */
+const { port } = config;
 const hub = new Hub({ port });
 
 // Start listening

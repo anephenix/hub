@@ -60,6 +60,7 @@ jobs:
             - run: npm run lint
             - run: mkdir -p certs && cd certs && ../mkcert localhost 127.0.0.1 ::1
             - run: npm run build
+            - run: npm run check-build
             - run: npm run build-cucumber-support-files
             - run: npm run cover
             - run: node --max-old-space-size=4096 ./node_modules/.bin/cucumber-js --no-strict --exit

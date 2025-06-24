@@ -4,7 +4,7 @@ import type { GenericFunction } from "@anephenix/sarus";
 import { createHttpTerminator } from "http-terminator";
 import { afterAll, beforeAll, describe, it } from "vitest";
 import { delay, delayUntil } from "../../../src/helpers/delay";
-import { Hub } from "../../../src/index";
+import Hub from "../../../src/index";
 import HubClient from "../../../src/lib/client/HubClient.node";
 import type MemoryDataStore from "../../../src/lib/dataStores/memory";
 import { decode } from "../../../src/lib/dataTransformer";

@@ -1,5 +1,5 @@
-// Dependencies
-const { Hub } = require("../../../index");
+import Hub from "../../../dist/esm/index.js";
+
 const hub = new Hub({ port: 6000 });
 
 hub.wss.on("connection", async (ws) => {
@@ -9,7 +9,7 @@ hub.wss.on("connection", async (ws) => {
 		ws,
 		action: "report-memory",
 	});
-	console.log(response);
+	console.log("Client reports memory as:", response);
 });
 
 hub.listen();

@@ -27,6 +27,7 @@ jobs:
             - run: ./mkcert -install
             - run: mkdir -p certs && cd certs && ../mkcert localhost 127.0.0.1 ::1
             - run: npm run build
+            - run: npm run check-build
             - name: Run tests
               run: npm test
 

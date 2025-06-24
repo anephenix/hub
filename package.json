@@ -31,6 +31,7 @@
 		"certs": "mkdir -p certs && cd certs && mkcert localhost 127.0.0.1 ::1",
 		"format": "npx @biomejs/biome format --write src/**/* test/**/*",
 		"lint": "npx @biomejs/biome check src test",
+		"check-build": "node scripts/check-node-esm-works.js && node scripts/check-node-commonjs-works.cjs",
 		"cover": "NODE_ENV=test npx nyc --reporter=lcov npm t",
 		"cucumber": "NODE_ENV=test npx cucumber-js",
 		"cucumber-wip": "NODE_ENV=test npx cucumber-js -t @wip",
@@ -47,7 +48,7 @@
 	],
 	"husky": {
 		"hooks": {
-			"pre-commit": "npm run lint && npm run test && npm run cucumber"
+			"pre-commit": "npm run lint && npm run test && npm run build && npm run check-build && npm run build-cucumber-support-files && npm run cucumber"
 		}
 	},
 	"author": "Paul Jensen <paul@anephenix.com>",

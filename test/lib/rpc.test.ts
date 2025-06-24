@@ -4,7 +4,7 @@ import { createHttpTerminator } from "http-terminator";
 import { v4 as uuidv4 } from "uuid";
 import { beforeAll, describe, it } from "vitest";
 import { delayUntil } from "../../src/helpers/delay";
-import { Hub } from "../../src/index";
+import Hub from "../../src/index";
 import HubClient from "../../src/lib/client/HubClient.node";
 import RPC from "../../src/lib/rpc";
 import type {

@@ -1,3 +1,3 @@
 import Hub from "./lib/index.js";
 
-export { Hub };
+export default Hub;

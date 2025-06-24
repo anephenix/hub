@@ -7,7 +7,7 @@ A Node.js WebSocket server and client with added features
 
 ### Dependencies
 
--   Node.js (version 14 or greater)
+-   Node.js (version 22 or greater)
 -   Redis
 
 ### Install
@@ -80,7 +80,7 @@ You can run the WebSocket server with this code snippet:
 
 ```javascript
 // Dependencies
-const { Hub } = require('@anephenix/hub');
+import Hub from '@anephenix/hub';
 
 // Initialize hub to listen on port 4000
 const hub = new Hub({ port: 4000 });
@@ -94,14 +94,7 @@ hub.listen();
 And for the client, you can load this code:
 
 ```javascript
-/* Dependencies
-
-	You will want to import just the HubClient library
-	if you are using a library to import and transpile
-	modules like WebPack for Next.js
-
-*/
-import HubClient from '@anephenix/hub/lib/client';
+import HubClient from '@anephenix/hub/dist/lib/client/HubClient.browser.js'; // TODO - check and verify against published library
 
 // Create an instance of HubClient
 const hubClient = new HubClient({ url: 'ws://localhost:4000' });
@@ -126,8 +119,8 @@ an example:
 
 ```javascript
 // Dependencies
-const repl = require('repl');
-const { HubClient } = require('@anephenix/hub');
+import repl from 'node:repl';
+import HubClient from '@anephenix/hub/dist/lib/client/HubClient.node.js'; // TODO - check and verify against published library
 
 // Initialise the client
 const hubClient = new HubClient({ url: 'ws://localhost:3000' });
@@ -476,9 +469,9 @@ Hub allows you 2 ways to setup the server to run on https - either pass an
 instance of a https server to Hub:
 
 ```javascript
-const https = require('https');
-const fs = require('fs');
-const { Hub } = require('@anephenix/hub');
+import https from 'node:https';
+import fs from 'node:fs';
+import Hub from '@anephenix/hub';
 
 const serverOptions = {
 	key: fs.readFileSync('PATH_TO_SSL_CERTIFICATE_KEY_FILE'),
@@ -494,8 +487,8 @@ Alternatively, you can pass the string 'https' with the https
 server options passed as a `serverOptions` property to Hub.
 
 ```javascript
-const fs = require('fs');
-const { Hub } = require('@anephenix/hub');
+import fs from 'node:fs';
+import Hub from '@anephenix/hub';
 
 const serverOptions = {
 	key: fs.readFileSync('PATH_TO_SSL_CERTIFICATE_KEY_FILE'),
@@ -514,7 +507,7 @@ You can restrict the urls where WebSocket connections can be established by
 passing an array of url origins to the `allowedOrigins` property for a server:
 
 ```javascript
-const { Hub } = require('@anephenix/hub');
+import Hub from '@anephenix/hub';
 
 const hub = await new Hub({
 	port: 4000,
@@ -529,7 +522,7 @@ Alernatively, you can also restrict the IP Addresses that clients can make
 WebSocket connections from:
 
 ```javascript
-const { Hub } = require('@anephenix/hub');
+import Hub from '@anephenix/hub';
 
 const hub = await new Hub({ port: 4000, allowedIpAddresses: ['76.76.21.21'] });
 ```

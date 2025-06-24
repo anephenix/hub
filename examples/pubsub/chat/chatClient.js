@@ -1,4 +1,4 @@
-const { HubClient } = require("../../../index");
+import HubClient from "../../../dist/esm/lib/client/HubClient.node.js";
 
 // Helper functions
 const delayUntil = (condition, delay) => {
@@ -70,4 +70,4 @@ class ChatClient {
 	}
 }
 
-module.exports = ChatClient;
+export default ChatClient;

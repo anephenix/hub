@@ -1,10 +1,11 @@
-const termkit = require("terminal-kit");
+import termkit from "terminal-kit";
 const terminal = termkit.terminal;
-const ChatClient = require("./chatClient");
-const config = require("./config");
-const emoji = require("node-emoji");
+import ChatClient from "./chatClient.js";
+import config from "./config.js";
+import * as emoji from "node-emoji";
 
-let room, name;
+let room;
+let name;
 let client;
 const messages = [];
 const MESSAGE_AREA_HEIGHT = terminal.height - 3; // Define message area height
@@ -32,7 +33,7 @@ const refreshMessages = () => {
 	});
 
 	terminal.moveTo(1, terminal.height - 2);
-	terminal.yellow(`Type your message below (press Enter to send):`);
+	terminal.yellow("Type your message below (press Enter to send):");
 	terminal.moveTo(1, terminal.height - 1);
 };
 
