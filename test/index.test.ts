@@ -286,7 +286,8 @@ describe("Hub", () => {
 
 		it("should set the hostname and ip address on the websocket client", async () => {
 			await hubClient.isReady();
-			const ipAddress = "::1";
+			const isRunningOnMacOS = process.platform === "darwin";
+			const ipAddress = isRunningOnMacOS ? "::1" : "::ffff:127.0.0.1";
 			const ws = Array.from(hub.wss.clients)[0] as WebSocketWithClientId;
 			assert.strictEqual(ws.host, "localhost:4009");
 			assert.strictEqual(ws.ipAddress, ipAddress);
