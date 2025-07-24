@@ -50,7 +50,7 @@ describe("IP Address checking", () => {
 		});
 
 		it("should only allow clients to connect if they have an allowed ip address", async () => {
-			const ipAddress = getIPV6MappedIPV4InternalAddress() || '::1';
+			const ipAddress = getIPV6MappedIPV4InternalAddress() || "::1";
 			const hub = new Hub({
 				port: 8001,
 				allowedIpAddresses: [ipAddress],

@@ -37,6 +37,7 @@
 		"cucumber-wip": "NODE_ENV=test npx cucumber-js -t @wip",
 		"prepare-patch-release": "npm run update-changelog && git add CHANGELOG.md && git commit -m \"Updated changelog\" && npm version patch",
 		"publish-patch-release": "npm run prepare-patch-release && git push origin master && git push --tags",
+		"prepare": "husky",
 		"pretest": "rm -rf localStorage && rm -rf sessionStorage",
 		"test": "NODE_ENV=test npx vitest test --run",
 		"update-changelog": "node --experimental-strip-types scripts/update-changelog.ts"
