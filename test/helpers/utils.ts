@@ -25,4 +25,19 @@ function getIPV6MappedIPV4InternalAddress(): string | undefined {
 	return undefined;
 }
 
-export { getIPV6InternalAddress, getIPV6MappedIPV4InternalAddress };
+function getLocalIPV6Address(): string {
+	let ipAddress: string | undefined = undefined;
+	const isMyLocalLinux =
+		process.platform === "linux" && os.hostname() === "paulbjensen";
+	if (isMyLocalLinux) {
+		ipAddress = getIPV6MappedIPV4InternalAddress() || getIPV6InternalAddress();
+	}
+	if (!ipAddress) ipAddress = "::1"; // Fallback to localhost in it is still undefined
+	return ipAddress;
+}
+
+export {
+	getIPV6InternalAddress,
+	getIPV6MappedIPV4InternalAddress,
+	getLocalIPV6Address,
+};

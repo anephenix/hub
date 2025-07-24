@@ -5,7 +5,7 @@ import { describe, it } from "vitest";
 import { delayUntil } from "../../src/helpers/delay";
 import Hub from "../../src/index";
 import HubClient from "../../src/lib/client/HubClient.node";
-import { getIPV6MappedIPV4InternalAddress } from "../helpers/utils";
+import { getLocalIPV6Address } from "../helpers/utils";
 
 describe("IP Address checking", () => {
 	describe("when allowedIPAddresses is an empty array", () => {
@@ -50,7 +50,7 @@ describe("IP Address checking", () => {
 		});
 
 		it("should only allow clients to connect if they have an allowed ip address", async () => {
-			const ipAddress = getIPV6MappedIPV4InternalAddress() || "::1";
+			const ipAddress = getLocalIPV6Address();
 			const hub = new Hub({
 				port: 8001,
 				allowedIpAddresses: [ipAddress],
