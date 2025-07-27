@@ -614,6 +614,8 @@ To run tests, make sure that you have [mkcert](https://mkcert.dev) installed to 
 ```shell
 npm run certs
 npm t
+npm run build
+npm run build-cucumber-support-files
 npm run cucumber
 ```
 
