@@ -98,6 +98,9 @@ import HubClient from '@anephenix/hub/client';
 
 // Create an instance of HubClient
 const hubClient = new HubClient({ url: 'ws://localhost:4000' });
+
+// Wait for the client to connect and set client ID
+await hubClient.isReady();
 ```
 
 HubClient uses [Sarus](https://sarus.anephenix.com) as the WebSocket client behind the scenes. If you want to
@@ -109,7 +112,12 @@ const hubClient = new HubClient({
 	url: 'ws://localhost:4000',
 	sarusConfig: { retryConnectionDelay: 500 },
 });
+
+// Wait for the client to connect and set client ID
+await hubClient.isReady();
 ```
+
+It is important to wait for the client to be ready before making any RPC or PubSub calls.
 
 ##### Loading a client in Node.js
 
@@ -124,6 +132,9 @@ import HubClient from "@anephenix/hub/client";
 
 // Initialise the client
 const hubClient = new HubClient({ url: 'ws://localhost:3000' });
+
+// Wait for the client to connect and set client ID
+await hubClient.isReady();
 
 // Start the REPL and make hubClient available
 const replInstance = repl.start('> ');
