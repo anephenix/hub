@@ -3,11 +3,11 @@
 	---------------------------
 
 	This is the Remote Procedure Call JavaScript class. It handles sending
-	and receiving messages to/from WebSocket clients, and is used by the 
+	and receiving messages to/from WebSocket clients, and is used by the
 	clientId and PubSub components to handling message parsing and sending.
 
 	Developers can also add their own custom rpc actions using this library,
-	so that they can build APIs for things like fetching commodity prices 
+	so that they can build APIs for things like fetching commodity prices
 	over WebSockets, or implementing chat functionality in their apps.
 */
 
@@ -240,7 +240,7 @@ class RPC {
 					if (response.type === "response") {
 						resolve(response.data);
 					} else if (response.type === "error") {
-						reject(response.error);
+						reject(new Error(response.error as string));
 					}
 					this.cleanupRPCCall(response);
 				}

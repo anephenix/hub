@@ -194,15 +194,14 @@ describe("rpc", () => {
 				const hubClient = new HubClient({ url: "ws://localhost:4002" });
 				await hubClient.isReady();
 				const ws = hubServer.wss.clients.values().next().value;
-				try {
-					await hubServer.rpc.send({
+				await assert.rejects(
+					hubServer.rpc.send({
 						ws,
 						action: "get-environment",
-					});
-					assert(false, "Should not execute this line");
-				} catch (err) {
-					assert.strictEqual(err, "No client action found");
-				}
+					}),
+					{ message: "No client action found" },
+				);
+
 				await terminator.terminate();
 			});
 		});
