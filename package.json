@@ -28,7 +28,7 @@
 	"scripts": {
 		"build": "tsc --build tsconfig.json",
 		"build-cucumber-support-files": "npx esbuild support/client/main.js --bundle --minify --sourcemap --outdir=support/client/dist",
-		"certs": "mkdir -p certs && cd certs && mkcert localhost 127.0.0.1 ::1",
+		"certs": "command -v mkcert >/dev/null 2>&1 || { echo 'Error: mkcert is not installed.'; exit 1; } && mkdir -p certs && cd certs && mkcert localhost 127.0.0.1 ::1",
 		"format": "npx @biomejs/biome format --write src/**/* test/**/*",
 		"lint": "npx @biomejs/biome check src test",
 		"check-build": "node scripts/check-node-esm-works.js && node scripts/check-node-commonjs-works.cjs",
@@ -39,7 +39,7 @@
 		"publish-patch-release": "npm run prepare-patch-release && git push origin master && git push --tags",
 		"prepare": "husky",
 		"pretest": "rm -rf localStorage && rm -rf sessionStorage",
-		"test": "NODE_ENV=test npx vitest test --run",
+		"test": "if [ ! -f certs/localhost+2-key.pem ] || [ ! -f certs/localhost+2.pem ]; then npm run certs; fi && NODE_ENV=test npx vitest test --run",
 		"update-changelog": "node --experimental-strip-types scripts/update-changelog.ts"
 	},
 	"keywords": [
