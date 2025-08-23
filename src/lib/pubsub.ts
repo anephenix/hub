@@ -32,10 +32,26 @@ Set.prototype.filter = function filter<T>(f: (v: T) => boolean): Set<T> {
 	return newSet;
 };
 
+type ChannelSubscribeData = {
+	channel: string;
+	token?: string;
+	[key: string]: string | number | boolean | object | undefined;
+};
+
+type ChannelUnsubscribeData = {
+	channel: string;
+};
+
+type ChannelPublishData = {
+	channel: string;
+	message: DataType;
+	excludeSender?: boolean;
+};
+
 type ChannelConfiguration = {
 	authenticate?: (params: {
 		socket: WebSocketWithClientId;
-		data: unknown;
+		data: ChannelSubscribeData;
 	}) => Promise<boolean> | boolean;
 	clientCanPublish?:
 		| boolean
@@ -165,7 +181,9 @@ class PubSub {
 	}) {
 		const { clientId } = ws;
 		if (!clientId) return;
-		const channels = await this.dataStore.getChannelsForClientId(clientId);
+		const channels = (await this.dataStore.getChannelsForClientId(clientId)) as
+			| string[]
+			| undefined;
 		if (!channels) return;
 		for await (const channel of channels) {
 			await this.unsubscribe({ socket: ws, data: { channel } });
@@ -205,7 +223,7 @@ class PubSub {
 	}: {
 		channel: string;
 		socket: WebSocketWithClientId;
-		data: unknown;
+		data: ChannelSubscribeData;
 	}) {
 		const channelConfiguration = this.getChannelConfiguration(channel);
 		if (channelConfiguration?.authenticate) {
@@ -221,7 +239,7 @@ class PubSub {
 		data,
 		socket,
 	}: {
-		data: unknown;
+		data: ChannelSubscribeData;
 		socket: WebSocketWithClientId;
 	}) {
 		const { clientId } = socket;
@@ -238,7 +256,7 @@ class PubSub {
 		socket,
 	}: {
 		channelConfiguration?: ChannelConfiguration;
-		data: unknown;
+		data: ChannelPublishData;
 		socket: WebSocketWithClientId;
 	}) {
 		if (channelConfiguration?.clientCanPublish === false) {
@@ -270,7 +288,7 @@ class PubSub {
 		data,
 		socket,
 	}: {
-		data: { channel: string; message: DataType; excludeSender?: boolean };
+		data: ChannelPublishData;
 		socket?: WebSocketWithClientId;
 	}) {
 		const clientId = socket?.clientId;
@@ -337,11 +355,11 @@ class PubSub {
 		data,
 		socket,
 	}: {
-		data: unknown;
+		data: ChannelUnsubscribeData;
 		socket: WebSocketWithClientId;
 	}) {
 		const { clientId } = socket;
-		const { channel } = data as { channel: string };
+		const { channel } = data;
 		if (!clientId) throw new Error(noClientIdError);
 		if (!channel) throw new Error(noChannelError);
 		return await this.removeClientFromChannel({
