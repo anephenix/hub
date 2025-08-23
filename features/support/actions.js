@@ -90,7 +90,11 @@ const clientSubscribesToChannel = async (channel) => {
 	const { currentPage } = scope.context;
 	// We need to make a request from the client to the server to subscribe to a channel
 	await currentPage.evaluate(async (channel) => {
-		await hubClient.subscribe(channel);
+		try {
+			await hubClient.subscribe(channel);
+		} catch (error) {
+			// Do nothing
+		}
 	}, channel);
 };
 
