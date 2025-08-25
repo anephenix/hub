@@ -379,16 +379,11 @@ describe("pubsub", () => {
 				);
 
 				// Get the client to publish a message to the channel
-				await hubClient.publish("", "Oscars ceremony to be virtual");
-				// Check that the client receives the message
-				const theNextLatestMessage = messages[messages.length - 1] as {
-					type: string;
-					error: string;
-				};
-				assert.strictEqual(theNextLatestMessage.type, "error");
-				assert.strictEqual(
-					theNextLatestMessage.error,
-					"No channel was passed in the data",
+				await assert.rejects(
+					async () => {
+						await hubClient.publish("", "Oscars ceremony to be virtual");
+					},
+					{ message: "No channel was passed in the data" },
 				);
 				hubClient.sarus.disconnect();
 			});
@@ -417,16 +412,11 @@ describe("pubsub", () => {
 					`Client "${clientId}" subscribed to channel "showbiz"`,
 				);
 				// Get the client to publish a message to the channel
-				await hubClient.publish("showbiz", null);
-				// Check that the client receives the message
-				const theNextLatestMessage = messages[messages.length - 1] as {
-					type: string;
-					error: string;
-				};
-				assert.strictEqual(theNextLatestMessage.type, "error");
-				assert.strictEqual(
-					theNextLatestMessage.error,
-					"No message was passed in the data",
+				await assert.rejects(
+					async () => {
+						await hubClient.publish("showbiz", null);
+					},
+					{ message: "No message was passed in the data" },
 				);
 				hubClient.sarus.disconnect();
 			});
@@ -443,16 +433,14 @@ describe("pubsub", () => {
 				const latestMessage = messages[messages.length - 1];
 				if (!latestMessage) throw new Error("No messages intercepted");
 				// Get the client to publish a message to the channel
-				await hubClient.publish("dashboard_y", "Some data");
-				// Check that the client receives the message
-				const theNextLatestMessage = messages[messages.length - 1] as {
-					type: string;
-					error: string;
-				};
-				assert.strictEqual(theNextLatestMessage.type, "error");
-				assert.strictEqual(
-					theNextLatestMessage.error,
-					"You must subscribe to the channel to publish messages to it",
+				await assert.rejects(
+					async () => {
+						await hubClient.publish("dashboard_y", "Some data");
+					},
+					{
+						message:
+							"You must subscribe to the channel to publish messages to it",
+					},
 				);
 				hubClient.sarus.disconnect();
 			});
@@ -692,15 +680,11 @@ describe("pubsub", () => {
 				`Client "${clientId}" subscribed to channel "markets"`,
 			);
 			// Unsubscribe the client from the channel
-			await hubClient.unsubscribe("");
-			const theNextLatestMessage = messages[messages.length - 1] as {
-				type: string;
-				error: string;
-			};
-			assert.strictEqual(theNextLatestMessage.type, "error");
-			assert.strictEqual(
-				theNextLatestMessage.error,
-				"No channel was passed in the data",
+			await assert.rejects(
+				async () => {
+					await hubClient.unsubscribe("");
+				},
+				{ message: "No channel was passed in the data" },
 			);
 			hubClient.sarus.disconnect();
 		});
@@ -946,7 +930,6 @@ describe("pubsub", () => {
 
 			describe("and the value is false", () => {
 				it("should not allow the client to publish to the channel", async () => {
-					let messageReceived: unknown;
 					const channelNotAllowed = "crocadiles";
 					hub.pubsub.addChannelConfiguration({
 						channel: channelNotAllowed,
@@ -957,18 +940,12 @@ describe("pubsub", () => {
 					});
 					await hubClient.isReady();
 					await hubClient.subscribe(channelNotAllowed);
-					hubClient.addChannelMessageHandler(
-						channelNotAllowed,
-						(message: unknown) => {
-							messageReceived = message;
+					await assert.rejects(
+						async () => {
+							await hubClient.publish(channelNotAllowed, "hello everyone");
 						},
+						{ message: "Clients cannot publish to the channel" },
 					);
-					const response = await hubClient.publish(
-						channelNotAllowed,
-						"hello everyone",
-					);
-					assert.strictEqual(response, "Clients cannot publish to the channel");
-					assert.notStrictEqual(messageReceived, "hello everyone");
 				});
 			});
 

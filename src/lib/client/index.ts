@@ -1,9 +1,9 @@
 /*
-	This is the client for Hub. It can run in both the 
+	This is the client for Hub. It can run in both the
 	web browser and in Node.js.
 
 	It can be used to do the following:
-	
+
 	- Connect to a Hub server
 	- Setup RPC function calls
 	- Subscribe to channels
@@ -169,11 +169,11 @@ class HubClient {
 				const clientId = this.context[storageType].getItem(clientIdKey);
 				reply?.({ data: { clientId } });
 			} catch (err) {
-				console.error("Error retrieving client ID:", err);
 				reply?.({
 					type: "error",
 					error: "Failed to retrieve client ID",
 				});
+				throw err;
 			}
 		});
 
@@ -202,8 +202,8 @@ class HubClient {
 	}
 
 	/*
-		This function adds a channel to the client's list of channels 
-		that it keeps a record of in memory. It also allows for options 
+		This function adds a channel to the client's list of channels
+		that it keeps a record of in memory. It also allows for options
 		to be passed for that channel.
 	*/
 	addChannel(channel: string, opts?: ChannelOptions) {
@@ -214,7 +214,7 @@ class HubClient {
 	}
 
 	/*
-		This function removes a channel from the client's list of channels 
+		This function removes a channel from the client's list of channels
 		that it keeps a record of in memory.
 	*/
 	removeChannel(channel: string) {
@@ -229,49 +229,37 @@ class HubClient {
 		This function subscribes the client to a channel.
 	*/
 	async subscribe(channel: string, opts?: ChannelOptions) {
-		try {
-			const request = {
-				action: "subscribe",
-				data: { channel, ...(opts || {}) },
-			};
-			const response = await this.rpc.send(request);
-			this.addChannel(channel, opts);
-			return response;
-		} catch (err) {
-			return err;
-		}
+		const request = {
+			action: "subscribe",
+			data: { channel, ...(opts || {}) },
+		};
+		const response = await this.rpc.send(request);
+		this.addChannel(channel, opts);
+		return response;
 	}
 
 	/*
 		This function unsubscribes the client from a channel.
 	*/
 	async unsubscribe(channel: string) {
-		try {
-			const request = {
-				action: "unsubscribe",
-				data: { channel },
-			};
-			const response = await this.rpc.send(request);
-			this.removeChannel(channel);
-			return response;
-		} catch (err) {
-			return err;
-		}
+		const request = {
+			action: "unsubscribe",
+			data: { channel },
+		};
+		const response = await this.rpc.send(request);
+		this.removeChannel(channel);
+		return response;
 	}
 
 	/*
 		This function publishes a message to a specific channel.
 	*/
 	async publish(channel: string, message: DataType, excludeSender = false) {
-		try {
-			const request = {
-				action: "publish",
-				data: { channel, message, excludeSender },
-			};
-			return await this.rpc.send(request);
-		} catch (err) {
-			return err;
-		}
+		const request = {
+			action: "publish",
+			data: { channel, message, excludeSender },
+		};
+		return await this.rpc.send(request);
 	}
 
 	/*
@@ -280,13 +268,8 @@ class HubClient {
 	*/
 	getClientId(): string | null {
 		const { storageType, clientIdKey } = this;
-		try {
-			const clientId = this.context[storageType].getItem(clientIdKey);
-			return clientId || null;
-		} catch (err) {
-			console.error("Error retrieving client ID:", err);
-			return null;
-		}
+		const clientId = this.context[storageType].getItem(clientIdKey);
+		return clientId || null;
 	}
 
 	/*
