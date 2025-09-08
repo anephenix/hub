@@ -59,7 +59,7 @@
 		"node-ip": "^0.1.2",
 		"node-localstorage": "^3.0.5",
 		"redis": "^5.0.0",
-		"uuid": "^11.0.1",
+		"uuid": "^12.0.0",
 		"ws": "^8.17.0"
 	},
 	"devDependencies": {
