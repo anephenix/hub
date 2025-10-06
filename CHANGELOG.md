@@ -1,5 +1,111 @@
 # CHANGELOG
 
+### 0.2.0 - Monday 6th October, 2025
+
+- Updated the package-lock.json file
+- Merge pull request #301 from anephenix/dependabot/npm_and_yarn/redis-5.8.3
+- Merge pull request #300 from anephenix/dependabot/npm_and_yarn/puppeteer-24.23.0
+- Merge pull request #299 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.2.5
+- Merge pull request #298 from anephenix/dependabot/npm_and_yarn/typescript-5.9.3
+- Bump redis from 5.8.2 to 5.8.3
+- Bump puppeteer from 24.22.3 to 24.23.0
+- Bump @biomejs/biome from 2.2.4 to 2.2.5
+- Bump typescript from 5.9.2 to 5.9.3
+- Merge pull request #297 from anephenix/dependabot/npm_and_yarn/puppeteer-24.22.3
+- Bump puppeteer from 24.22.0 to 24.22.3
+- Merge pull request #296 from anephenix/dependabot/npm_and_yarn/esbuild-0.25.10
+- Merge pull request #295 from anephenix/dependabot/npm_and_yarn/puppeteer-24.22.0
+- Bump esbuild from 0.25.9 to 0.25.10
+- Bump puppeteer from 24.20.0 to 24.22.0
+- Merge pull request #294 from anephenix/dependabot/npm_and_yarn/puppeteer-24.20.0
+- Merge pull request #293 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.2.4
+- Merge pull request #292 from anephenix/dependabot/npm_and_yarn/uuid-13.0.0
+- Bump puppeteer from 24.19.0 to 24.20.0
+- Bump @biomejs/biome from 2.2.3 to 2.2.4
+- Bump uuid from 12.0.0 to 13.0.0
+- Merge pull request #291 from anephenix/dependabot/npm_and_yarn/vite-7.1.5
+- Bump vite from 6.3.5 to 7.1.5
+- Merge pull request #290 from anephenix/dependabot/npm_and_yarn/puppeteer-24.19.0
+- Merge pull request #289 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.2.3
+- Merge pull request #288 from anephenix/dependabot/npm_and_yarn/uuid-12.0.0
+- Bump puppeteer from 24.18.0 to 24.19.0
+- Bump @biomejs/biome from 2.2.2 to 2.2.3
+- Bump uuid from 11.1.0 to 12.0.0
+- Merge pull request #287 from anephenix/dependabot/npm_and_yarn/puppeteer-24.18.0
+- Bump puppeteer from 24.17.0 to 24.18.0
+- Merge pull request #286 from anephenix/dependabot/npm_and_yarn/cucumber/cucumber-12.2.0
+- Merge pull request #284 from anephenix/dependabot/npm_and_yarn/puppeteer-24.17.0
+- Merge pull request #285 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.2.2
+- Bump @cucumber/cucumber from 12.1.0 to 12.2.0
+- Merge pull request #283 from anephenix/dependabot/npm_and_yarn/redis-5.8.2
+- Bump @biomejs/biome from 2.2.0 to 2.2.2
+- Bump puppeteer from 24.16.2 to 24.17.0
+- Bump redis from 5.8.1 to 5.8.2
+- Merge pull request #281 from viperet/exceptions
+- Fix cucumber tests
+- Refactor type definitions in HubClient and PubSub for improved clarity and type safety
+- Merge pull request #280 from viperet/devcontainer
+- Throw exceptions instead of returning errors as strings in pubsub
+- Set devcontainer hostname to "paulbjensen" so getLocalIPV6Address() can resolve to the correct address
+- Generate self-signed certificates for tests automatically
+- Devcontainer configuration
+- Merge pull request #279 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.2.0
+- Merge pull request #278 from anephenix/dependabot/npm_and_yarn/redis-5.8.1
+- Merge pull request #277 from anephenix/dependabot/npm_and_yarn/esbuild-0.25.9
+- Merge pull request #276 from anephenix/dependabot/npm_and_yarn/puppeteer-24.16.2
+- Bump @biomejs/biome from 2.1.4 to 2.2.0
+- Bump redis from 5.8.0 to 5.8.1
+- Bump esbuild from 0.25.8 to 0.25.9
+- Bump puppeteer from 24.16.0 to 24.16.2
+- Merge pull request #275 from anephenix/dependabot/npm_and_yarn/redis-5.8.0
+- Merge pull request #274 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.1.4
+- Merge pull request #273 from anephenix/dependabot/npm_and_yarn/puppeteer-24.16.0
+- Bump redis from 5.7.0 to 5.8.0
+- Bump @biomejs/biome from 2.1.3 to 2.1.4
+- Bump puppeteer from 24.15.0 to 24.16.0
+- Merge pull request #272 from viperet/isready_readme
+- Document need for await hubClient.isReady() before RPC or PubSub calls
+- Merge pull request #269 from anephenix/dependabot/npm_and_yarn/typescript-5.9.2
+- Merge pull request #268 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.1.3
+- Merge pull request #267 from anephenix/dependabot/npm_and_yarn/redis-5.7.0
+- Bump typescript from 5.8.3 to 5.9.2
+- Bump @biomejs/biome from 2.1.2 to 2.1.3
+- Bump redis from 5.6.1 to 5.7.0
+- Merge pull request #265 from anephenix/dependabot/npm_and_yarn/puppeteer-24.15.0
+- Merge pull request #263 from anephenix/dependabot/npm_and_yarn/cucumber/cucumber-12.1.0
+- Merge pull request #266 from anephenix/dependabot/npm_and_yarn/redis-5.6.1
+- Merge pull request #264 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.1.2
+- Merge pull request #262 from anephenix/dependabot/npm_and_yarn/esbuild-0.25.8
+- Bump redis from 5.6.0 to 5.6.1
+- Bump puppeteer from 24.12.1 to 24.15.0
+- Bump @biomejs/biome from 2.1.1 to 2.1.2
+- Bump @cucumber/cucumber from 12.0.0 to 12.1.0
+- Bump esbuild from 0.25.6 to 0.25.8
+- Updated the running tests instructions on the README.md file for running the cucumber tests
+- Adjusted the fetching of the local internal ip address for the unit tests
+- Formatting tweaks for code and husky hooks
+- More changes for the unit tests to run on Ubuntu linux fine
+- Added support for running the tests locally on Ubuntu Linux
+- Merge pull request #261 from anephenix/dependabot/npm_and_yarn/esbuild-0.25.6
+- Merge pull request #260 from anephenix/dependabot/npm_and_yarn/cucumber/cucumber-12.0.0
+- Bump @cucumber/cucumber from 11.3.0 to 12.0.0
+- Merge pull request #259 from anephenix/dependabot/npm_and_yarn/puppeteer-24.12.1
+- Merge pull request #258 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.1.1
+- Merge pull request #257 from anephenix/dependabot/npm_and_yarn/redis-5.6.0
+- Bump esbuild from 0.25.5 to 0.25.6
+- Bump puppeteer from 24.11.2 to 24.12.1
+- Bump @biomejs/biome from 2.0.6 to 2.1.1
+- Bump redis from 5.5.6 to 5.6.0
+- Merge pull request #256 from anephenix/dependabot/npm_and_yarn/puppeteer-24.11.2
+- Bump puppeteer from 24.11.1 to 24.11.2
+- Merge pull request #255 from anephenix/dependabot/npm_and_yarn/ws-8.18.3
+- Merge pull request #254 from anephenix/dependabot/npm_and_yarn/puppeteer-24.11.1
+- Merge pull request #253 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.0.6
+- Bump ws from 8.18.2 to 8.18.3
+- Bump puppeteer from 24.10.2 to 24.11.1
+- Bump @biomejs/biome from 2.0.4 to 2.0.6
+- Removed some unnecessary development dependencies
+
 ### 0.1.3 - Tuesday 24th June, 2025
 
 - Missed a step in exporting a type in a file
