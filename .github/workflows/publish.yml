@@ -54,6 +54,9 @@ jobs:
             - run: npm run build
             - run: npm run check-build
 
+            - name: Check package is good to publish
+              run: npm run lint:package
+
             - name: Publish to npm
               run: npm publish
               env:

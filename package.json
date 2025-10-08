@@ -6,8 +6,8 @@
 	"types": "./dist/esm/index.d.ts",
 	"exports": {
 		".": {
-			"import": "./dist/esm/index.js",
-			"types": "./dist/esm/index.d.ts"
+			"types": "./dist/esm/index.d.ts",
+			"import": "./dist/esm/index.js"
 		},
 		"./client": {
 			"node": "./dist/esm/lib/client/HubClient.node.js",
@@ -31,6 +31,7 @@
 		"certs": "command -v mkcert >/dev/null 2>&1 || { echo 'Error: mkcert is not installed.'; exit 1; } && mkdir -p certs && cd certs && mkcert localhost 127.0.0.1 ::1",
 		"format": "npx @biomejs/biome format --write src/**/* test/**/*",
 		"lint": "npx @biomejs/biome check src test",
+		"lint:package": "npx publint",
 		"check-build": "node scripts/check-node-esm-works.js && node scripts/check-node-commonjs-works.cjs",
 		"cover": "NODE_ENV=test npx nyc --reporter=lcov npm t",
 		"cucumber": "NODE_ENV=test npx cucumber-js",
@@ -74,6 +75,7 @@
 		"husky": "^9.1.5",
 		"node-emoji": "^2.1.3",
 		"nyc": "^17.0.0",
+		"publint": "^0.3.14",
 		"puppeteer": "^24.1.0",
 		"terminal-kit": "^3.1.1",
 		"ts-node": "^10.9.2",
