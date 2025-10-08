@@ -1,5 +1,9 @@
 # CHANGELOG
 
+### 0.2.1 - Wednesday 8th October, 2025
+
+- Added publit check to ensure that the package.json is good to publish
+
 ### 0.2.0 - Monday 6th October, 2025
 
 - Updated the package-lock.json file
