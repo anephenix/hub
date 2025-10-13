@@ -56,7 +56,7 @@
 	"author": "Paul Jensen <paul@anephenix.com>",
 	"license": "MIT",
 	"dependencies": {
-		"@anephenix/sarus": "^0.7.8",
+		"@anephenix/sarus": "^0.7.12",
 		"node-ip": "^0.1.2",
 		"node-localstorage": "^3.0.5",
 		"redis": "^5.0.0",
