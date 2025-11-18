@@ -1,5 +1,56 @@
 # CHANGELOG
 
+### 0.2.2 - Tuesday 18th November, 2025
+
+- Updated dependencies and a high security vulnerability
+- Merge pull request #324 from anephenix/dependabot/npm_and_yarn/multi-75e6bc5210
+- Bump js-yaml
+- Merge pull request #323 from anephenix/dependabot/npm_and_yarn/puppeteer-24.30.0
+- Merge pull request #322 from anephenix/dependabot/npm_and_yarn/vitest-4.0.9
+- Merge pull request #321 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.3.5
+- Bump puppeteer from 24.29.1 to 24.30.0
+- Bump vitest from 4.0.8 to 4.0.9
+- Bump @biomejs/biome from 2.3.4 to 2.3.5
+- Merge pull request #320 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.3.4
+- Merge pull request #319 from anephenix/dependabot/npm_and_yarn/vitest-4.0.8
+- Merge pull request #318 from anephenix/dependabot/npm_and_yarn/esbuild-0.27.0
+- Merge pull request #317 from anephenix/dependabot/npm_and_yarn/puppeteer-24.29.1
+- Bump @biomejs/biome from 2.3.2 to 2.3.4
+- Bump vitest from 4.0.6 to 4.0.8
+- Bump esbuild from 0.25.12 to 0.27.0
+- Bump puppeteer from 24.27.0 to 24.29.1
+- Merge pull request #316 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.3.2
+- Merge pull request #314 from anephenix/dependabot/npm_and_yarn/vitest-4.0.6
+- Merge pull request #315 from anephenix/dependabot/npm_and_yarn/esbuild-0.25.12
+- Merge pull request #313 from anephenix/dependabot/npm_and_yarn/puppeteer-24.27.0
+- Bump @biomejs/biome from 2.3.1 to 2.3.2
+- Bump esbuild from 0.25.11 to 0.25.12
+- Bump vitest from 4.0.3 to 4.0.6
+- Bump puppeteer from 24.26.1 to 24.27.0
+- Merge pull request #312 from anephenix/dependabot/npm_and_yarn/vitest-4.0.3
+- Merge pull request #311 from anephenix/dependabot/npm_and_yarn/redis-5.9.0
+- Merge pull request #310 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.3.1
+- Merge pull request #309 from anephenix/dependabot/npm_and_yarn/puppeteer-24.26.1
+- Bump vitest from 3.2.4 to 4.0.3
+- Bump redis from 5.8.3 to 5.9.0
+- Bump @biomejs/biome from 2.2.6 to 2.3.1
+- Bump puppeteer from 24.25.0 to 24.26.1
+- Merge pull request #308 from anephenix/dependabot/npm_and_yarn/vite-7.1.11
+- Bump vite from 7.1.5 to 7.1.11
+- Merge pull request #307 from anephenix/dependabot/npm_and_yarn/esbuild-0.25.11
+- Merge pull request #306 from anephenix/dependabot/npm_and_yarn/puppeteer-24.25.0
+- Merge pull request #305 from anephenix/dependabot/npm_and_yarn/publint-0.3.15
+- Merge pull request #304 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.2.6
+- Bump esbuild from 0.25.10 to 0.25.11
+- Bump puppeteer from 24.24.0 to 24.25.0
+- Bump publint from 0.3.14 to 0.3.15
+- Bump @biomejs/biome from 2.2.5 to 2.2.6
+- Merge pull request #302 from anephenix/dependabot/npm_and_yarn/anephenix/sarus-0.7.11
+- Updated @anephenix/sarus to 0.7.12 with a fix for the types exports
+- Merge pull request #303 from anephenix/dependabot/npm_and_yarn/puppeteer-24.24.0
+- Bump puppeteer from 24.23.0 to 24.24.0
+- Bump @anephenix/sarus from 0.7.8 to 0.7.11
+
 ### 0.2.1 - Wednesday 8th October, 2025
 
 - Added publit check to ensure that the package.json is good to publish
