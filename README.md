@@ -632,4 +632,4 @@ npm run cucumber
 
 ### License and Credits
 
-&copy; 2025 Anephenix OÜ. All rights reserved. Hub is licensed under the MIT licence.
+&copy; 2025 Anephenix Ltd. All rights reserved. Hub is licensed under the MIT licence.
