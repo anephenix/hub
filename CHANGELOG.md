@@ -1,5 +1,21 @@
 # CHANGELOG
 
+### 0.2.3 - Wednesday 3rd December, 2025
+
+- Updated License
+- Merge pull request #330 from anephenix/dependabot/npm_and_yarn/vitest-4.0.14
+- Merge pull request #329 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.3.8
+- Bump vitest from 4.0.13 to 4.0.14
+- Bump @biomejs/biome from 2.3.7 to 2.3.8
+- Merge pull request #328 from anephenix/dependabot/npm_and_yarn/redis-5.10.0
+- Merge pull request #327 from anephenix/dependabot/npm_and_yarn/puppeteer-24.31.0
+- Merge pull request #326 from anephenix/dependabot/npm_and_yarn/vitest-4.0.13
+- Merge pull request #325 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.3.7
+- Bump redis from 5.9.0 to 5.10.0
+- Bump puppeteer from 24.30.0 to 24.31.0
+- Bump vitest from 4.0.9 to 4.0.13
+- Bump @biomejs/biome from 2.3.5 to 2.3.7
+
 ### 0.2.2 - Tuesday 18th November, 2025
 
 - Updated dependencies and a high security vulnerability
