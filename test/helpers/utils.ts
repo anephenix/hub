@@ -31,8 +31,10 @@ function getLocalInternalAddress(): string {
 	if (isLinux) {
 		ipAddress = getIPV6MappedIPV4InternalAddress() || getIPV6InternalAddress();
 	}
-	// Fallback to localhost in it is still undefined
-	ipAddress = "::1";
+	// Fallback to localhost if it is still undefined
+	if (!ipAddress) {
+		ipAddress = "::1";
+	}
 	return ipAddress;
 }
 
