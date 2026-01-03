@@ -15,7 +15,7 @@ import {
 	type WebSocketWithClientId,
 } from "../src/lib/clientId";
 import type RedisDataStore from "../src/lib/dataStores/redis";
-import { getLocalIPV6Address } from "./helpers/utils";
+import { getLocalInternalAddress } from "./helpers/utils";
 
 describe("Hub", () => {
 	it("should return a class function", () => {
@@ -287,7 +287,7 @@ describe("Hub", () => {
 
 		it("should set the hostname and ip address on the websocket client", async () => {
 			await hubClient.isReady();
-			const ipAddress = getLocalIPV6Address();
+			const ipAddress = getLocalInternalAddress();
 			const ws = Array.from(hub.wss.clients)[0] as WebSocketWithClientId;
 			assert.strictEqual(ws.host, "localhost:4009");
 			assert.strictEqual(ws.ipAddress, ipAddress);

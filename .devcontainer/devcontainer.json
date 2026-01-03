@@ -13,9 +13,7 @@
   "mounts": [
     // Mount current user's SSH keys to be able to connect to GitHub from the container
     "type=bind,source=${localEnv:HOME}/.ssh,target=/home/node/.ssh,readonly"
-  ],
-  // Set hostname, so getLocalIPV6Address() can resolve to the correct address
-  "runArgs": ["--hostname", "paulbjensen"]
+  ]
 
   // Features to add to the dev container. More info: https://containers.dev/features.
   // "features": {},
