@@ -1,5 +1,11 @@
 # CHANGELOG
 
+### 0.2.7 - Sunday 4th January, 2026
+
+- 0.2.6
+- Updated changelog
+- More workflow tweaks
+
 ### 0.2.6 - Sunday 4th January, 2026
 
 - More workflow tweaks
