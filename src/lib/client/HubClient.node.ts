@@ -4,7 +4,7 @@
 import { LocalStorage } from "node-localstorage";
 import { WebSocket } from "ws";
 
-// @ts-ignore
+// @ts-expect-error
 global.WebSocket = WebSocket;
 global.localStorage = new LocalStorage("./localStorage");
 global.sessionStorage = new LocalStorage("./sessionStorage");
