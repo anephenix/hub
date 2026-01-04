@@ -1,5 +1,47 @@
 # CHANGELOG
 
+### 0.2.4 - Sunday 4th January, 2026
+
+- Merge pull request #344 from anephenix/fix/282-modify-test-helper-to-not-rely-on-specific-hostname
+- Removed some debugging console.log statements
+- More lint fixes and made husky perform linting beforehand
+- Fixed an issue with the ip address checking code
+- Small lint fix
+- Some more debugging
+- A bit of debugging for what is happening on the GitHub runner
+- Added a loopback ip adress for one of the unit tests for the github runners
+- Some linting fixes
+- Adjusted the code to handle loopback ip addresses
+- Small tweak
+- Removed the need to set the hostname to paulbjensen for tests on linux to pass
+- Merge pull request #343 from anephenix/dependabot/npm_and_yarn/cucumber/cucumber-12.5.0
+- Bump @cucumber/cucumber from 12.4.0 to 12.5.0
+- Updated dependencies
+- Merge pull request #342 from anephenix/dependabot/npm_and_yarn/vitest-4.0.16
+- Merge pull request #340 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.3.10
+- Merge pull request #339 from anephenix/dependabot/npm_and_yarn/esbuild-0.27.2
+- Merge pull request #341 from anephenix/dependabot/npm_and_yarn/puppeteer-24.34.0
+- Bump vitest from 4.0.15 to 4.0.16
+- Bump puppeteer from 24.33.0 to 24.34.0
+- Bump @biomejs/biome from 2.3.8 to 2.3.10
+- Bump esbuild from 0.27.1 to 0.27.2
+- Merge pull request #338 from anephenix/dependabot/npm_and_yarn/cucumber/cucumber-12.4.0
+- Merge pull request #337 from anephenix/dependabot/npm_and_yarn/puppeteer-24.33.0
+- Merge pull request #336 from anephenix/dependabot/npm_and_yarn/publint-0.3.16
+- Bump @cucumber/cucumber from 12.3.0 to 12.4.0
+- Bump puppeteer from 24.32.0 to 24.33.0
+- Bump publint from 0.3.15 to 0.3.16
+- Merge pull request #333 from anephenix/dependabot/npm_and_yarn/cucumber/cucumber-12.3.0
+- Merge pull request #335 from anephenix/dependabot/npm_and_yarn/anephenix/sarus-0.7.13
+- Merge pull request #334 from anephenix/dependabot/npm_and_yarn/vitest-4.0.15
+- Merge pull request #332 from anephenix/dependabot/npm_and_yarn/puppeteer-24.32.0
+- Merge pull request #331 from anephenix/dependabot/npm_and_yarn/esbuild-0.27.1
+- Bump @anephenix/sarus from 0.7.12 to 0.7.13
+- Bump vitest from 4.0.14 to 4.0.15
+- Bump @cucumber/cucumber from 12.2.0 to 12.3.0
+- Bump puppeteer from 24.31.0 to 24.32.0
+- Bump esbuild from 0.27.0 to 0.27.1
+
 ### 0.2.3 - Wednesday 3rd December, 2025
 
 - Updated License
