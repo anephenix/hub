@@ -32,7 +32,6 @@ export function handleIpAddressCheck(
 	next: NextFunction,
 ) {
 	return (socket: WebSocketWithClientId, req: IncomingMessage) => {
-		console.log("Checking IP Address:", req.socket.remoteAddress);
 		const remoteAddress = req.socket.remoteAddress || "";
 		if (!checkIpAddress(ipAddresses, remoteAddress)) {
 			socket.close();
