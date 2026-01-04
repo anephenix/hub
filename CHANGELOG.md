@@ -1,5 +1,9 @@
 # CHANGELOG
 
+### 0.2.6 - Sunday 4th January, 2026
+
+- More workflow tweaks
+
 ### 0.2.5 - Sunday 4th January, 2026
 
 - Updates for the publish.yml workflow
