@@ -53,9 +53,11 @@ describe("IP Address checking", () => {
 			const ipAddress = getLocalInternalAddress();
 			// Added this for Github Actions IPv6 localhost support
 			const localLoopbackAddress = "::1";
+			const allowedIpAddresses = [ipAddress, localLoopbackAddress];
+			console.log({ allowedIpAddresses });
 			const hub = new Hub({
 				port: 8001,
-				allowedIpAddresses: [ipAddress, localLoopbackAddress],
+				allowedIpAddresses,
 			});
 			hub.server.listen(8001).on("error", (err) => {
 				throw err;
