@@ -51,9 +51,11 @@ describe("IP Address checking", () => {
 
 		it("should only allow clients to connect if they have an allowed ip address", async () => {
 			const ipAddress = getLocalInternalAddress();
+			// Added this for Github Actions IPv6 localhost support
+			const localLoopbackAddress = "::1";
 			const hub = new Hub({
 				port: 8001,
-				allowedIpAddresses: [ipAddress],
+				allowedIpAddresses: [ipAddress, localLoopbackAddress],
 			});
 			hub.server.listen(8001).on("error", (err) => {
 				throw err;
