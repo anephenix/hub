@@ -38,8 +38,20 @@ function getLocalInternalAddress(): string {
 	return ipAddress;
 }
 
+function normalizeIp(addr: string): string {
+  // IPv4-mapped IPv6 => IPv4
+  if (addr.startsWith("::ffff:")) return addr.slice("::ffff:".length);
+  return addr;
+}
+
+function isLoopback(addr: string): boolean {
+  const ip = normalizeIp(addr);
+  return ip === "::1" || ip === "127.0.0.1";
+}
+
 export {
 	getIPV6InternalAddress,
 	getIPV6MappedIPV4InternalAddress,
 	getLocalInternalAddress,
+	isLoopback
 };
