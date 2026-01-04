@@ -1,5 +1,9 @@
 # CHANGELOG
 
+### 0.2.5 - Sunday 4th January, 2026
+
+- Updates for the publish.yml workflow
+
 ### 0.2.4 - Sunday 4th January, 2026
 
 - Merge pull request #344 from anephenix/fix/282-modify-test-helper-to-not-rely-on-specific-hostname
