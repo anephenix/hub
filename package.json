@@ -25,6 +25,14 @@
 		"dist",
 		"README.md"
 	],
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/anephenix/hub.git"
+	},
+	"homepage": "https://github.com/anephenix/hub",
+	"bugs": {
+		"url": "https://github.com/anephenix/hub/issues"
+	},
 	"scripts": {
 		"build": "tsc --build tsconfig.json",
 		"build-cucumber-support-files": "npx esbuild support/client/main.js --bundle --minify --sourcemap --outdir=support/client/dist",
