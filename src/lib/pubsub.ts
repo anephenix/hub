@@ -25,7 +25,7 @@ const clientsCannotPublishToChannelError =
 	"Clients cannot publish to the channel";
 
 // Used to implement the subscribersOnly filter function
-// @ts-ignore
+// @ts-expect-error
 Set.prototype.filter = function filter<T>(f: (v: T) => boolean): Set<T> {
 	const newSet = new Set<T>();
 	for (const v of this) if (f(v)) newSet.add(v);

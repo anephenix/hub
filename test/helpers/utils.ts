@@ -3,7 +3,8 @@ import os from "node:os";
 function getIPV6InternalAddress(): string | undefined {
 	const interfaces = os.networkInterfaces();
 	for (const name of Object.keys(interfaces)) {
-		for (const iface of interfaces[name]!) {
+		if (!interfaces[name]) continue;
+		for (const iface of interfaces[name]) {
 			if (iface.family === "IPv6" && iface.internal) {
 				return iface.address;
 			}
@@ -15,7 +16,8 @@ function getIPV6InternalAddress(): string | undefined {
 function getIPV6MappedIPV4InternalAddress(): string | undefined {
 	const interfaces = os.networkInterfaces();
 	for (const name of Object.keys(interfaces)) {
-		for (const iface of interfaces[name]!) {
+		if (!interfaces[name]) continue;
+		for (const iface of interfaces[name]) {
 			if (iface.family === "IPv4" && iface.internal) {
 				const ipv6Mapped = `::ffff:${iface.address}`;
 				return ipv6Mapped;
@@ -25,19 +27,33 @@ function getIPV6MappedIPV4InternalAddress(): string | undefined {
 	return undefined;
 }
 
-function getLocalIPV6Address(): string {
-	let ipAddress: string | undefined = undefined;
-	const isMyLocalLinux =
-		process.platform === "linux" && os.hostname() === "paulbjensen";
-	if (isMyLocalLinux) {
+function getLocalInternalAddress(): string {
+	let ipAddress: string | undefined;
+	const isLinux = process.platform === "linux";
+	if (isLinux) {
 		ipAddress = getIPV6MappedIPV4InternalAddress() || getIPV6InternalAddress();
 	}
-	if (!ipAddress) ipAddress = "::1"; // Fallback to localhost in it is still undefined
+	// Fallback to localhost if it is still undefined
+	if (!ipAddress) {
+		ipAddress = "::1";
+	}
 	return ipAddress;
+}
+
+function normalizeIp(addr: string): string {
+	// IPv4-mapped IPv6 => IPv4
+	if (addr.startsWith("::ffff:")) return addr.slice("::ffff:".length);
+	return addr;
+}
+
+function isLoopback(addr: string): boolean {
+	const ip = normalizeIp(addr);
+	return ip === "::1" || ip === "127.0.0.1";
 }
 
 export {
 	getIPV6InternalAddress,
 	getIPV6MappedIPV4InternalAddress,
-	getLocalIPV6Address,
+	getLocalInternalAddress,
+	isLoopback,
 };

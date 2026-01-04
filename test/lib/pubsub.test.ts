@@ -198,7 +198,7 @@ describe("pubsub", () => {
 			// Subscribe the client to the channel
 			await hubClient.subscribe("politics");
 			// Acknowledge the channel subscription
-			// @ts-ignore
+			// @ts-expect-error
 			const clientId = global.localStorage.getItem("sarus-client-id");
 			const hubClientId = await hubClient.getClientId();
 			assert.strictEqual(clientId, hubClientId);
@@ -247,7 +247,7 @@ describe("pubsub", () => {
 			// Subscribe the client to the channel
 			await hubClient.subscribe("showbiz");
 			// Acknowledge the channel subscription
-			// @ts-ignore
+			// @ts-expect-error
 			const clientId = global.localStorage.getItem("sarus-client-id");
 			const latestMessage = messages[messages.length - 1] as {
 				type: string;
@@ -294,7 +294,7 @@ describe("pubsub", () => {
 			// Subscribe the client to the channel
 			await hubClient.subscribe("markets");
 			// Acknowledge the channel subscription
-			// @ts-ignore
+			// @ts-expect-error
 			const clientId = global.localStorage.getItem("sarus-client-id");
 			const latestMessage = messages[messages.length - 1] as {
 				type: string;
@@ -365,7 +365,7 @@ describe("pubsub", () => {
 				// Subscribe the client to the channel
 				await hubClient.subscribe("showbiz");
 				// Acknowledge the channel subscription
-				// @ts-ignore
+				// @ts-expect-error
 				const clientId = global.localStorage.getItem("sarus-client-id");
 				const latestMessage = messages[messages.length - 1] as {
 					type: string;
@@ -399,7 +399,7 @@ describe("pubsub", () => {
 				// Subscribe the client to the channel
 				await hubClient.subscribe("showbiz");
 				// Acknowledge the channel subscription
-				// @ts-ignore
+				// @ts-expect-error
 				const clientId = global.localStorage.getItem("sarus-client-id");
 				const latestMessage = messages[messages.length - 1] as {
 					type: string;
@@ -451,7 +451,7 @@ describe("pubsub", () => {
 				await assert.rejects(
 					async () => {
 						await hub.pubsub.publish({
-							// @ts-ignore - deliberately missing channel - NOTE TypeScript will highlight missing props, so maybe we can remove this test?
+							// @ts-expect-error - deliberately missing channel - NOTE TypeScript will highlight missing props, so maybe we can remove this test?
 							data: {
 								message: "FTSE: 5845 (-5)",
 							},
@@ -465,7 +465,7 @@ describe("pubsub", () => {
 				await assert.rejects(
 					async () => {
 						await hub.pubsub.publish({
-							// @ts-ignore - deliberately missing message - NOTE TypeScript will highlight missing props, so maybe we can remove this test?
+							// @ts-expect-error - deliberately missing message - NOTE TypeScript will highlight missing props, so maybe we can remove this test?
 							data: {
 								channel: "markets",
 							},
@@ -576,7 +576,7 @@ describe("pubsub", () => {
 			// Subscribe the client to the channel
 			await hubClient.subscribe("markets");
 			// Acknowledge the channel subscription
-			// @ts-ignore
+			// @ts-expect-error
 			const clientId = global.localStorage.getItem("sarus-client-id");
 			const latestMessage = messages[messages.length - 1] as {
 				type: string;
@@ -602,7 +602,7 @@ describe("pubsub", () => {
 			// Get the server to publish a message to the channel
 
 			// a second client needs to be subscribed, and localstorage scrubbed to prevent duplicate client id assignment;
-			// @ts-ignore
+			// @ts-expect-error
 			global.localStorage.removeItem("sarus-client-id");
 			const otherHubClient = new HubClient(config);
 			await otherHubClient.isReady();
