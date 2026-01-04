@@ -20,10 +20,11 @@ export function checkIpAddress(
 	ipAddress: string,
 ): boolean {
 	if (!ipAddresses || ipAddresses.length === 0) return true;
+	let anyMatch = false;
 	for (const ipAddressItem of ipAddresses) {
-		return new RegExp(ipAddressItem).test(ipAddress);
+		if (new RegExp(ipAddressItem).test(ipAddress)) anyMatch = true;
 	}
-	return false;
+	return anyMatch;
 }
 
 export function handleIpAddressCheck(
