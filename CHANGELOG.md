@@ -1,5 +1,9 @@
 # CHANGELOG
 
+### 0.2.8 - Sunday 4th January, 2026
+
+- A fix to the package.json file for the publish workflow
+
 ### 0.2.7 - Sunday 4th January, 2026
 
 - 0.2.6
