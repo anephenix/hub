@@ -1,5 +1,15 @@
 # CHANGELOG
 
+### 0.2.9 - Sunday 18th January, 2026
+
+- Ensure that error objects get serialized in RPC responses
+- Merge pull request #347 from anephenix/dependabot/npm_and_yarn/ws-8.19.0
+- Bump ws from 8.18.3 to 8.19.0
+- Merge pull request #345 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.3.11
+- Merge pull request #346 from anephenix/dependabot/npm_and_yarn/anephenix/sarus-0.7.14
+- Bump @anephenix/sarus from 0.7.13 to 0.7.14
+- Bump @biomejs/biome from 2.3.10 to 2.3.11
+
 ### 0.2.8 - Sunday 4th January, 2026
 
 - A fix to the package.json file for the publish workflow
