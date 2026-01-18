@@ -152,6 +152,57 @@ describe("rpc", () => {
 				});
 			});
 		});
+
+		describe("When the action throws an error", () => {
+			it("should return a response with a serialized error object that is compatible with JSON encoding", async () => {
+				const serviceFunction = async (data: unknown) => {
+					try {
+						// A simple validation case of an empty string
+						if (!data || !data.name || data.name.trim() === "") {
+							const error = new Error("Invalid payload");
+							throw error;
+						}
+						return {
+							success: true,
+							type: "response",
+							data: { result: "good" },
+						};
+					} catch (error) {
+						return { success: false, type: "error", error };
+					}
+				};
+
+				const createDashboard = async ({ data, reply }) => {
+					const response = await serviceFunction({ data });
+					reply(response);
+				};
+
+				const port = 4010;
+
+				const hubServer = new Hub({ port });
+				hubServer.server.listen(port);
+				const terminator = createHttpTerminator({ server: hubServer.server });
+				const hubClient = new HubClient({ url: `ws://localhost:${port}` });
+
+				hubServer.rpc.add("create-dashboard", createDashboard);
+				await hubClient.isReady();
+
+				const data = { name: "" };
+
+				try {
+					await hubClient.rpc.send({
+						action: "create-dashboard",
+						data,
+					});
+					assert(false, "Should have throw an error by now");
+				} catch (err) {
+					assert(err);
+					assert.deepEqual(err.message, "Invalid payload");
+				}
+
+				await terminator.terminate();
+			});
+		});
 	});
 
 	describe("making a request from server to client", () => {

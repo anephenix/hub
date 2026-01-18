@@ -16,13 +16,12 @@ const messageLogger = (hub) => {
 // Attach the message logger function to hub
 messageLogger(hub);
 
-
 // Some example stock price data, prices taken from end-of-day on 2025/06/23
 const stocks = {
 	AMZN: 208.47,
 	META: 698.53,
-	MSFT: 486.00,
-	AAPL: 201.50,
+	MSFT: 486.0,
+	AAPL: 201.5,
 	GOOGL: 165.19,
 	NVDA: 144.17,
 	NFLX: 1253.54,
@@ -32,7 +31,7 @@ const stocks = {
 const performRandomWalk = () => {
 	for (const symbol in stocks) {
 		const change = (Math.random() - 0.5) * 2; // random value between -1 and 1
-		stocks[symbol] = Math.max(0, + (stocks[symbol] + change).toFixed(2));
+		stocks[symbol] = Math.max(0, +(stocks[symbol] + change).toFixed(2));
 	}
 	// Prints the updated stock prices to the console, comment out
 	console.log("Updated stock prices:", stocks);

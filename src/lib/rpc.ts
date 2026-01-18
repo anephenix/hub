@@ -17,6 +17,16 @@ import type { GenericFunction } from "@anephenix/sarus";
 import { v4 as uuidv4 } from "uuid";
 import { decode, encode } from "./dataTransformer.js";
 
+function makeErrorSerializeable(error?: string | Error) {
+	if (!error) return error;
+	if (typeof error === "string") return error;
+	const obj = {};
+	Object.getOwnPropertyNames(error).forEach((key) => {
+		obj[key] = error[key];
+	});
+	return obj;
+}
+
 import type {
 	RPCArgs,
 	RPCFunction,
@@ -117,8 +127,14 @@ class RPC {
 				action,
 				type: response.type || "response",
 				data: response.data,
-				error: response.error,
+				error: makeErrorSerializeable(response.error),
 			};
+
+			// console.log(response);
+			// console.log(responsePayload);
+			//
+			// TODO - encode any errors into an object.
+
 			return socket?.send(encode(responsePayload));
 		};
 		return reply;
@@ -240,7 +256,11 @@ class RPC {
 					if (response.type === "response") {
 						resolve(response.data);
 					} else if (response.type === "error") {
-						reject(new Error(response.error as string));
+						if (typeof response.error === "string") {
+							reject(new Error(response.error as string));
+						} else {
+							reject(response.error);
+						}
 					}
 					this.cleanupRPCCall(response);
 				}
