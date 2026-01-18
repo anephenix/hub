@@ -1,5 +1,9 @@
 # CHANGELOG
 
+### 0.2.10 - Sunday 18th January, 2026
+
+- TypeScript fixes and ensure npm run build runs before pushing a release
+
 ### 0.2.9 - Sunday 18th January, 2026
 
 - Ensure that error objects get serialized in RPC responses
