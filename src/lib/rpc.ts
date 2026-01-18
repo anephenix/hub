@@ -20,9 +20,9 @@ import { decode, encode } from "./dataTransformer.js";
 function makeErrorSerializeable(error?: string | Error) {
 	if (!error) return error;
 	if (typeof error === "string") return error;
-	const obj = {};
+	const obj: Record<string, unknown> = {};
 	Object.getOwnPropertyNames(error).forEach((key) => {
-		obj[key] = error[key];
+		obj[key] = (error as unknown as Record<string, unknown>)[key];
 	});
 	return obj;
 }
@@ -127,7 +127,7 @@ class RPC {
 				action,
 				type: response.type || "response",
 				data: response.data,
-				error: makeErrorSerializeable(response.error),
+				error: makeErrorSerializeable(response.error as Error | string),
 			};
 
 			// console.log(response);
