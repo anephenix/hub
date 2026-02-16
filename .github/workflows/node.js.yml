@@ -19,6 +19,17 @@ jobs:
             NODE_OPTIONS: '--trace-warnings --trace-deprecation'
             CI: true
 
+        services:
+            redis:
+                image: redis:latest
+                ports:
+                    - 6379:6379
+                options: >-
+                    --health-cmd "redis-cli ping || exit 1"
+                    --health-interval 5s
+                    --health-timeout 5s
+                    --health-retries 5
+
         strategy:
             matrix:
                 node-version: [22.x]
@@ -44,9 +55,7 @@ jobs:
                   libx11-6 \
                   libxss1 \
                   libglib2.0-0 \
-                  libgbm1        
-            - name: Set up Redis
-              uses: zhulik/redis-action@1.1.0
+                  libgbm1
             - uses: actions/checkout@v2
             - name: Use Node.js ${{ matrix.node-version }}
               uses: actions/setup-node@v4
