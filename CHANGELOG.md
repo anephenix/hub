@@ -1,5 +1,38 @@
 # CHANGELOG
 
+### 0.2.11 - Monday 16th February, 2026
+
+- Merge pull request #362 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.4.0
+- Merge pull request #361 from anephenix/dependabot/npm_and_yarn/puppeteer-24.37.3
+- Bump @biomejs/biome from 2.3.14 to 2.4.0
+- Bump puppeteer from 24.37.2 to 24.37.3
+- Replaced Redis service in GitHub workflow
+- Updated dependencies
+- Merge pull request #360 from anephenix/dependabot/npm_and_yarn/puppeteer-24.37.2
+- Merge pull request #359 from anephenix/dependabot/npm_and_yarn/esbuild-0.27.3
+- Merge pull request #358 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.3.14
+- Bump puppeteer from 24.36.1 to 24.37.2
+- Bump esbuild from 0.27.2 to 0.27.3
+- Bump @biomejs/biome from 2.3.13 to 2.3.14
+- Merge pull request #356 from anephenix/dependabot/npm_and_yarn/puppeteer-24.36.1
+- Merge pull request #357 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.3.13
+- Bump @biomejs/biome from 2.3.12 to 2.3.13
+- Bump puppeteer from 24.36.0 to 24.36.1
+- Merge pull request #355 from anephenix/dependabot/npm_and_yarn/puppeteer-24.36.0
+- Merge pull request #354 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.3.12
+- Merge pull request #353 from anephenix/dependabot/npm_and_yarn/vitest-4.0.18
+- Merge pull request #352 from anephenix/dependabot/npm_and_yarn/publint-0.3.17
+- Merge pull request #351 from anephenix/dependabot/npm_and_yarn/cucumber/cucumber-12.6.0
+- Bump puppeteer from 24.35.0 to 24.36.0
+- Bump @biomejs/biome from 2.3.11 to 2.3.12
+- Bump vitest from 4.0.17 to 4.0.18
+- Bump publint from 0.3.16 to 0.3.17
+- Bump @cucumber/cucumber from 12.5.0 to 12.6.0
+- Merge pull request #350 from anephenix/dependabot/npm_and_yarn/vitest-4.0.17
+- Merge pull request #349 from anephenix/dependabot/npm_and_yarn/puppeteer-24.35.0
+- Bump vitest from 4.0.16 to 4.0.17
+- Bump puppeteer from 24.34.0 to 24.35.0
+
 ### 0.2.10 - Sunday 18th January, 2026
 
 - TypeScript fixes and ensure npm run build runs before pushing a release
