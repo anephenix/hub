@@ -9,6 +9,7 @@ import type {
 	StorageType,
 } from "../types.js";
 import HubClient from "./index.js";
+
 export type {
 	ChannelHandler,
 	ChannelOptions,

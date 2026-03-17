@@ -32,7 +32,7 @@ jobs:
 
         strategy:
             matrix:
-                node-version: [22.x]
+                node-version: [24.x]
                 # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
         steps:
@@ -56,7 +56,7 @@ jobs:
                   libxss1 \
                   libglib2.0-0 \
                   libgbm1
-            - uses: actions/checkout@v2
+            - uses: actions/checkout@v4
             - name: Use Node.js ${{ matrix.node-version }}
               uses: actions/setup-node@v4
               with:

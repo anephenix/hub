@@ -129,8 +129,8 @@ async function checkHasClientId({
 
 // Expose the Public API
 export {
-	requestClientId,
 	checkHasClientId,
-	type WebSocketWithClientId,
 	type Rpc,
+	requestClientId,
+	type WebSocketWithClientId,
 };
