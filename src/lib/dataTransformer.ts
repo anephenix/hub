@@ -23,4 +23,4 @@ function decode(data: string): DataType | PublishMessageReceivedParams {
 	return JSON.parse(data);
 }
 
-export { encode, decode };
+export { decode, encode };
