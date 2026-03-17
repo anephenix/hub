@@ -1,5 +1,41 @@
 # CHANGELOG
 
+### 0.2.12 - Tuesday 17th March, 2026
+
+- Updated dependencies
+- Merge pull request #375 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.4.7
+- Updated biome
+- Updated GitHub actions, tweaked the format command, and applied linting fixes
+- Merge pull request #374 from anephenix/dependabot/npm_and_yarn/vitest-4.1.0
+- Merge pull request #376 from anephenix/dependabot/npm_and_yarn/puppeteer-24.39.1
+- Merge pull request #373 from anephenix/dependabot/npm_and_yarn/esbuild-0.27.4
+- Bump puppeteer from 24.38.0 to 24.39.1
+- Bump @biomejs/biome from 2.4.6 to 2.4.7
+- Bump vitest from 4.0.18 to 4.1.0
+- Bump esbuild from 0.27.3 to 0.27.4
+- Merge pull request #372 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.4.6
+- Bump @biomejs/biome from 2.4.4 to 2.4.6
+- Merge branch 'master' of github.com:anephenix/hub
+- Updated dependencies
+- Merge pull request #370 from anephenix/dependabot/npm_and_yarn/nyc-18.0.0
+- Merge pull request #369 from anephenix/dependabot/npm_and_yarn/publint-0.3.18
+- Merge pull request #371 from anephenix/dependabot/npm_and_yarn/cucumber/cucumber-12.7.0
+- Bump @cucumber/cucumber from 12.6.0 to 12.7.0
+- Bump nyc from 17.1.0 to 18.0.0
+- Bump publint from 0.3.17 to 0.3.18
+- Merge pull request #367 from anephenix/dependabot/npm_and_yarn/multi-1ce7acca3d
+- Merge pull request #368 from anephenix/dependabot/npm_and_yarn/rollup-4.59.0
+- Bump rollup from 4.56.0 to 4.59.0
+- Bump minimatch
+- Merge pull request #366 from anephenix/dependabot/npm_and_yarn/basic-ftp-5.2.0
+- Bump basic-ftp from 5.1.0 to 5.2.0
+- Merge pull request #365 from anephenix/dependabot/npm_and_yarn/puppeteer-24.37.5
+- Merge pull request #363 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.4.4
+- Merge pull request #364 from anephenix/dependabot/npm_and_yarn/redis-5.11.0
+- Bump puppeteer from 24.37.3 to 24.37.5
+- Bump redis from 5.10.0 to 5.11.0
+- Bump @biomejs/biome from 2.4.1 to 2.4.4
+
 ### 0.2.11 - Monday 16th February, 2026
 
 - Merge pull request #362 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.4.0
