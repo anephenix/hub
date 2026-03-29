@@ -1,5 +1,19 @@
 # CHANGELOG
 
+### 0.2.14 - Sunday 29th March, 2026
+
+- Updated dependencies
+- Merge pull request #381 from anephenix/dependabot/npm_and_yarn/picomatch-4.0.4
+- Bump picomatch from 4.0.3 to 4.0.4
+- Merge pull request #380 from anephenix/dependabot/npm_and_yarn/puppeteer-24.40.0
+- Merge pull request #379 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.4.8
+- Merge pull request #378 from anephenix/dependabot/npm_and_yarn/ws-8.20.0
+- Merge pull request #377 from anephenix/dependabot/npm_and_yarn/anephenix/sarus-0.7.15
+- Bump puppeteer from 24.39.1 to 24.40.0
+- Bump @biomejs/biome from 2.4.7 to 2.4.8
+- Bump ws from 8.19.0 to 8.20.0
+- Bump @anephenix/sarus from 0.7.14 to 0.7.15
+
 ### 0.2.13 - Tuesday 17th March, 2026
 
 - 0.2.12
