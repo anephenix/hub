@@ -1,5 +1,20 @@
 # CHANGELOG
 
+### 0.2.15 - Tuesday 7th April, 2026
+
+- Small linting improvement
+- Updated dependencies
+- Merge pull request #386 from anephenix/dependabot/npm_and_yarn/vite-8.0.5
+- Bump vite from 8.0.4 to 8.0.5
+- Merge pull request #385 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.4.10
+- Merge pull request #384 from anephenix/dependabot/npm_and_yarn/esbuild-0.28.0
+- Bump @biomejs/biome from 2.4.9 to 2.4.10
+- Bump esbuild from 0.27.4 to 0.28.0
+- Merge pull request #383 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.4.9
+- Merge pull request #382 from anephenix/dependabot/npm_and_yarn/typescript-6.0.2
+- Bump @biomejs/biome from 2.4.8 to 2.4.9
+- Bump typescript from 5.9.3 to 6.0.2
+
 ### 0.2.14 - Sunday 29th March, 2026
 
 - Updated dependencies
