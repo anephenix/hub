@@ -158,7 +158,7 @@ describe("rpc", () => {
 				const serviceFunction = async (data: unknown) => {
 					try {
 						// A simple validation case of an empty string
-						if (!data || !data.name || data.name.trim() === "") {
+						if (!data?.name || data.name.trim() === "") {
 							const error = new Error("Invalid payload");
 							throw error;
 						}
