@@ -1,95 +1,95 @@
 {
-	"name": "@anephenix/hub",
-	"version": "0.2.15",
-	"description": "A Node.js WebSocket server and client with added features",
-	"type": "module",
-	"types": "./dist/esm/index.d.ts",
-	"exports": {
-		".": {
-			"types": "./dist/esm/index.d.ts",
-			"import": "./dist/esm/index.js"
-		},
-		"./client": {
-			"node": "./dist/esm/lib/client/HubClient.node.js",
-			"default": "./dist/esm/lib/client/HubClient.browser.js"
-		}
-	},
-	"typesVersions": {
-		"*": {
-			"client": [
-				"./dist/esm/lib/client/HubClient.browser.d.ts"
-			]
-		}
-	},
-	"files": [
-		"dist",
-		"README.md"
-	],
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/anephenix/hub.git"
-	},
-	"homepage": "https://github.com/anephenix/hub",
-	"bugs": {
-		"url": "https://github.com/anephenix/hub/issues"
-	},
-	"scripts": {
-		"build": "tsc --build tsconfig.json",
-		"build-cucumber-support-files": "npx esbuild support/client/main.js --bundle --minify --sourcemap --outdir=support/client/dist",
-		"certs": "command -v mkcert >/dev/null 2>&1 || { echo 'Error: mkcert is not installed.'; exit 1; } && mkdir -p certs && cd certs && mkcert localhost 127.0.0.1 ::1",
-		"format": "npx @biomejs/biome check src test --write",
-		"lint": "npx @biomejs/biome check src test",
-		"lint:package": "npx publint",
-		"check-build": "node scripts/check-node-esm-works.js && node scripts/check-node-commonjs-works.cjs",
-		"cover": "NODE_ENV=test npx nyc --reporter=lcov npm t",
-		"cucumber": "NODE_ENV=test npx cucumber-js",
-		"cucumber-wip": "NODE_ENV=test npx cucumber-js -t @wip",
-		"prepare-patch-release": "npm run build && npm run update-changelog && git add CHANGELOG.md && git commit -m \"Updated changelog\" && npm version patch",
-		"publish-patch-release": "npm run prepare-patch-release && git push origin master && git push --tags",
-		"prepare": "husky",
-		"pretest": "rm -rf localStorage && rm -rf sessionStorage",
-		"test": "if [ ! -f certs/localhost+2-key.pem ] || [ ! -f certs/localhost+2.pem ]; then npm run certs; fi && NODE_ENV=test npx vitest test --run",
-		"update-changelog": "node --experimental-strip-types scripts/update-changelog.ts"
-	},
-	"keywords": [
-		"websocket",
-		"rpc",
-		"pubsub"
-	],
-	"husky": {
-		"hooks": {
-			"pre-commit": "npm run lint && npm run test && npm run build && npm run check-build && npm run build-cucumber-support-files && npm run cucumber"
-		}
-	},
-	"author": "Paul Jensen <paul@anephenix.com>",
-	"license": "MIT",
-	"dependencies": {
-		"@anephenix/sarus": "^0.7.12",
-		"node-ip": "^0.1.2",
-		"node-localstorage": "^3.0.5",
-		"redis": "^5.0.0",
-		"uuid": "^14.0.0",
-		"ws": "^8.17.0"
-	},
-	"devDependencies": {
-		"@biomejs/biome": "2.4.11",
-		"@cucumber/cucumber": "^12.0.0",
-		"@types/node-localstorage": "^1.3.3",
-		"@types/ws": "^8.18.1",
-		"esbuild": "^0.28.0",
-		"gradient-string": "^3.0.0",
-		"http-shutdown": "^1.2.2",
-		"http-terminator": "^3.2.0",
-		"husky": "^9.1.5",
-		"node-emoji": "^2.1.3",
-		"nyc": "^18.0.0",
-		"publint": "^0.3.14",
-		"puppeteer": "^24.1.0",
-		"terminal-kit": "^3.1.1",
-		"ts-node": "^10.9.2",
-		"typescript": "^6.0.2",
-		"vitest": "^4.0.3",
-		"why-is-node-running": "^3.2.0"
-	},
-	"browserslist": "> 0.5%, last 2 versions, not dead"
+  "name": "@anephenix/hub",
+  "version": "0.2.15",
+  "description": "A Node.js WebSocket server and client with added features",
+  "type": "module",
+  "types": "./dist/esm/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/esm/index.d.ts",
+      "import": "./dist/esm/index.js"
+    },
+    "./client": {
+      "node": "./dist/esm/lib/client/HubClient.node.js",
+      "default": "./dist/esm/lib/client/HubClient.browser.js"
+    }
+  },
+  "typesVersions": {
+    "*": {
+      "client": [
+        "./dist/esm/lib/client/HubClient.browser.d.ts"
+      ]
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anephenix/hub.git"
+  },
+  "homepage": "https://github.com/anephenix/hub",
+  "bugs": {
+    "url": "https://github.com/anephenix/hub/issues"
+  },
+  "scripts": {
+    "build": "tsc --build tsconfig.json",
+    "build-cucumber-support-files": "npx esbuild support/client/main.js --bundle --minify --sourcemap --outdir=support/client/dist",
+    "certs": "command -v mkcert >/dev/null 2>&1 || { echo 'Error: mkcert is not installed.'; exit 1; } && mkdir -p certs && cd certs && mkcert localhost 127.0.0.1 ::1",
+    "format": "npx @biomejs/biome check src test --write",
+    "lint": "npx @biomejs/biome check src test",
+    "lint:package": "npx publint",
+    "check-build": "node scripts/check-node-esm-works.js && node scripts/check-node-commonjs-works.cjs",
+    "cover": "if [ ! -f certs/localhost+2-key.pem ] || [ ! -f certs/localhost+2.pem ]; then npm run certs; fi && NODE_ENV=test npx vitest test --run --coverage",
+    "cucumber": "NODE_ENV=test npx cucumber-js",
+    "cucumber-wip": "NODE_ENV=test npx cucumber-js -t @wip",
+    "prepare-patch-release": "npm run build && npm run update-changelog && git add CHANGELOG.md && git commit -m \"Updated changelog\" && npm version patch",
+    "publish-patch-release": "npm run prepare-patch-release && git push origin master && git push --tags",
+    "prepare": "husky",
+    "pretest": "rm -rf localStorage && rm -rf sessionStorage",
+    "test": "if [ ! -f certs/localhost+2-key.pem ] || [ ! -f certs/localhost+2.pem ]; then npm run certs; fi && NODE_ENV=test npx vitest test --run",
+    "update-changelog": "node --experimental-strip-types scripts/update-changelog.ts"
+  },
+  "keywords": [
+    "websocket",
+    "rpc",
+    "pubsub"
+  ],
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run lint && npm run test && npm run build && npm run check-build && npm run build-cucumber-support-files && npm run cucumber"
+    }
+  },
+  "author": "Paul Jensen <paul@anephenix.com>",
+  "license": "MIT",
+  "dependencies": {
+    "@anephenix/sarus": "^0.7.12",
+    "node-ip": "^0.1.2",
+    "node-localstorage": "^3.0.5",
+    "redis": "^5.0.0",
+    "uuid": "^14.0.0",
+    "ws": "^8.17.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.4.11",
+    "@cucumber/cucumber": "^12.0.0",
+    "@types/node-localstorage": "^1.3.3",
+    "@types/ws": "^8.18.1",
+    "@vitest/coverage-v8": "^4.1.4",
+    "esbuild": "^0.28.0",
+    "gradient-string": "^3.0.0",
+    "http-shutdown": "^1.2.2",
+    "http-terminator": "^3.2.0",
+    "husky": "^9.1.5",
+    "node-emoji": "^2.1.3",
+    "publint": "^0.3.14",
+    "puppeteer": "^24.1.0",
+    "terminal-kit": "^3.1.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^6.0.2",
+    "vitest": "^4.0.3",
+    "why-is-node-running": "^3.2.0"
+  },
+  "browserslist": "> 0.5%, last 2 versions, not dead"
 }
