@@ -15,6 +15,7 @@ import type Sarus from "@anephenix/sarus";
 import type { GenericFunction } from "@anephenix/sarus";
 // Dependencies
 import { v4 as uuidv4 } from "uuid";
+import type { WebSocket } from "ws";
 import { decode, encode } from "./dataTransformer.js";
 
 function makeErrorSerializeable(error?: string | Error) {
@@ -238,21 +239,34 @@ class RPC {
 		noReply,
 		id,
 		action,
+		ws,
 	}: {
 		interval: NodeJS.Timeout | undefined;
 		responses: RPCPayload[];
 		noReply?: boolean;
 		id: string;
 		action: string;
+		ws?: WebSocket;
 	}) {
 		return new Promise<unknown>((resolve, reject) => {
 			if (noReply) return resolve(null);
+
+			const onSocketClose = () => {
+				if (interval) clearInterval(interval);
+				const request = this.requests.find((r) => r.id === id);
+				if (request) this.removeItemFromQueue(request, this.requests);
+				reject(
+					new Error(`WebSocket closed before RPC reply for action: ${action}`),
+				);
+			};
+
 			interval = setInterval(() => {
 				const response = responses.find(
 					(r) => r.id === id && r.action === action,
 				);
 				if (response) {
 					if (interval) clearInterval(interval);
+					ws?.removeListener?.("close", onSocketClose);
 					if (response.type === "response") {
 						resolve(response.data);
 					} else if (response.type === "error") {
@@ -265,6 +279,8 @@ class RPC {
 					this.cleanupRPCCall(response);
 				}
 			}, 10);
+
+			ws?.once?.("close", onSocketClose);
 		});
 	}
 
@@ -283,7 +299,7 @@ class RPC {
 		const socket = this.sarus || ws;
 		if (socket) socket.send(encode(payload));
 		let interval: NodeJS.Timeout | undefined;
-		return this.waitForReply({ interval, responses, noReply, id, action });
+		return this.waitForReply({ interval, responses, noReply, id, action, ws });
 	}
 }
 
