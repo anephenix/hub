@@ -1,5 +1,108 @@
 # CHANGELOG
 
+### 0.2.16 - Thursday 23rd July, 2026
+
+- Merge branch 'master' of github.com:anephenix/hub
+- Merge commit from fork
+- Clean up pending RPC requests when a client disconnects without replying, to prevent resource exhaustion
+- Updated dependencies
+- Merge pull request #432 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.5.3
+- Merge pull request #431 from anephenix/dependabot/npm_and_yarn/typescript-7.0.2
+- Bump @biomejs/biome from 2.5.2 to 2.5.3
+- Bump typescript from 6.0.3 to 7.0.2
+- Updated dependencies and TypeScript version and biome schema
+- Merge pull request #430 from anephenix/dependabot/npm_and_yarn/vitest/coverage-v8-4.1.10
+- Merge pull request #428 from anephenix/dependabot/npm_and_yarn/vitest-4.1.10
+- Merge pull request #429 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.5.2
+- Bump @vitest/coverage-v8 from 4.1.9 to 4.1.10
+- Bump @biomejs/biome from 2.5.1 to 2.5.2
+- Bump vitest from 4.1.9 to 4.1.10
+- Updated dependencies
+- Merge pull request #427 from anephenix/dependabot/npm_and_yarn/redis-6.0.1
+- Merge pull request #426 from anephenix/dependabot/npm_and_yarn/puppeteer-25.2.1
+- Merge pull request #425 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.5.1
+- Bump redis from 6.0.0 to 6.0.1
+- Bump puppeteer from 25.1.0 to 25.2.1
+- Bump @biomejs/biome from 2.5.0 to 2.5.1
+- Merge pull request #424 from anephenix/dependabot/npm_and_yarn/vitest/coverage-v8-4.1.9
+- Merge pull request #423 from anephenix/dependabot/npm_and_yarn/vitest-4.1.9
+- Merge pull request #422 from anephenix/dependabot/npm_and_yarn/uuid-14.0.1
+- Bump @vitest/coverage-v8 from 4.1.8 to 4.1.9
+- Bump vitest from 4.1.8 to 4.1.9
+- Bump uuid from 14.0.0 to 14.0.1
+- Merge pull request #421 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.5.0
+- Bump @biomejs/biome from 2.4.16 to 2.5.0
+- Merge pull request #420 from anephenix/dependabot/npm_and_yarn/esbuild-0.28.1
+- Bump esbuild from 0.28.0 to 0.28.1
+- Merge pull request #419 from anephenix/dependabot/npm_and_yarn/cucumber/cucumber-13.0.0
+- Bump @cucumber/cucumber from 12.9.0 to 13.0.0
+- Merge pull request #417 from anephenix/dependabot/npm_and_yarn/redis-6.0.0
+- Merge pull request #418 from anephenix/dependabot/npm_and_yarn/puppeteer-25.1.0
+- Merge pull request #416 from anephenix/dependabot/npm_and_yarn/vitest-4.1.8
+- Merge pull request #414 from anephenix/dependabot/npm_and_yarn/vitest/coverage-v8-4.1.8
+- Merge pull request #415 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.4.16
+- Bump puppeteer from 25.0.4 to 25.1.0
+- Bump redis from 5.12.1 to 6.0.0
+- Bump vitest from 4.1.7 to 4.1.8
+- Bump @biomejs/biome from 2.4.15 to 2.4.16
+- Bump @vitest/coverage-v8 from 4.1.7 to 4.1.8
+- Merge pull request #412 from anephenix/dependabot/npm_and_yarn/vitest/coverage-v8-4.1.7
+- Merge pull request #410 from anephenix/dependabot/npm_and_yarn/vitest-4.1.7
+- Merge pull request #411 from anephenix/dependabot/npm_and_yarn/ws-8.21.0
+- Merge pull request #413 from anephenix/dependabot/npm_and_yarn/puppeteer-25.0.4
+- Bump puppeteer from 25.0.3 to 25.0.4
+- Bump @vitest/coverage-v8 from 4.1.6 to 4.1.7
+- Bump ws from 8.20.1 to 8.21.0
+- Bump vitest from 4.1.6 to 4.1.7
+- Merge pull request #409 from anephenix/dependabot/npm_and_yarn/ws-8.20.1
+- Bump ws from 8.20.0 to 8.20.1
+- Merge pull request #406 from anephenix/dependabot/npm_and_yarn/vitest/coverage-v8-4.1.6
+- Merge pull request #405 from anephenix/dependabot/npm_and_yarn/cucumber/cucumber-12.9.0
+- Merge pull request #407 from anephenix/dependabot/npm_and_yarn/puppeteer-25.0.3
+- Merge pull request #404 from anephenix/dependabot/npm_and_yarn/publint-0.3.21
+- Bump puppeteer from 24.43.0 to 25.0.3
+- Bump @vitest/coverage-v8 from 4.1.5 to 4.1.6
+- Bump @cucumber/cucumber from 12.8.3 to 12.9.0
+- Bump publint from 0.3.20 to 0.3.21
+- Merge pull request #403 from anephenix/dependabot/npm_and_yarn/puppeteer-24.43.0
+- Merge pull request #402 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.4.15
+- Merge pull request #401 from anephenix/dependabot/npm_and_yarn/cucumber/cucumber-12.8.3
+- Merge pull request #400 from anephenix/dependabot/npm_and_yarn/publint-0.3.20
+- Bump puppeteer from 24.42.0 to 24.43.0
+- Bump @biomejs/biome from 2.4.14 to 2.4.15
+- Bump @cucumber/cucumber from 12.8.2 to 12.8.3
+- Bump publint from 0.3.18 to 0.3.20
+- Merge pull request #399 from anephenix/dependabot/npm_and_yarn/ip-address-10.2.0
+- Bump ip-address from 10.1.0 to 10.2.0
+- Merge pull request #398 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.4.14
+- Bump @biomejs/biome from 2.4.13 to 2.4.14
+- Merge pull request #397 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.4.13
+- Bump @biomejs/biome from 2.4.11 to 2.4.13
+- Updated dependencies
+- Merge branch 'master' of github.com:anephenix/hub
+- Updated the TODO.md file
+- Removed some unnecessary files and dependencies, and updated the TODO.md file
+- Merge pull request #396 from anephenix/dependabot/npm_and_yarn/uuid-14.0.0
+- Merge pull request #395 from anephenix/dependabot/npm_and_yarn/cucumber/cucumber-12.8.1
+- Merge pull request #394 from anephenix/dependabot/npm_and_yarn/redis-5.12.1
+- Merge pull request #393 from anephenix/dependabot/npm_and_yarn/typescript-6.0.3
+- Merge pull request #392 from anephenix/dependabot/npm_and_yarn/puppeteer-24.41.0
+- Bump uuid from 13.0.0 to 14.0.0
+- Bump @cucumber/cucumber from 12.8.0 to 12.8.1
+- Bump redis from 5.11.0 to 5.12.1
+- Bump typescript from 6.0.2 to 6.0.3
+- Bump puppeteer from 24.40.0 to 24.41.0
+- Merge pull request #391 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.4.11
+- Merge pull request #390 from anephenix/dependabot/npm_and_yarn/vitest-4.1.4
+- Merge pull request #389 from anephenix/dependabot/npm_and_yarn/cucumber/cucumber-12.8.0
+- Bump @biomejs/biome from 2.4.10 to 2.4.11
+- Bump vitest from 4.1.3 to 4.1.4
+- Bump @cucumber/cucumber from 12.7.0 to 12.8.0
+- Merge pull request #388 from anephenix/dependabot/npm_and_yarn/basic-ftp-5.2.2
+- Bump basic-ftp from 5.2.1 to 5.2.2
+- Merge pull request #387 from anephenix/dependabot/npm_and_yarn/basic-ftp-5.2.1
+- Bump basic-ftp from 5.2.0 to 5.2.1
+
 ### 0.2.15 - Tuesday 7th April, 2026
 
 - Small linting improvement
