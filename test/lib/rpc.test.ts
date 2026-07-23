@@ -3,6 +3,7 @@ import assert from "node:assert";
 import { createHttpTerminator } from "http-terminator";
 import { v4 as uuidv4 } from "uuid";
 import { beforeAll, describe, it } from "vitest";
+import { WebSocket } from "ws";
 import { delayUntil } from "../../src/helpers/delay";
 import Hub from "../../src/index";
 import HubClient from "../../src/lib/client/HubClient.node";
@@ -255,6 +256,26 @@ describe("rpc", () => {
 
 				await terminator.terminate();
 			});
+		});
+	});
+
+	describe("cleaning up pending requests when a client disconnects without replying", () => {
+		it("should remove the pending RPC request when the socket closes before a reply", async () => {
+			const port = 4030;
+			const hubServer = new Hub({ port });
+			hubServer.server.listen(port);
+			const terminator = createHttpTerminator({ server: hubServer.server });
+
+			const ws = new WebSocket(`ws://localhost:${port}`);
+			// Wait for the server's get-client-id RPC message but do not reply
+			await new Promise<void>((resolve) => ws.once("message", () => resolve()));
+			assert.strictEqual(hubServer.rpc.requests.length, 1);
+			ws.close();
+
+			await delayUntil(() => hubServer.rpc.requests.length === 0, 2000);
+			assert.strictEqual(hubServer.rpc.requests.length, 0);
+
+			await terminator.terminate();
 		});
 	});
 
