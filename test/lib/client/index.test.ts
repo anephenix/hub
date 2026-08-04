@@ -253,6 +253,153 @@ describe("Client library", () => {
 		});
 	});
 
+	describe("#fetchMissedMessages", () => {
+		let missedMessagesHubClient: InstanceType<typeof HubClient>;
+
+		beforeAll(async () => {
+			missedMessagesHubClient = new HubClient({
+				url: "ws://localhost:5001",
+				clientIdKey: "fetch-missed-messages-sarus-client-id",
+			});
+			await missedMessagesHubClient.isReady();
+		});
+
+		afterAll(() => {
+			missedMessagesHubClient.sarus.disconnect();
+		});
+
+		describe("tracking the last message id for a channel", () => {
+			it("should track the id of the last message received using the channel's getMessageId option", async () => {
+				const channel = "stocks";
+				const getMessageId = (message: unknown) =>
+					(message as { id: number }).id;
+				await missedMessagesHubClient.subscribe(channel, { getMessageId });
+				let received: unknown;
+				missedMessagesHubClient.addChannelMessageHandler(channel, (message) => {
+					received = message;
+				});
+				await hub.pubsub.publish({
+					data: { channel, message: { id: 42, price: 101.5 } },
+				});
+				await delayUntil(() => received !== undefined);
+				assert.strictEqual(missedMessagesHubClient.lastMessageIds[channel], 42);
+			});
+		});
+
+		describe("when subscribing with a getMessageId option", () => {
+			it("should not forward the getMessageId function to the server in the subscribe request", async () => {
+				const messages: unknown[] = [];
+				hub.rpc.add("subscribe", ({ data }: RPCFunctionArgs) => {
+					messages.push(data);
+				});
+				await missedMessagesHubClient.subscribe("currencies", {
+					getMessageId: () => 1,
+				});
+				const lastMessage = messages[messages.length - 1] as Record<
+					string,
+					unknown
+				>;
+				assert.strictEqual("getMessageId" in lastMessage, false);
+			});
+		});
+
+		describe("when the server responds with missed messages", () => {
+			it("should deliver them through the normal channel message handlers, tagged as catchup messages", async () => {
+				const channel = "cricket";
+				const getMessageId = (message: unknown) =>
+					(message as { id: number }).id;
+				hub.pubsub.addChannelConfiguration({
+					channel,
+					fetchMissedMessages: async ({ lastMessageId }) => {
+						assert.strictEqual(lastMessageId, 5);
+						return [{ id: 6, message: { id: 6, score: "120/3" } }];
+					},
+				});
+				await missedMessagesHubClient.subscribe(channel, { getMessageId });
+				missedMessagesHubClient.lastMessageIds[channel] = 5;
+				const receivedMessages: unknown[] = [];
+				missedMessagesHubClient.addChannelMessageHandler(channel, (message) => {
+					receivedMessages.push(message);
+				});
+				await missedMessagesHubClient.fetchMissedMessages([channel]);
+				await delayUntil(() => receivedMessages.length === 1);
+				assert.deepStrictEqual(receivedMessages[0], { id: 6, score: "120/3" });
+				assert.strictEqual(missedMessagesHubClient.lastMessageIds[channel], 6);
+			});
+		});
+
+		describe("when delivery is 'bulk'", () => {
+			it("should resolve with the missed messages grouped by channel instead of dispatching them to handlers", async () => {
+				const channel = "rugby";
+				hub.pubsub.addChannelConfiguration({
+					channel,
+					fetchMissedMessages: async () => [{ id: 1, message: "Try scored" }],
+				});
+				await missedMessagesHubClient.subscribe(channel);
+				let handlerCalled = false;
+				missedMessagesHubClient.addChannelMessageHandler(channel, () => {
+					handlerCalled = true;
+				});
+				const response = (await missedMessagesHubClient.fetchMissedMessages(
+					[channel],
+					{ delivery: "bulk" },
+				)) as { messages: Record<string, { id: number; message: unknown }[]> };
+				assert.deepStrictEqual(response.messages[channel], [
+					{ id: 1, message: "Try scored" },
+				]);
+				assert.strictEqual(handlerCalled, false);
+			});
+		});
+
+		describe("when no channels are passed", () => {
+			it("should default to fetching missed messages for all subscribed channels", async () => {
+				const defaultChannelsHubClient = new HubClient({
+					url: "ws://localhost:5001",
+					clientIdKey: "default-channels-fetch-missed-messages-sarus-client-id",
+				});
+				await defaultChannelsHubClient.isReady();
+				await defaultChannelsHubClient.subscribe("golf");
+				await defaultChannelsHubClient.subscribe("tennis");
+
+				const receivedChannels: string[] = [];
+				hub.rpc.add("fetch-missed-messages", ({ data }: RPCFunctionArgs) => {
+					const { channels } = data as { channels: { channel: string }[] };
+					for (const { channel } of channels) receivedChannels.push(channel);
+				});
+				await defaultChannelsHubClient.fetchMissedMessages();
+				assert.deepStrictEqual(receivedChannels.sort(), ["golf", "tennis"]);
+				defaultChannelsHubClient.sarus.disconnect();
+			});
+		});
+	});
+
+	describe("autoFetchMissedMessages", () => {
+		it("should automatically fetch missed messages after resubscribing on reconnect when enabled", async () => {
+			const channel = "auto-catchup-channel";
+			hub.pubsub.addChannelConfiguration({
+				channel,
+				fetchMissedMessages: async () => [{ id: 1, message: "Catch up!" }],
+			});
+			const autoHubClient = new HubClient({
+				url: "ws://localhost:5001",
+				clientIdKey: "auto-fetch-sarus-client-id",
+				autoFetchMissedMessages: true,
+			});
+			await autoHubClient.isReady();
+			await autoHubClient.subscribe(channel);
+			const received: unknown[] = [];
+			autoHubClient.addChannelMessageHandler(channel, (message) => {
+				received.push(message);
+			});
+			autoHubClient.sarus.disconnect();
+			await delay(50);
+			autoHubClient.sarus.reconnect();
+			await delayUntil(() => received.length > 0);
+			assert.deepStrictEqual(received[0], "Catch up!");
+			autoHubClient.sarus.disconnect();
+		});
+	});
+
 	describe("#addChannel", () => {
 		const channel = "tunnel";
 		it("should add the channel to the list of channels subscribed to", () => {

@@ -401,6 +401,100 @@ const serverMakesRequiresAuthenticationReply = async () => {
 	assert.strictEqual(error, "Requires authentication");
 };
 
+const addFetchMissedMessagesHandlerForChannel = async (
+	channel,
+	lastMessageId,
+) => {
+	const missedMessages = [
+		{ id: "3", message: "Match postponed" },
+		{ id: "4", message: "New kickoff time confirmed" },
+	];
+	scope.missedMessages = missedMessages;
+	scope.hub.pubsub.addChannelConfiguration({
+		channel,
+		fetchMissedMessages: async ({ lastMessageId: receivedLastMessageId }) => {
+			assert.strictEqual(receivedLastMessageId, lastMessageId);
+			return missedMessages;
+		},
+	});
+};
+
+const clientFetchesMissedMessagesForChannel = async (
+	channel,
+	lastMessageId,
+	delivery,
+) => {
+	const { currentPage } = scope.context;
+	const response = await currentPage.evaluate(
+		async (channel, lastMessageId, delivery) => {
+			hubClient.lastMessageIds[channel] = lastMessageId;
+			return await hubClient.fetchMissedMessages(
+				[channel],
+				delivery ? { delivery } : {},
+			);
+		},
+		channel,
+		lastMessageId,
+		delivery,
+	);
+	scope.fetchMissedMessagesResponse = response;
+};
+
+const clientReceivesCatchupMessageForChannel = async (message, channel) => {
+	const { currentPage } = scope.context;
+	const messages = await currentPage.evaluate(() => {
+		if (sarusMessages.length === 0) return false;
+
+		return sarusMessages;
+	});
+	const found = messages
+		.map((m) => JSON.parse(m))
+		.some(
+			(parsed) =>
+				parsed.action === "message" &&
+				parsed.data?.channel === channel &&
+				parsed.data?.message === message &&
+				parsed.data?.catchup === true,
+		);
+	assert(
+		found,
+		`Expected to find a catchup message "${message}" for channel "${channel}"`,
+	);
+};
+
+const clientReceivesMissedMessagesInResponse = async (channel) => {
+	const { messages } = scope.fetchMissedMessagesResponse;
+	assert.deepStrictEqual(messages[channel], scope.missedMessages);
+};
+
+const clientFetchesMissedMessagesExpectingAnError = async (
+	channel,
+	lastMessageId,
+) => {
+	const { currentPage } = scope.context;
+	const errorMessage = await currentPage.evaluate(
+		async (channel, lastMessageId) => {
+			hubClient.lastMessageIds[channel] = lastMessageId;
+			try {
+				await hubClient.fetchMissedMessages([channel]);
+				return null;
+			} catch (err) {
+				return err.message;
+			}
+		},
+		channel,
+		lastMessageId,
+	);
+	scope.fetchMissedMessagesError = errorMessage;
+};
+
+const clientReceivesSubscriberError = async () => {
+	assert.strictEqual(
+		scope.fetchMissedMessagesError,
+		"You must subscribe to the channel to publish messages to it",
+	);
+};
+
 const clientShouldNotBeSubscribedToChannel = async (channel) => {
 	const { currentPage } = scope.context;
 	// We need to make a request from the client to the server to subscribe to a channel
@@ -449,4 +543,10 @@ export {
 	serverReceivesSubscriptionRequestWithPassword,
 	serverMakesRequiresAuthenticationReply,
 	clientShouldNotBeSubscribedToChannel,
+	addFetchMissedMessagesHandlerForChannel,
+	clientFetchesMissedMessagesForChannel,
+	clientReceivesCatchupMessageForChannel,
+	clientReceivesMissedMessagesInResponse,
+	clientFetchesMissedMessagesExpectingAnError,
+	clientReceivesSubscriberError,
 };

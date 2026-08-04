@@ -19,8 +19,10 @@ import type {
 	ChannelHandler,
 	ChannelOptions,
 	DataType,
+	FetchMissedMessagesChannelRequest,
 	HubClientOptions,
 	MessageData,
+	MissedMessagesDelivery,
 	RPCFunctionArgs,
 	SetClientIdData,
 	StorageType,
@@ -36,12 +38,17 @@ class HubClient {
 	channelMessageHandlers: Record<string, ChannelHandler[]>;
 	channels: string[];
 	channelOptions: Record<string, ChannelOptions | null>;
+	lastMessageIds: Record<string, string | number>;
+	autoFetchMissedMessages: boolean;
+	missedMessagesDelivery: MissedMessagesDelivery;
 
 	constructor({
 		url,
 		sarusConfig,
 		clientIdKey,
 		storageType,
+		autoFetchMissedMessages,
+		missedMessagesDelivery,
 	}: HubClientOptions) {
 		if (!sarusConfig) sarusConfig = { url };
 		if (!sarusConfig.url) sarusConfig.url = url;
@@ -51,15 +58,19 @@ class HubClient {
 		this.rpc = new RPC({ sarus: this.sarus });
 		this.clientIdKey = clientIdKey || "sarus-client-id";
 		this.storageType = storageType || "localStorage";
+		this.autoFetchMissedMessages = autoFetchMissedMessages ?? false;
+		this.missedMessagesDelivery = missedMessagesDelivery ?? "individual";
 		this.enableClientIdentifcation();
 		this.subscribe = this.subscribe.bind(this);
 		this.unsubscribe = this.unsubscribe.bind(this);
 		this.publish = this.publish.bind(this);
+		this.fetchMissedMessages = this.fetchMissedMessages.bind(this);
 		this.resubscribeOnReconnect = this.resubscribeOnReconnect.bind(this);
 		this.isConnected = this.isConnected.bind(this);
 		this.channelMessageHandlers = {};
 		this.channels = [];
 		this.channelOptions = {};
+		this.lastMessageIds = {};
 		this.sarus.on("open", this.resubscribeOnReconnect);
 	}
 
@@ -90,6 +101,9 @@ class HubClient {
 		for await (const channel of this.channels) {
 			const opts = this.channelOptions[channel];
 			await this.subscribe(channel, opts || {});
+		}
+		if (this.autoFetchMissedMessages) {
+			await this.fetchMissedMessages();
 		}
 	}
 
@@ -187,6 +201,8 @@ class HubClient {
 			if (type === "event" && action === "message") {
 				const { channel, message } = data as MessageData;
 
+				this.trackLastMessageId(channel, message);
+
 				const handlers = this.channelMessageHandlers[channel];
 				if (handlers) {
 					for (const func of handlers as ChannelHandler[]) {
@@ -226,16 +242,61 @@ class HubClient {
 	}
 
 	/*
+		This function tracks the id of the last message received for a channel,
+		using the getMessageId function passed in the channel's subscribe options
+		(if one was provided). This is used by fetchMissedMessages to indicate to
+		the server where to resume from after a reconnect.
+	*/
+	trackLastMessageId(channel: string, message: DataType) {
+		const getMessageId = this.channelOptions[channel]?.getMessageId;
+		if (!getMessageId) return;
+		const id = getMessageId(message);
+		if (id !== undefined && id !== null) this.lastMessageIds[channel] = id;
+	}
+
+	/*
 		This function subscribes the client to a channel.
 	*/
 	async subscribe(channel: string, opts?: ChannelOptions) {
+		const { getMessageId, ...channelSubscribeData } = opts || {};
 		const request = {
 			action: "subscribe",
-			data: { channel, ...(opts || {}) },
+			data: { channel, ...channelSubscribeData },
 		};
 		const response = await this.rpc.send(request);
 		this.addChannel(channel, opts);
 		return response;
+	}
+
+	/*
+		This function asks the server to fetch any messages that were missed
+		while the client was disconnected, for the given channels (defaulting to
+		all of the channels the client is currently subscribed to). The last
+		message id known for each channel (tracked via the channel's
+		getMessageId option) is sent along with the request.
+
+		When delivery is 'individual' (the default), missed messages arrive back
+		through the usual channel message handlers, tagged with `catchup: true`.
+		When delivery is 'bulk', the missed messages are returned directly in
+		the resolved response instead, grouped by channel.
+	*/
+	async fetchMissedMessages(
+		channels: string[] = this.channels,
+		{ delivery }: { delivery?: MissedMessagesDelivery } = {},
+	) {
+		const request = {
+			action: "fetch-missed-messages",
+			data: {
+				channels: channels.map(
+					(channel): FetchMissedMessagesChannelRequest => ({
+						channel,
+						lastMessageId: this.lastMessageIds[channel],
+					}),
+				),
+				delivery: delivery || this.missedMessagesDelivery,
+			},
+		};
+		return await this.rpc.send(request);
 	}
 
 	/*

@@ -2,14 +2,20 @@ import { Given, Then, When } from "@cucumber/cucumber";
 import { delay } from "../../dist/esm/helpers/delay.js";
 import {
 	addAuthenticatedChannelWithPassword,
+	addFetchMissedMessagesHandlerForChannel,
 	clientDoesNotReceiveMessageForChannel,
+	clientFetchesMissedMessagesExpectingAnError,
+	clientFetchesMissedMessagesForChannel,
 	clientIdRequested,
 	clientMakesHelloRPCRequest,
 	clientMakesIncorrecRPCRequest,
+	clientReceivesCatchupMessageForChannel,
 	clientReceivesHelloRPCReply,
 	clientReceivesIncorrectRPCReply,
 	clientReceivesMessageForChannel,
+	clientReceivesMissedMessagesInResponse,
 	clientReceivesSubscribeSuccessReponse,
+	clientReceivesSubscriberError,
 	clientReceivesUnsubscribeSuccessReponse,
 	clientRepliesWithAClientId,
 	clientRepliesWithNoClientId,
@@ -260,4 +266,46 @@ Then(
 Then(
 	"the client should not be subscribed to the channel {string}",
 	clientShouldNotBeSubscribedToChannel,
+);
+
+Given(
+	"the server can supply missed messages for the channel {string} after message id {string}",
+	addFetchMissedMessagesHandlerForChannel,
+);
+
+When(
+	"the client fetches missed messages for the channel {string} since message id {string}",
+	async (channel, lastMessageId) =>
+		await clientFetchesMissedMessagesForChannel(channel, lastMessageId),
+);
+
+When(
+	"the client fetches missed messages for the channel {string} since message id {string} with bulk delivery",
+	async (channel, lastMessageId) =>
+		await clientFetchesMissedMessagesForChannel(
+			channel,
+			lastMessageId,
+			"bulk",
+		),
+);
+
+When(
+	"the client fetches missed messages for the channel {string} since message id {string}, but is not subscribed",
+	async (channel, lastMessageId) =>
+		await clientFetchesMissedMessagesExpectingAnError(channel, lastMessageId),
+);
+
+Then(
+	"the client should receive the message {string} for the channel {string} as a catchup message",
+	clientReceivesCatchupMessageForChannel,
+);
+
+Then(
+	"the client should receive the missed messages for the channel {string} in the response",
+	clientReceivesMissedMessagesInResponse,
+);
+
+Then(
+	"the client should receive an error response saying that they must be subscribed to the channel",
+	clientReceivesSubscriberError,
 );
