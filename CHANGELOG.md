@@ -1,5 +1,24 @@
 # CHANGELOG
 
+### 0.2.17 - Tuesday 4th August, 2026
+
+- Merge pull request #441 from anephenix/ane-140-implement-a-way-to-retrieve-messages-from-a-server-based-on
+- Add support for fetching missed messages after reconnecting (ANE-140)
+- Merge pull request #439 from anephenix/dependabot/npm_and_yarn/puppeteer-25.4.0
+- Merge pull request #440 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.5.6
+- Bump @biomejs/biome from 2.5.5 to 2.5.6
+- Bump puppeteer from 25.3.0 to 25.4.0
+- Merge pull request #437 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.5.5
+- Merge pull request #438 from anephenix/dependabot/npm_and_yarn/publint-0.3.22
+- Bump publint from 0.3.21 to 0.3.22
+- Bump @biomejs/biome from 2.5.4 to 2.5.5
+- Merge pull request #436 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.5.4
+- Merge pull request #435 from anephenix/dependabot/npm_and_yarn/cucumber/cucumber-13.1.1
+- Merge pull request #434 from anephenix/dependabot/npm_and_yarn/terminal-kit-3.1.4
+- Bump @cucumber/cucumber from 13.1.1 to 13.2.0
+- Bump @biomejs/biome from 2.5.3 to 2.5.4
+- Bump terminal-kit from 3.1.3 to 3.1.4
+
 ### 0.2.16 - Thursday 23rd July, 2026
 
 - Merge branch 'master' of github.com:anephenix/hub
