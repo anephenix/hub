@@ -326,6 +326,99 @@ to, which can be inspected here:
 hubClient.channels;
 ```
 
+### Fetching messages that were missed while disconnected
+
+Resubscribing on reconnect only restores the subscription - any messages
+published to a channel while the client was offline are not resent
+automatically. To catch up on those, Hub lets you plug in a function on the
+server that knows how to look up missed messages for a channel (from
+wherever your app stores its message history), and lets the client ask for
+them once it is back online.
+
+##### Registering a handler on the server
+
+```javascript
+const channel = 'news';
+
+const fetchMissedMessages = async ({ clientId, channel, lastMessageId }) => {
+	// lastMessageId is whatever the client last saw for this channel (or
+	// undefined if it never received one). Look up anything published
+	// after that from wherever you store your message history, and return
+	// it as an array of { id, message } objects.
+	const rows = await db.news.findAfter(lastMessageId);
+	return rows.map((row) => ({ id: row.id, message: row.body }));
+};
+
+hub.pubsub.addChannelConfiguration({ channel, fetchMissedMessages });
+```
+
+##### Fetching missed messages from the client
+
+```javascript
+// Defaults to fetching for every channel the client is currently
+// subscribed to
+await hubClient.fetchMissedMessages();
+
+// Or fetch for specific channels only
+await hubClient.fetchMissedMessages(['news']);
+```
+
+By default, each missed message is delivered back to the client one at a
+time through the usual channel message handlers (see
+[Handling messages published for a channel](#handling-messages-published-for-a-channel)),
+tagged with a `catchup` flag so you can tell them apart from live messages if
+you need to:
+
+```javascript
+const newsUpdates = (message, { catchup } = {}) => {
+	console.log({ message, catchup });
+};
+hubClient.addChannelMessageHandler('news', newsUpdates);
+```
+
+If you would rather receive all of the missed messages at once instead of as
+individual events, pass `delivery: 'bulk'` (either per call, or as a default
+for the client):
+
+```javascript
+const { messages } = await hubClient.fetchMissedMessages(['news'], {
+	delivery: 'bulk',
+});
+// messages is keyed by channel: { news: [{ id, message }, ...] }
+```
+
+```javascript
+const hubClient = new HubClient({
+	url: 'ws://localhost:4000',
+	missedMessagesDelivery: 'bulk',
+});
+```
+
+##### Tracking the last message id for a channel
+
+For the client to tell the server where it left off, it needs to know how to
+read an id out of the messages it receives for a channel. Pass a
+`getMessageId` function when subscribing:
+
+```javascript
+await hubClient.subscribe('news', {
+	getMessageId: (message) => message.id,
+});
+```
+
+##### Automatically fetching missed messages on reconnect
+
+If you would rather not call `fetchMissedMessages` manually after every
+reconnect, set `autoFetchMissedMessages` when creating the client, and it
+will be called automatically after the client resubscribes to its channels:
+
+```javascript
+const hubClient = new HubClient({
+	url: 'ws://localhost:4000',
+	autoFetchMissedMessages: true,
+});
+```
+
 ### Handling client / channel subscriptions data
 
 Hub by default will store data about client/channel subscriptions in memory.

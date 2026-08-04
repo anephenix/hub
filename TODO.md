@@ -20,13 +20,13 @@
 -   [x] Kick clients and ban them if required
 -   [x] Be able to support banning at any combination of host, clientId, and ipAddress level (e.g. block all clients from a specific IP address, or clients connecting to a host with a specific clientId).
 -   [x] Convert to TypeScript
+-   [x] Think about how to support message catchup for clients that disconnect and then reconnect.
+-   [x] Implement a way to retrieve messages from a server, based on a key indicator
 
 ### Features to implement
 
 -   [ ] Be able to retrospectively apply new ban rules to connected clients
 -   [ ] Client input scanning
--   [ ] Think about how to support message catchup for clients that disconnect and then reconnect.
--   [ ] Implement a way to retrieve messages from a server, based on a key indicator
 -   [ ] Think about how to publish to all clients, and whether that needs simple support (i.e. hub.pubsub.publishToAll and hubClient.addGlobalMessageHandler)
 -   [ ] A broadcast server api call, with an option to handle on the client
 -   [ ] Think about performance testing

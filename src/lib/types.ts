@@ -16,13 +16,19 @@ type DataType = object | string | number | boolean | null;
 
 type StorageType = "localStorage" | "sessionStorage";
 type ChannelHandler = (message: unknown) => void;
-type ChannelOptions = Record<string, unknown>;
+type MessageIdExtractor = (message: DataType) => string | number;
+type ChannelOptions = Record<string, unknown> & {
+	getMessageId?: MessageIdExtractor;
+};
+type MissedMessagesDelivery = "individual" | "bulk";
 
 interface HubClientOptions {
 	url: string;
 	sarusConfig?: SarusClassParams;
 	clientIdKey?: string;
 	storageType?: StorageType;
+	autoFetchMissedMessages?: boolean;
+	missedMessagesDelivery?: MissedMessagesDelivery;
 }
 
 // RPC
@@ -107,6 +113,7 @@ type SetClientIdData = { clientId: string };
 type MessageData = {
 	channel: string;
 	message: DataType;
+	catchup?: boolean;
 };
 
 // PubSub
@@ -116,6 +123,27 @@ type PublishMessageReceivedParams = {
 	message: DataType;
 	clientId?: string;
 	excludeSender?: boolean;
+};
+
+type MissedMessage = {
+	id: string | number;
+	message: DataType;
+};
+
+type FetchMissedMessagesHandler = (params: {
+	clientId: string;
+	channel: string;
+	lastMessageId?: string | number;
+}) => Promise<MissedMessage[]> | MissedMessage[];
+
+type FetchMissedMessagesChannelRequest = {
+	channel: string;
+	lastMessageId?: string | number;
+};
+
+type FetchMissedMessagesData = {
+	channels: FetchMissedMessagesChannelRequest[];
+	delivery?: MissedMessagesDelivery;
 };
 
 // OriginCheck and IPCheck
@@ -131,8 +159,14 @@ export type {
 	DataStoreInstance,
 	DataStoreType,
 	DataType,
+	FetchMissedMessagesChannelRequest,
+	FetchMissedMessagesData,
+	FetchMissedMessagesHandler,
 	HubClientOptions,
 	MessageData,
+	MessageIdExtractor,
+	MissedMessage,
+	MissedMessagesDelivery,
 	NextFunction,
 	OnMessageFunc,
 	PublishMessageReceivedParams,

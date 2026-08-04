@@ -690,6 +690,142 @@ describe("pubsub", () => {
 		});
 	});
 
+	describe("#fetchMissedMessages", () => {
+		it("should return an error response if the websocket client id is not present", async () => {
+			const messages: unknown[] = [];
+			const client = new WebSocket("ws://localhost:5050");
+			client.onmessage = (event: MessageEvent) => {
+				const message = JSON.parse(event.data);
+				messages.push(message);
+			};
+			const request = {
+				id: uuidv4(),
+				action: "fetch-missed-messages",
+				type: "request",
+				data: { channels: [{ channel: "sport" }] },
+			};
+			await delayUntil(() => client.readyState === 1);
+			client.send(JSON.stringify(request));
+			await delay(50);
+			const latestMessage = messages[messages.length - 1] as {
+				type: string;
+				error: string;
+			};
+			assert.strictEqual(latestMessage.type, "error");
+			assert.strictEqual(
+				latestMessage.error,
+				"No client id was found on the WebSocket",
+			);
+			client.close();
+		});
+
+		it("should return an error response if no channels are passed", async () => {
+			const hubClient = new HubClient({ url: "ws://localhost:5050" });
+			await hubClient.isReady();
+			await assert.rejects(
+				async () => {
+					await hubClient.rpc.send({
+						action: "fetch-missed-messages",
+						data: { channels: [] },
+					});
+				},
+				{ message: "No channels were passed in the data" },
+			);
+			hubClient.sarus.disconnect();
+		});
+
+		it("should not allow fetching missed messages for a channel the client is not subscribed to", async () => {
+			const hubClient = new HubClient({ url: "ws://localhost:5050" });
+			await hubClient.isReady();
+			await assert.rejects(
+				async () => {
+					await hubClient.fetchMissedMessages(["unsubscribed_channel"]);
+				},
+				{
+					message:
+						"You must subscribe to the channel to publish messages to it",
+				},
+			);
+			hubClient.sarus.disconnect();
+		});
+
+		describe("when no fetchMissedMessages handler has been configured for a channel", () => {
+			it("should return successfully with no messages", async () => {
+				const channel = "no_handler_channel";
+				const hubClient = new HubClient({ url: "ws://localhost:5050" });
+				await hubClient.isReady();
+				await hubClient.subscribe(channel);
+				const response = (await hubClient.fetchMissedMessages([channel], {
+					delivery: "bulk",
+				})) as { success: boolean; messages: Record<string, unknown[]> };
+				assert(response.success);
+				assert.deepStrictEqual(response.messages[channel], []);
+				hubClient.sarus.disconnect();
+			});
+		});
+
+		describe("when delivery is 'individual' (the default)", () => {
+			it("should send each missed message back to the client as a catchup message event", async () => {
+				const channel = "sports_catchup";
+				const missedMessages = [
+					{ id: 3, message: "Match postponed" },
+					{ id: 4, message: "New kickoff time confirmed" },
+				];
+				hub.pubsub.addChannelConfiguration({
+					channel,
+					fetchMissedMessages: async ({ lastMessageId }) => {
+						assert.strictEqual(lastMessageId, 2);
+						return missedMessages;
+					},
+				});
+				const hubClient = new HubClient({ url: "ws://localhost:5050" });
+				await hubClient.isReady();
+				await hubClient.subscribe(channel);
+				const received: unknown[] = [];
+				hubClient.addChannelMessageHandler(channel, (message) => {
+					received.push(message);
+				});
+				hubClient.lastMessageIds[channel] = 2;
+				const response = (await hubClient.fetchMissedMessages([channel])) as {
+					success: boolean;
+				};
+				await delayUntil(() => received.length === 2);
+				assert(response.success);
+				assert.deepStrictEqual(received, [
+					"Match postponed",
+					"New kickoff time confirmed",
+				]);
+				hubClient.sarus.disconnect();
+			});
+		});
+
+		describe("when delivery is 'bulk'", () => {
+			it("should return the missed messages directly in the response, grouped by channel, without dispatching them to handlers", async () => {
+				const channel = "weather_catchup";
+				const missedMessages = [{ id: "a", message: "Sunny" }];
+				hub.pubsub.addChannelConfiguration({
+					channel,
+					fetchMissedMessages: async () => missedMessages,
+				});
+				const hubClient = new HubClient({ url: "ws://localhost:5050" });
+				await hubClient.isReady();
+				await hubClient.subscribe(channel);
+				let handlerCalled = false;
+				hubClient.addChannelMessageHandler(channel, () => {
+					handlerCalled = true;
+				});
+				const response = (await hubClient.fetchMissedMessages([channel], {
+					delivery: "bulk",
+				})) as { success: boolean; messages: Record<string, unknown[]> };
+				assert(response.success);
+				assert.deepStrictEqual(response.messages[channel], missedMessages);
+				await delay(50);
+				assert.strictEqual(handlerCalled, false);
+				hubClient.sarus.disconnect();
+			});
+		});
+	});
+
 	describe("dataStore types", () => {
 		it("should use the memory data store by default", () => {
 			assert(hub.pubsub.dataStore instanceof MemoryDataStore);

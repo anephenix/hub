@@ -1,4 +1,3 @@
-import type Sarus from "@anephenix/sarus";
 import type { WebSocketServer } from "ws";
 // Dependencies
 import { encode } from "./dataTransformer.js";
@@ -6,6 +5,10 @@ import type RPC from "./rpc.js";
 import type {
 	DataStoreInstance,
 	DataType,
+	FetchMissedMessagesData,
+	FetchMissedMessagesHandler,
+	MissedMessage,
+	MissedMessagesDelivery,
 	PublishMessageReceivedParams,
 	RPCFunction,
 	RPCFunctionArgs,
@@ -15,6 +18,7 @@ import type {
 const noClientIdError = "No client id was found on the WebSocket";
 const noChannelError = "No channel was passed in the data";
 const noMessageError = "No message was passed in the data";
+const noChannelsError = "No channels were passed in the data";
 const clientMustBeSubscriberError =
 	"You must subscribe to the channel to publish messages to it";
 const tooManyWildcardChannelConfigurationsMatchedError =
@@ -56,6 +60,7 @@ type ChannelConfiguration = {
 	clientCanPublish?:
 		| boolean
 		| ((params: { data: unknown; socket: WebSocketWithClientId }) => boolean);
+	fetchMissedMessages?: FetchMissedMessagesHandler;
 };
 
 interface PubSubConstructorParams {
@@ -81,23 +86,27 @@ class PubSub {
 		this.publishMessageReceived = this.publishMessageReceived.bind(this);
 		this.dataStore.bindOnPublish(this.publishMessageReceived);
 		this.attachPubSubFunction = this.attachPubSubFunction.bind(this);
+		this.fetchMissedMessages = this.fetchMissedMessages.bind(this);
 		this.unsubscribeClientFromAllChannels =
 			this.unsubscribeClientFromAllChannels.bind(this);
 		this.attachRPCFunctions();
 	}
 
-	attachPubSubFunction(pubSubName: "subscribe" | "publish" | "unsubscribe") {
+	attachPubSubFunction(
+		actionName: string,
+		// biome-ignore lint/suspicious/noExplicitAny: the handlers each narrow "data"/"socket" to their own request shape, so a shared dispatch signature can't be expressed structurally
+		method: (params: any) => Promise<unknown>,
+	) {
 		const pubSubFunction: RPCFunction = async ({
 			data,
 			socket,
 			reply,
 		}: RPCFunctionArgs) => {
 			try {
-				const pubSubMethod = this[pubSubName] as (params: {
-					data: unknown;
-					socket: WebSocketWithClientId | Sarus | undefined;
-				}) => Promise<unknown>;
-				const response = await pubSubMethod({ data, socket });
+				const response = await method({
+					data,
+					socket: socket as WebSocketWithClientId | undefined,
+				});
 				reply?.({
 					type: "response",
 					data: response,
@@ -116,13 +125,16 @@ class PubSub {
 				}
 			}
 		};
-		this.rpc.add(pubSubName, pubSubFunction);
+		this.rpc.add(actionName, pubSubFunction);
 	}
 
 	attachRPCFunctions() {
-		const { attachPubSubFunction } = this;
-		(["subscribe", "publish", "unsubscribe"] as const).forEach(
-			attachPubSubFunction,
+		this.attachPubSubFunction("subscribe", this.subscribe);
+		this.attachPubSubFunction("publish", this.publish);
+		this.attachPubSubFunction("unsubscribe", this.unsubscribe);
+		this.attachPubSubFunction(
+			"fetch-missed-messages",
+			this.fetchMissedMessages,
 		);
 	}
 
@@ -368,6 +380,65 @@ class PubSub {
 		});
 	}
 
+	sendCatchupMessageToClient({
+		clientId,
+		channel,
+		message,
+	}: {
+		clientId: string;
+		channel: string;
+		message: DataType;
+	}) {
+		const payload = encode({
+			action: "message",
+			type: "event",
+			data: { channel, message, catchup: true },
+		});
+		for (const client of this.wss.clients) {
+			if ((client as WebSocketWithClientId).clientId === clientId) {
+				client.send(payload);
+			}
+		}
+	}
+
+	async fetchMissedMessages({
+		data,
+		socket,
+	}: {
+		data: FetchMissedMessagesData;
+		socket?: WebSocketWithClientId;
+	}) {
+		const clientId = socket?.clientId;
+		const { channels, delivery = "individual" as MissedMessagesDelivery } =
+			data;
+		if (!clientId) throw new Error(noClientIdError);
+		if (!channels || channels.length === 0) throw new Error(noChannelsError);
+
+		const results: Record<string, MissedMessage[]> = {};
+
+		for await (const { channel, lastMessageId } of channels) {
+			await this.checkClientIsASubscriberToChannel({ clientId, channel });
+			const channelConfiguration = this.getChannelConfiguration(channel);
+			const handler = channelConfiguration?.fetchMissedMessages;
+			const missedMessages = handler
+				? (await handler({ clientId, channel, lastMessageId })) || []
+				: [];
+
+			if (delivery === "bulk") {
+				results[channel] = missedMessages;
+			} else {
+				for (const { message } of missedMessages) {
+					this.sendCatchupMessageToClient({ clientId, channel, message });
+				}
+			}
+		}
+
+		if (delivery === "bulk") {
+			return { success: true, messages: results };
+		}
+		return { success: true, message: "Sent missed messages" };
+	}
+
 	compareWildcardChannelNames({
 		channel,
 		wildcardChannel,
@@ -388,10 +459,12 @@ class PubSub {
 		channel,
 		authenticate,
 		clientCanPublish,
+		fetchMissedMessages,
 	}: {
 		channel: string;
 		authenticate?: ChannelConfiguration["authenticate"];
 		clientCanPublish?: ChannelConfiguration["clientCanPublish"];
+		fetchMissedMessages?: ChannelConfiguration["fetchMissedMessages"];
 	}) {
 		const wildCardChannelConfigurations = Object.keys(
 			this.channelConfigurations,
@@ -403,6 +476,7 @@ class PubSub {
 		this.channelConfigurations[channel] = {
 			authenticate,
 			clientCanPublish,
+			fetchMissedMessages,
 		};
 	}
 
